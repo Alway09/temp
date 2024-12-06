@@ -1,0 +1,170 @@
+#include "SceneObject.h"
+
+//==============================================================================
+SceneObject::SceneObject(SamplesHolder * const samplesHolder) : samplesHolder(samplesHolder)
+{
+    
+}
+
+SceneObject::~SceneObject() {
+    attributes.reset();
+}
+
+void SceneObject::reset(OpenGLShaderProgram& shaderProgram) {
+    attributes.reset(new Attributes(shaderProgram));
+}
+
+void SceneObject::draw()
+{
+    using namespace ::juce::gl;
+    
+    if(!vertexBuffer.initialized) {
+        vertexBuffer.initialize();
+    }
+    
+    fillBuffers();
+
+    vertexBuffer.bind();
+        
+    attributes->enable();
+    switch (config.source) {
+        case SceneObject::Config::DrawSource::Vertices:
+            glDrawArrays(config.primitiveType, 0, vertexBuffer.numVertices);
+            break;
+        case SceneObject::Config::DrawSource::Indices:
+            glDrawElements (config.primitiveType, vertexBuffer.numIndices, GL_UNSIGNED_INT, nullptr);
+            break;
+    }
+    attributes->disable();
+}
+
+void SceneObject::putVertices(Array<Vertex> vertices) {
+    vertexBuffer.putVertices(vertices);
+}
+void SceneObject::putIndices(juce::uint32* indices, int numIndices) {
+    vertexBuffer.putIndices(indices, numIndices);
+}
+//==============================================================================
+SceneObject::VertexBuffer::VertexBuffer()
+{
+    //using namespace ::juce::gl;
+    
+    //context->makeActive();
+    
+    //glGenBuffers (1, &vertexBuffer);
+    //glGenBuffers (1, &indexBuffer);
+}
+
+void SceneObject::VertexBuffer::initialize() {
+    using namespace ::juce::gl;
+    glGenBuffers (1, &vertexBuffer);
+    glGenBuffers (1, &indexBuffer);
+    
+    initialized = true;
+    
+    Array<Vertex> vertices;
+    for(int i = 0; i < 4410; ++i) {
+        vertices.add({{0.f, 0.f, 0.f},
+            {0.5f, 0.5f, 0.5f},
+            {1.f, 1.f, 1.f, 1.f},
+            {2.f, 2.f}});
+    }
+    putVertices(vertices);
+}
+
+SceneObject::VertexBuffer::~VertexBuffer()
+{
+    using namespace ::juce::gl;
+
+    //context->makeActive();
+    if(initialized) {
+        glDeleteBuffers (1, &vertexBuffer);
+        glDeleteBuffers (1, &indexBuffer);
+    }
+}
+
+void SceneObject::VertexBuffer::putIndices(juce::uint32 *indices, int numIndices) {
+    using namespace ::juce::gl;
+    
+    if(initialized) {
+        const ScopedLock lock (mutex);
+        //context->makeActive();
+        this->numIndices = numIndices;
+        glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+        glBufferData (GL_ELEMENT_ARRAY_BUFFER,
+                      static_cast<GLsizeiptr> (static_cast<size_t> (numIndices) * sizeof (juce::uint32)),
+                      indices, GL_STREAM_DRAW);
+    }
+    
+}
+
+void SceneObject::VertexBuffer::putVertices(Array<Vertex> vertices) {
+    using namespace ::juce::gl;
+    
+    if(initialized) {
+        const ScopedLock lock (mutex);
+        //context->makeActive();
+        numVertices = vertices.size();
+        glBindBuffer (GL_ARRAY_BUFFER, vertexBuffer);
+        glBufferData (GL_ARRAY_BUFFER,
+                      static_cast<GLsizeiptr> (static_cast<size_t> (numVertices) * sizeof (Vertex)),
+                      vertices.getRawDataPointer(), GL_STREAM_DRAW);
+    }
+    
+}
+
+void SceneObject::VertexBuffer::bind()
+{
+    using namespace ::juce::gl;
+
+    glBindBuffer (GL_ARRAY_BUFFER, vertexBuffer);
+    glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+}
+
+//==============================================================================
+SceneObject::Attributes::Attributes(OpenGLShaderProgram& shaderProgram)
+{
+    position      .reset (createAttribute (shaderProgram, "position"));
+    normal        .reset (createAttribute (shaderProgram, "normal"));
+    sourceColour  .reset (createAttribute (shaderProgram, "sourceColour"));
+    textureCoordIn.reset (createAttribute (shaderProgram, "textureCoordIn"));
+}
+
+void SceneObject::Attributes::enable()
+{
+    using namespace ::juce::gl;
+
+    if (position.get() != nullptr)
+    {
+        glVertexAttribPointer (position->attributeID, 3, GL_FLOAT, GL_FALSE, sizeof (Vertex), nullptr);
+        glEnableVertexAttribArray (position->attributeID);
+    }
+
+    if (normal.get() != nullptr)
+    {
+        glVertexAttribPointer (normal->attributeID, 3, GL_FLOAT, GL_FALSE, sizeof (Vertex), (GLvoid*) (sizeof (float) * 3));
+        glEnableVertexAttribArray (normal->attributeID);
+    }
+
+    if (sourceColour.get() != nullptr)
+    {
+        glVertexAttribPointer (sourceColour->attributeID, 4, GL_FLOAT, GL_FALSE, sizeof (Vertex), (GLvoid*) (sizeof (float) * 6));
+        glEnableVertexAttribArray (sourceColour->attributeID);
+    }
+
+    if (textureCoordIn.get() != nullptr)
+    {
+        glVertexAttribPointer (textureCoordIn->attributeID, 2, GL_FLOAT, GL_FALSE, sizeof (Vertex), (GLvoid*) (sizeof (float) * 10));
+        glEnableVertexAttribArray (textureCoordIn->attributeID);
+    }
+}
+
+void SceneObject::Attributes::disable()
+{
+    using namespace ::juce::gl;
+
+    if (position != nullptr)       glDisableVertexAttribArray (position->attributeID);
+    if (normal != nullptr)         glDisableVertexAttribArray (normal->attributeID);
+    if (sourceColour != nullptr)   glDisableVertexAttribArray (sourceColour->attributeID);
+    if (textureCoordIn != nullptr) glDisableVertexAttribArray (textureCoordIn->attributeID);
+}

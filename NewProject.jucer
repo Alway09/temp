@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="hXw1JC" name="NewProject" projectType="guiapp" useAppConfig="0"
+              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
+  <MAINGROUP id="fvNlcM" name="NewProject">
+    <GROUP id="{EFF76EA7-A7FD-C9AA-03ED-361CC0D4FEFC}" name="Source">
+      <FILE id="C0Mfnz" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
+      <FILE id="cKD3me" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
+      <FILE id="IkYUTG" name="MainComponent.cpp" compile="1" resource="0"
+            file="Source/MainComponent.cpp"/>
+      <FILE id="vKwQOY" name="GlobalOptionsComponent.h" compile="0" resource="0"
+            file="Source/GlobalOptionsComponent.h"/>
+      <FILE id="eyXZgL" name="GlobalOptionsComponent.cpp" compile="1" resource="0"
+            file="Source/GlobalOptionsComponent.cpp"/>
+      <GROUP id="{D6DD7CEF-2611-8F31-B38B-CD9A33E0AD3A}" name="Scene">
+        <GROUP id="{94D3361A-3677-DE41-99F7-0C05D9F8E04B}" name="GUI">
+          <FILE id="qAAEea" name="SceneEditor.h" compile="0" resource="0" file="Source/SceneEditor.h"/>
+          <FILE id="MmWiNU" name="SceneEditor.cpp" compile="1" resource="0" file="Source/SceneEditor.cpp"/>
+          <FILE id="nIrRzm" name="SceneWrapperComponent.cpp" compile="1" resource="0"
+                file="Source/SceneWrapperComponent.cpp"/>
+          <FILE id="fn5d11" name="SceneWrapperComponent.h" compile="0" resource="0"
+                file="Source/SceneWrapperComponent.h"/>
+          <FILE id="OL6ChZ" name="SceneManagerComponent.h" compile="0" resource="0"
+                file="Source/SceneManagerComponent.h"/>
+          <FILE id="J46RgP" name="SceneManagerComponent.cpp" compile="1" resource="0"
+                file="Source/SceneManagerComponent.cpp"/>
+        </GROUP>
+        <GROUP id="{2776FDA7-0309-2B4F-1FB1-01C8E1453026}" name="SceneObjectRealisation">
+          <FILE id="YVlHYn" name="WaveformSceneObject.h" compile="0" resource="0"
+                file="Source/WaveformSceneObject.h"/>
+          <FILE id="Zc40Qj" name="WaveformSceneObject.cpp" compile="1" resource="0"
+                file="Source/WaveformSceneObject.cpp"/>
+        </GROUP>
+        <FILE id="b2XhlG" name="SceneManager.h" compile="0" resource="0" file="Source/SceneManager.h"/>
+        <FILE id="WqmuI7" name="SceneManager.cpp" compile="1" resource="0"
+              file="Source/SceneManager.cpp"/>
+        <FILE id="mur56A" name="Scene.h" compile="0" resource="0" file="Source/Scene.h"/>
+        <FILE id="xmK02T" name="Scene.cpp" compile="1" resource="0" file="Source/Scene.cpp"/>
+        <FILE id="A5r8B2" name="SceneObject.h" compile="0" resource="0" file="Source/SceneObject.h"/>
+        <FILE id="n4rPiO" name="SceneObject.cpp" compile="1" resource="0" file="Source/SceneObject.cpp"/>
+      </GROUP>
+      <FILE id="NBhaPk" name="WaveformComponent.cpp" compile="1" resource="0"
+            file="Source/WaveformComponent.cpp"/>
+      <FILE id="VV3ySw" name="WaveformComponent.h" compile="0" resource="0"
+            file="Source/WaveformComponent.h"/>
+      <GROUP id="{0358BA39-20DC-3C3A-C2AD-8180A17FFE51}" name="Util">
+        <FILE id="d75esY" name="EventsDelegator.h" compile="0" resource="0"
+              file="Source/EventsDelegator.h"/>
+        <FILE id="rkddvu" name="CommandManagerHolder.h" compile="0" resource="0"
+              file="Source/CommandManagerHolder.h"/>
+        <FILE id="fzmqAt" name="SamplesHolder.h" compile="0" resource="0" file="Source/SamplesHolder.h"/>
+        <FILE id="on6WAe" name="CircularArray.h" compile="0" resource="0" file="Source/CircularArray.h"/>
+      </GROUP>
+      <GROUP id="{E8B4D8A2-1EDA-962C-8EBE-4A1F8B1F8920}" name="Test">
+        <FILE id="NoNN27" name="SamplesHolderUnitTest.h" compile="0" resource="0"
+              file="Source/SamplesHolderUnitTest.h"/>
+        <FILE id="Lvw3kk" name="TestRunnerComponent.h" compile="0" resource="0"
+              file="Source/TestRunnerComponent.h"/>
+      </GROUP>
+    </GROUP>
+  </MAINGROUP>
+  <MODULES>
+    <MODULE id="juce_animation" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+  </MODULES>
+  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
+  <EXPORTFORMATS>
+    <XCODE_MAC targetFolder="Builds/MacOSX" hardenedRuntime="1" microphonePermissionNeeded="1"
+               hardenedRuntimeOptions="com.apple.security.device.audio-input">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="NewProject" defines="TESTS_ENABLED"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="NewProject"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_core" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_opengl" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_animation" path="../../JUCE/modules"/>
+      </MODULEPATHS>
+    </XCODE_MAC>
+  </EXPORTFORMATS>
+</JUCERPROJECT>
