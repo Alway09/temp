@@ -4,15 +4,15 @@
 
 using namespace juce;
 
-class Scene : public OpenGLAppComponent
+class Scene : public ResizableWindow
 {
 public:
     Scene(ValueTree treeAttachTo);
     ~Scene() override;
     
-    void initialise() override;
-    void shutdown() override;
-    void render() override;
+    void initialise();
+    void shutdown();
+    void render();
     
     void resized() override;
     void paint(Graphics& g) override;
@@ -29,7 +29,7 @@ public:
     
     Identifier& getIdentifier() { return identifier; }
     
-    void mouseDoubleClick(const MouseEvent& e) override
+    /*void mouseDoubleClick(const MouseEvent& e) override
     {
         getParentComponent()->mouseDoubleClick(e);
     }
@@ -55,8 +55,17 @@ public:
     
     void mouseUp(const MouseEvent& e) override {
         getParentComponent()->mouseUp(e);
-    }
+    }*/
 private:
+    void changeBounds() {
+        const ScopedLock lock (mutex);
+        //bounds = getLocalBounds();
+        bounds = getBoundsInParent();
+    }
+    void moved() override {
+        ResizableWindow::moved();
+        changeBounds();
+    }
     //==============================================================================
     struct Uniforms
     {

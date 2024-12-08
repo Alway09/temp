@@ -19,6 +19,9 @@ public:
     
     Uuid createScene();
     Scene * const getScene(Uuid sceneID) const;
+    HashMap<Uuid, Scene*>& getAllScenes() {
+        return scenes;
+    }
     
     void createSceneObject(Uuid sceneID, SceneObjectRealisation realisation);
 private:

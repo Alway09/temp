@@ -7,7 +7,7 @@
 
 using namespace juce;
 
-class SceneManagerComponent : public Component, public ActionListener, public ApplicationCommandTarget, public Button::Listener, public ComponentListener
+class SceneManagerComponent : public OpenGLAppComponent, public ActionListener, public ApplicationCommandTarget, public Button::Listener
 {
 public:
     SceneManagerComponent(SamplesHolder * const samplesHolder, ValueTree valueTree) : sceneManager(samplesHolder, valueTree)
@@ -28,10 +28,39 @@ public:
     
     ~SceneManagerComponent()
     {
+        shutdownOpenGL();
         for(auto sc : scenes) {
             sc->removeAllActionListeners();
         }
     }
+    
+    void initialise() override {
+        for(auto ID : tmpID) {
+            sceneManager.getScene(ID)->initialise();
+        }
+    }
+    
+    void shutdown() override {
+        for(auto ID : tmpID) {
+            sceneManager.getScene(ID)->shutdown();
+        }
+    }
+    
+    void render() override {
+        using namespace ::juce::gl;
+        int counter = 0;
+        OpenGLHelpers::clear (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
+        glEnable (GL_BLEND);
+        glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        for(auto ID : tmpID) {
+            //if(counter > 0)
+                sceneManager.getScene(ID)->render();
+            
+            ++counter;
+        }
+    }
+    
+    void paint(Graphics&) override {};
     
     void resized() override
     {
@@ -127,23 +156,26 @@ public:
         return false;
     }
     
-    void componentMovedOrResized (Component &component, bool wasMoved, bool wasResized) override {
-        if(wasMoved) {
-            DBG("MOVED");
-            component.toFront(true);
-        }
-    }
-    
 private:
     Component* createScene() {
-        Uuid scID = sceneManager.createScene();
+        /*Uuid scID = sceneManager.createScene();
         sceneManager.createSceneObject(scID, SceneObjectRealisation::Waveform);
         auto sc = new SceneWrapperComponent(sceneManager.getScene(scID), scID);
         scenes.add(sc);
         sc->addActionListener(this);
+        openGLContext.executeOnGLThread([this, &scID](OpenGLContext&){ sceneManager.getScene(scID)->initialise();}, false);
         addAndMakeVisible(sc);
         //sc->addToDesktop();
-        //sc->getPeer()->setAlwaysOnTop(true);
+        //sc->getPeer()->setAlwaysOnTop(true);*/
+        
+        Uuid tmp = sceneManager.createScene();
+        sceneManager.createSceneObject(tmp, SceneObjectRealisation::Waveform);
+        Scene* sc = sceneManager.getScene(tmp);
+        openGLContext.executeOnGLThread([&sc](OpenGLContext&){ sc->initialise();}, true);
+        addAndMakeVisible(sc);
+        sc->setResizable(true, true);
+        tmpID.add(tmp);
+        
         return sc;
     }
     
@@ -154,6 +186,7 @@ private:
     
     SceneManager sceneManager;
     OwnedArray<SceneWrapperComponent> scenes;
+    Array<Uuid> tmpID;
     //Grid scenesGrid;
     SceneEditor sceneEditor;
     TextButton button{"+"};
