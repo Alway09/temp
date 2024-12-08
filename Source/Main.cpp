@@ -71,7 +71,7 @@ public:
             setFullScreen (true);
            #else
             setResizable (true, true);
-            setResizeLimits(800, 800, std::numeric_limits<int>::max(), std::numeric_limits<int>::max());
+            setResizeLimits(300, 300, std::numeric_limits<int>::max(), std::numeric_limits<int>::max());
             centreWithSize (getWidth(), getHeight());
            #endif
 

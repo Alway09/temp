@@ -61,6 +61,8 @@ private:
         const ScopedLock lock (mutex);
         //bounds = getLocalBounds();
         bounds = getBoundsInParent();
+        parentHeight = getParentHeight();
+        parentWidth = getParentWidth();
     }
     void moved() override {
         ResizableWindow::moved();
@@ -97,6 +99,8 @@ private:
     String newVertexShader, newFragmentShader;
     
     Rectangle<int> bounds;
+    int parentHeight;
+    int parentWidth;
     CriticalSection mutex;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Scene)

@@ -42,8 +42,9 @@ void Scene::render()
 
     {
         const ScopedLock lock (mutex);
+        float ratio = (float) bounds.getHeight() / parentHeight;
         glViewport (roundToInt(desktopScale * (float) bounds.getX()),
-                    roundToInt(desktopScale * (float) bounds.getY()),
+                    roundToInt(desktopScale * (float) (parentHeight - bounds.getHeight() - bounds.getY())),
                     roundToInt(desktopScale * (float) bounds.getWidth()),
                     roundToInt(desktopScale * (float) bounds.getHeight()));
     }
