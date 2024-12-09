@@ -169,6 +169,7 @@ private:
         //sc->getPeer()->setAlwaysOnTop(true);*/
         
         Uuid tmp = sceneManager.createScene();
+        sceneManager.createSceneObject(tmp, SceneObjectRealisation::Background);
         sceneManager.createSceneObject(tmp, SceneObjectRealisation::Waveform);
         Scene* sc = sceneManager.getScene(tmp);
         openGLContext.executeOnGLThread([&sc](OpenGLContext&){ sc->initialise();}, true);

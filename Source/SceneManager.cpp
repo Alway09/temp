@@ -30,9 +30,17 @@ void SceneManager::createSceneObject(Uuid sceneID, SceneObjectRealisation realis
     
     switch (realisation) {
         case SceneObjectRealisation::Waveform:
-            WaveformSceneObject * obj = new WaveformSceneObject(samplesHolder);
-            valueTree.addListener(obj);
-            scene->createObject(obj);
+        {
+            WaveformSceneObject * wf = new WaveformSceneObject(samplesHolder);
+            valueTree.addListener(wf);
+            scene->createObject(wf);
             break;
+        }
+        case SceneObjectRealisation::Background:
+        {
+            BackgroundSceneObject* bg = new BackgroundSceneObject(samplesHolder);
+            scene->createObject(bg);
+            break;
+        }
     }
 }

@@ -26,6 +26,10 @@
                 file="Source/SceneManagerComponent.cpp"/>
         </GROUP>
         <GROUP id="{2776FDA7-0309-2B4F-1FB1-01C8E1453026}" name="SceneObjectRealisation">
+          <FILE id="xHnySC" name="BackgroundSceneObject.cpp" compile="1" resource="0"
+                file="Source/BackgroundSceneObject.cpp"/>
+          <FILE id="JKAFDZ" name="BackgroundSceneObject.h" compile="0" resource="0"
+                file="Source/BackgroundSceneObject.h"/>
           <FILE id="YVlHYn" name="WaveformSceneObject.h" compile="0" resource="0"
                 file="Source/WaveformSceneObject.h"/>
           <FILE id="Zc40Qj" name="WaveformSceneObject.cpp" compile="1" resource="0"

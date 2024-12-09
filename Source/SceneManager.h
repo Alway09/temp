@@ -3,12 +3,14 @@
 #include "Scene.h"
 #include "SamplesHolder.h"
 #include "WaveformSceneObject.h"
+#include "BackgroundSceneObject.h"
 
 using namespace juce;
 
 enum SceneObjectRealisation
 {
-    Waveform
+    Waveform,
+    Background
 };
 
 class SceneManager

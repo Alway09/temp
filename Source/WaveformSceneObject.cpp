@@ -4,16 +4,18 @@ WaveformSceneObject::WaveformSceneObject(SamplesHolder* samplesHolder) : SceneOb
 {
     config.source = SceneObject::Config::DrawSource::Vertices;
     config.primitiveType = SceneObject::Config::DrawPrimitiveType::Lines;
+    config.drawBufferUsage = SceneObject::Config::DrawBufferUsage::Stream;
     
     vertices.resize(4410);
     
     
-    for(int i = 0; i < 4410; ++i) {
+    /*for(int i = 0; i < 4410; ++i) {
         vertices.add({{0.f, 0.f, 0.f},
             {0.5f, 0.5f, 0.5f},
             {1.f, 1.f, 1.f, 1.f},
             {2.f, 2.f}});
-    }
+    }*/
+    needToUpdateBuffer = true;
 }
 
 void WaveformSceneObject::fillBuffers() {
@@ -24,7 +26,7 @@ void WaveformSceneObject::fillBuffers() {
     while(iter.hasNext()) {
         vertices.add({{-1.f + counter * step, iter.getNext() * gain,  0.f},
             {0.5f, 0.5f, 0.5f},
-            {1.f, 1.f, 1.f, 1.f},
+            {0.95f, 0.57f, 0.03f, 0.7f},
             {2.f, 2.f}});
         counter += 1;
     }

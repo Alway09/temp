@@ -22,7 +22,9 @@ void SceneObject::draw()
         vertexBuffer.initialize();
     }
     
-    fillBuffers();
+    if(needToUpdateBuffer) {
+        fillBuffers();
+    }
 
     vertexBuffer.bind();
         
@@ -39,20 +41,15 @@ void SceneObject::draw()
 }
 
 void SceneObject::putVertices(Array<Vertex> vertices) {
-    vertexBuffer.putVertices(vertices);
+    vertexBuffer.putVertices(vertices, config.drawBufferUsage);
 }
 void SceneObject::putIndices(juce::uint32* indices, int numIndices) {
-    vertexBuffer.putIndices(indices, numIndices);
+    vertexBuffer.putIndices(indices, numIndices, config.drawBufferUsage);
 }
 //==============================================================================
 SceneObject::VertexBuffer::VertexBuffer()
 {
-    //using namespace ::juce::gl;
-    
-    //context->makeActive();
-    
-    //glGenBuffers (1, &vertexBuffer);
-    //glGenBuffers (1, &indexBuffer);
+
 }
 
 void SceneObject::VertexBuffer::initialize() {
@@ -62,53 +59,52 @@ void SceneObject::VertexBuffer::initialize() {
     
     initialized = true;
     
-    Array<Vertex> vertices;
+    /*Array<Vertex> vertices;
     for(int i = 0; i < 4410; ++i) {
         vertices.add({{0.f, 0.f, 0.f},
             {0.5f, 0.5f, 0.5f},
             {1.f, 1.f, 1.f, 1.f},
             {2.f, 2.f}});
     }
-    putVertices(vertices);
+    putVertices(vertices);*/
 }
 
 SceneObject::VertexBuffer::~VertexBuffer()
 {
     using namespace ::juce::gl;
 
-    //context->makeActive();
     if(initialized) {
         glDeleteBuffers (1, &vertexBuffer);
         glDeleteBuffers (1, &indexBuffer);
     }
 }
 
-void SceneObject::VertexBuffer::putIndices(juce::uint32 *indices, int numIndices) {
+void SceneObject::VertexBuffer::putIndices(juce::uint32 *indices, int numIndices, SceneObject::Config::DrawBufferUsage drawBufferUsage) {
     using namespace ::juce::gl;
     
     if(initialized) {
         const ScopedLock lock (mutex);
-        //context->makeActive();
+        
         this->numIndices = numIndices;
         glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
         glBufferData (GL_ELEMENT_ARRAY_BUFFER,
                       static_cast<GLsizeiptr> (static_cast<size_t> (numIndices) * sizeof (juce::uint32)),
-                      indices, GL_STREAM_DRAW);
+                      indices, drawBufferUsage);
     }
     
 }
 
-void SceneObject::VertexBuffer::putVertices(Array<Vertex> vertices) {
+void SceneObject::VertexBuffer::putVertices(Array<Vertex> vertices, SceneObject::Config::DrawBufferUsage drawBufferUsage) {
     using namespace ::juce::gl;
     
     if(initialized) {
         const ScopedLock lock (mutex);
-        //context->makeActive();
+        
         numVertices = vertices.size();
         glBindBuffer (GL_ARRAY_BUFFER, vertexBuffer);
         glBufferData (GL_ARRAY_BUFFER,
                       static_cast<GLsizeiptr> (static_cast<size_t> (numVertices) * sizeof (Vertex)),
-                      vertices.getRawDataPointer(), GL_STREAM_DRAW);
+                      vertices.getRawDataPointer(), drawBufferUsage);
     }
     
 }

@@ -103,5 +103,7 @@ private:
     int parentWidth;
     CriticalSection mutex;
     
+    TextButton button;
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Scene)
 };

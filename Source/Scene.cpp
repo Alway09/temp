@@ -5,6 +5,8 @@ Scene::Scene(ValueTree treeAttachTo) : ResizableWindow("Scene", false)
     identifier = Uuid().toString();
     valueTree = treeAttachTo.getOrCreateChildWithName(identifier, nullptr);
     
+    setOpaque(false);
+    
     //openGLContext.detach();
     //openGLContext.setComponentPaintingEnabled(false);// ??? мерцает отображение
     //openGLContext.attachTo(*this);
@@ -42,7 +44,6 @@ void Scene::render()
 
     {
         const ScopedLock lock (mutex);
-        float ratio = (float) bounds.getHeight() / parentHeight;
         glViewport (roundToInt(desktopScale * (float) bounds.getX()),
                     roundToInt(desktopScale * (float) (parentHeight - bounds.getHeight() - bounds.getY())),
                     roundToInt(desktopScale * (float) bounds.getWidth()),
@@ -121,7 +122,7 @@ void Scene::createShaders()
        #else
         "    vec4 colour = vec4(0.95, 0.57, 0.03, 0.7);\n"
        #endif
-        "    gl_FragColor = colour;\n"
+        "    gl_FragColor = destinationColour;\n"
         "}\n";
 
     OpenGLContext* currentContext = OpenGLContext::getCurrentContext();
@@ -154,7 +155,7 @@ void Scene::resized()
 }
 
 void Scene::paint(Graphics &g) {
-    g.drawRect(getLocalBounds(), 5);
+    //g.drawRect(getLocalBounds(), 5);
 }
 
 //==============================================================================

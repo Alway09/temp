@@ -37,9 +37,15 @@ protected:
             Lines = gl::GL_LINE_STRIP,
             Triangles = gl::GL_TRIANGLES
         } primitiveType = Lines;
+        
+        enum DrawBufferUsage {
+            Stream = gl::GL_STREAM_DRAW,
+            Static = gl::GL_STATIC_DRAW
+        } drawBufferUsage = Stream;
     } config;
     
     SamplesHolder * const samplesHolder;
+    bool needToUpdateBuffer = false;
 private:
     //==============================================================================
     class Attributes
@@ -68,8 +74,8 @@ private:
         
         void initialize();
 
-        void putVertices(Array<Vertex> vertices);
-        void putIndices(juce::uint32* indices, int numIndices);
+        void putVertices(Array<Vertex> vertices, SceneObject::Config::DrawBufferUsage drawBufferUsage);
+        void putIndices(juce::uint32* indices, int numIndices, SceneObject::Config::DrawBufferUsage drawBufferUsage);
         void bind();
 
         GLuint vertexBuffer, indexBuffer;
