@@ -4,11 +4,11 @@
 #include "CommandManagerHolder.h"
 #include "SceneEditor.h"
 #include "SceneComponent.h"
-#include "ScenesRender.h"
+#include "ScenesView.h"
 
 using namespace juce;
 
-class SceneManagerComponent : public Component, public ActionListener, public ApplicationCommandTarget, public Button::Listener
+class SceneManagerComponent : public Component, public ActionListener, public ApplicationCommandTarget, public Button::Listener, public SceneComponent::Listener
 {
 public:
     SceneManagerComponent(SamplesHolder * const samplesHolder, ValueTree valueTree) : sceneManager(samplesHolder, valueTree)
@@ -21,16 +21,15 @@ public:
         sceneEditor.addListener(this);
         addChildComponent(sceneEditor);
         
-        sceneFlex.flexWrap = FlexBox::Wrap::wrap;
-        sceneFlex.justifyContent = FlexBox::JustifyContent::center;
-        sceneFlex.flexDirection = FlexBox::Direction::column;
         
-        scenesRender.reset(new ScenesRender(this));
+        
+        addAndMakeVisible(scenesView);
+        //scenesRender.reset(new ScenesRender(scenesView));
     }
     
     ~SceneManagerComponent()
     {
-        scenesRender.reset();
+        //scenesRender.reset();
     }
     
     void resized() override
@@ -39,14 +38,11 @@ public:
         scenesBound = localBounds.withWidth((localBounds.getWidth() - scenesBoundPadding));
         
         sceneEditor.setBounds(localBounds.removeFromRight(scenesBoundPadding));
-        
-        sceneFlex.performLayout(scenesBound);
-        
+        scenesView.setBounds(scenesBound);
     }
     
     void actionListenerCallback (const String &message) override
     {
-        //DBG(message);
         if(!sceneEditor.isVisible()) {
             sceneEditor.setVisible(true);
             scenesBoundPadding = 300;
@@ -83,33 +79,30 @@ public:
     }
     
     bool perform (const InvocationInfo &info) override {
-        static int min = 200;
-        static int amountLimit = 6;
         if(info.commandID == Commands::addScene) {
-            if(sceneFlex.items.size() < amountLimit)
-            {
-                FlexItem fi{*createScene()};
-                sceneFlex.items.add(fi.withMinWidth(min).withMinHeight(min).withFlex(1.f, 4.f, 1.f));
-                
-                resized();
-            } else {
-                DBG("Scenes limit exceeded");
-            }
-            
+            scenesView.addScene(createScene());
             return true;
         }
         
         return false;
     }
     
+    void sceneMouseClicked(Scene* sc) override {
+        if(!sceneEditor.isVisible()) {
+            sceneEditor.setVisible(true);
+            scenesBoundPadding = 300;
+            resized();
+        }
+        
+        sceneEditor.attach(sc);
+    }
+    
 private:
-    Component* createScene() {
+    SceneComponent* createScene() {
         Uuid tmp = sceneManager.createScene();
         Scene* sc = sceneManager.getScene(tmp);
-        scenesRender->addScene(sc);
         SceneComponent* scComp = new SceneComponent(sc);
-        scComp->setSceneListener(scenesRender.get());
-        addAndMakeVisible(scComp);
+        scComp->addSceneListener(this);
         sceneComponents.add(scComp);
         scComp->setResizable(true, true);
         
@@ -123,10 +116,11 @@ private:
     
     SceneManager sceneManager;
     OwnedArray<SceneComponent> sceneComponents;
+    ScenesView scenesView;
     SceneEditor sceneEditor;
     TextButton button{"+"};
     FlexBox sceneFlex;
     int scenesBoundPadding = 0;
     Rectangle<int> scenesBound;
-    std::unique_ptr<ScenesRender> scenesRender;
+    //std::unique_ptr<ScenesRender> scenesRender;
 };

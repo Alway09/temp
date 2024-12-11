@@ -8,10 +8,11 @@ using namespace juce;
 class ScenesRender : public OpenGLRenderer, public SceneComponent::Listener
 {
 public:
-    ScenesRender(Component* componentAttachTo)
+    ScenesRender(Component& componentAttachTo)
     {
         context.setRenderer(this);
-        context.attachTo (*componentAttachTo);
+        //context.setComponentPaintingEnabled(false);
+        context.attachTo (componentAttachTo);
         context.setContinuousRepainting (true);
     }
     

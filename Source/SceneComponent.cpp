@@ -3,7 +3,7 @@
 SceneComponent::SceneComponent(Scene* scene) : ResizableWindow("Scene", false), scene(scene)
 {
     setContentOwned(new SceneOverlayComponent(this), false);
-    setOpaque(false);
+    //setOpaque(false);
 }
 
 void SceneComponent::resized() {

@@ -15,24 +15,41 @@ public:
     void moved() override;
     void paint(Graphics&) override {};
     
-    //void initialise() { scene->createShaders(); }
     void shutdown() { scene->shutdown(); }
     void render() { scene->render(); }
+    Scene* getScene() { return scene; }
     
     void mouseDown(const MouseEvent& e) override {
-        if(listener != nullptr) {
+        ResizableWindow::mouseDown(e);
+        
+        for(auto listener : listeners) {
             listener->sceneMouseDown(scene);
         }
-        ResizableWindow::mouseDown(e);
+    }
+    
+    void mouseUp(const MouseEvent& e) override {
+        ResizableWindow::mouseUp(e);
+        
+        if(e.mouseWasClicked()) {
+            for(auto listener : listeners) {
+                listener->sceneMouseClicked(scene);
+            }
+        } else {
+            for(auto listener : listeners) {
+                listener->sceneMouseUp(scene);
+            }
+        }
     }
     
     class Listener {
     public:
         virtual ~Listener(){}
-        virtual void sceneMouseDown(Scene* scene) = 0;
+        virtual void sceneMouseDown(Scene* scene){};
+        virtual void sceneMouseUp(Scene* scene){};
+        virtual void sceneMouseClicked(Scene* scene){};
     };
     
-    void setSceneListener(Listener* l) { listener = l; }
+    void addSceneListener(Listener* l) { listeners.add(l); }
     
 private:
     Scene* scene;
@@ -40,5 +57,5 @@ private:
     Rectangle<int> boundsInParent;
     int parentHeight;
     
-    Listener* listener = nullptr;
+    Array<Listener*> listeners;
 };
