@@ -2,7 +2,8 @@
 
 Scene::Scene(ValueTree treeAttachTo)
 {
-    identifier = Uuid().toString();
+    uuidIdentifier = Uuid();
+    identifier = uuidIdentifier.toString();
     valueTree = treeAttachTo.getOrCreateChildWithName(identifier, nullptr);
     
     //openGLContext.detach();
@@ -12,12 +13,7 @@ Scene::Scene(ValueTree treeAttachTo)
 
 Scene::~Scene()
 {
-    shutdownOpenGL();
-}
-
-void Scene::initialise()
-{
-    createShaders();
+    //shutdownOpenGL();
 }
 
 void Scene::shutdown()
@@ -33,20 +29,15 @@ void Scene::render()
 
     jassert (OpenGLHelpers::isContextActive());
 
-    auto desktopScale = (float) openGLContext.getRenderingScale();
-    OpenGLHelpers::clear (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
-    
-    //static Colour transparent;
-    //OpenGLHelpers::clear (transparent);
-
-    glEnable (GL_BLEND);
-    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    OpenGLContext* currentContext = OpenGLContext::getCurrentContext();
+    auto desktopScale = (float) currentContext->getRenderingScale();
 
     {
         const ScopedLock lock (mutex);
-        glViewport (0, 0,
-                    roundToInt (desktopScale * (float) bounds.getWidth()),
-                    roundToInt (desktopScale * (float) bounds.getHeight()));
+        glViewport (roundToInt(desktopScale * (float) bounds.getX()),
+                    roundToInt(desktopScale * (float) (parentHeight - bounds.getHeight() - bounds.getY())),
+                    roundToInt(desktopScale * (float) bounds.getWidth()),
+                    roundToInt(desktopScale * (float) bounds.getHeight()));
     }
 
     shader->use();
@@ -79,7 +70,8 @@ Matrix3D<float> Scene::getProjectionMatrix() const
 Matrix3D<float> Scene::getViewMatrix() const
 {
     auto viewMatrix = Matrix3D<float>::fromTranslation ({ 0.0f, 0.0f, -10.0f });
-    auto rotationMatrix = viewMatrix.rotation ({ -0.3f, 5.0f * std::sin ((float) getFrameCounter() * 0.01f), 0.0f });
+    /*auto rotationMatrix = viewMatrix.rotation ({ -0.3f, 5.0f * std::sin ((float) getFrameCounter() * 0.01f), 0.0f });*/
+    auto rotationMatrix = viewMatrix.rotation ({ -0.3f, 5.0f * std::sin ((float) 1 * 0.01f), 0.0f });
 
     return viewMatrix * rotationMatrix;
 }
@@ -120,10 +112,11 @@ void Scene::createShaders()
        #else
         "    vec4 colour = vec4(0.95, 0.57, 0.03, 0.7);\n"
        #endif
-        "    gl_FragColor = colour;\n"
+        "    gl_FragColor = destinationColour;\n"
         "}\n";
 
-    std::unique_ptr<OpenGLShaderProgram> newShader (new OpenGLShaderProgram (openGLContext));
+    OpenGLContext* currentContext = OpenGLContext::getCurrentContext();
+    std::unique_ptr<OpenGLShaderProgram> newShader (new OpenGLShaderProgram (*currentContext));
     String statusText;
 
     if (newShader->addVertexShader (OpenGLHelpers::translateVertexShaderToV3 (vertexShader))
@@ -145,14 +138,6 @@ void Scene::createShaders()
         statusText = newShader->getLastError();
     }
 }
-
-void Scene::resized()
-{
-    const ScopedLock lock (mutex);
-    bounds = getLocalBounds();
-}
-
-void Scene::paint(Graphics &g) {}
 
 //==============================================================================
 Scene::Uniforms::Uniforms(OpenGLShaderProgram& shaderProgram)

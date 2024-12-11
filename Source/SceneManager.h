@@ -3,12 +3,14 @@
 #include "Scene.h"
 #include "SamplesHolder.h"
 #include "WaveformSceneObject.h"
+#include "BackgroundSceneObject.h"
 
 using namespace juce;
 
 enum SceneObjectRealisation
 {
-    Waveform
+    Waveform,
+    Background
 };
 
 class SceneManager
@@ -22,6 +24,7 @@ public:
     
     void createSceneObject(Uuid sceneID, SceneObjectRealisation realisation);
 private:
+    void createSceneObject(Scene* scene, SceneObjectRealisation realisation);
     HashMap<Uuid, Scene*> scenes;
     SamplesHolder * const samplesHolder;
     ValueTree valueTree;

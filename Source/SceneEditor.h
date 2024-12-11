@@ -10,8 +10,6 @@ class SceneEditor : public Component
 public:
     SceneEditor() 
     {
-        
-        
         addAndMakeVisible(closeButton);
         addAndMakeVisible(headerLabel);
     }

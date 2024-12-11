@@ -14,23 +14,36 @@
             file="Source/GlobalOptionsComponent.cpp"/>
       <GROUP id="{D6DD7CEF-2611-8F31-B38B-CD9A33E0AD3A}" name="Scene">
         <GROUP id="{94D3361A-3677-DE41-99F7-0C05D9F8E04B}" name="GUI">
+          <FILE id="XZEOem" name="ScenesView.cpp" compile="1" resource="0" file="Source/ScenesView.cpp"/>
+          <FILE id="HKVZvm" name="ScenesView.h" compile="0" resource="0" file="Source/ScenesView.h"/>
+          <FILE id="QGObYg" name="SceneComponent.cpp" compile="1" resource="0"
+                file="Source/SceneComponent.cpp"/>
+          <FILE id="hR0wGp" name="SceneComponent.h" compile="0" resource="0"
+                file="Source/SceneComponent.h"/>
+          <FILE id="xdwpOH" name="SceneOverlayComponent.cpp" compile="1" resource="0"
+                file="Source/SceneOverlayComponent.cpp"/>
+          <FILE id="jHN16U" name="SceneOverlayComponent.h" compile="0" resource="0"
+                file="Source/SceneOverlayComponent.h"/>
           <FILE id="qAAEea" name="SceneEditor.h" compile="0" resource="0" file="Source/SceneEditor.h"/>
           <FILE id="MmWiNU" name="SceneEditor.cpp" compile="1" resource="0" file="Source/SceneEditor.cpp"/>
-          <FILE id="nIrRzm" name="SceneWrapperComponent.cpp" compile="1" resource="0"
-                file="Source/SceneWrapperComponent.cpp"/>
-          <FILE id="fn5d11" name="SceneWrapperComponent.h" compile="0" resource="0"
-                file="Source/SceneWrapperComponent.h"/>
           <FILE id="OL6ChZ" name="SceneManagerComponent.h" compile="0" resource="0"
                 file="Source/SceneManagerComponent.h"/>
           <FILE id="J46RgP" name="SceneManagerComponent.cpp" compile="1" resource="0"
                 file="Source/SceneManagerComponent.cpp"/>
         </GROUP>
         <GROUP id="{2776FDA7-0309-2B4F-1FB1-01C8E1453026}" name="SceneObjectRealisation">
+          <FILE id="xHnySC" name="BackgroundSceneObject.cpp" compile="1" resource="0"
+                file="Source/BackgroundSceneObject.cpp"/>
+          <FILE id="JKAFDZ" name="BackgroundSceneObject.h" compile="0" resource="0"
+                file="Source/BackgroundSceneObject.h"/>
           <FILE id="YVlHYn" name="WaveformSceneObject.h" compile="0" resource="0"
                 file="Source/WaveformSceneObject.h"/>
           <FILE id="Zc40Qj" name="WaveformSceneObject.cpp" compile="1" resource="0"
                 file="Source/WaveformSceneObject.cpp"/>
         </GROUP>
+        <FILE id="AqrgHh" name="ScenesRender.cpp" compile="1" resource="0"
+              file="Source/ScenesRender.cpp"/>
+        <FILE id="WpIQdk" name="ScenesRender.h" compile="0" resource="0" file="Source/ScenesRender.h"/>
         <FILE id="b2XhlG" name="SceneManager.h" compile="0" resource="0" file="Source/SceneManager.h"/>
         <FILE id="WqmuI7" name="SceneManager.cpp" compile="1" resource="0"
               file="Source/SceneManager.cpp"/>

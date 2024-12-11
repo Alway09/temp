@@ -1,11 +1,11 @@
 /*
   ==============================================================================
 
-    SceneWrapperComponent.cpp
-    Created: 2 Dec 2024 9:30:24pm
+    ScenesView.cpp
+    Created: 11 Dec 2024 5:19:23pm
     Author:  Валентин Чекулаев
 
   ==============================================================================
 */
 
-#include "SceneWrapperComponent.h"
+#include "ScenesView.h"
