@@ -19,13 +19,26 @@ public:
     void shutdown() { scene->shutdown(); }
     void render() { scene->render(); }
     
+    void mouseDown(const MouseEvent& e) override {
+        if(listener != nullptr) {
+            listener->sceneMouseDown(scene);
+        }
+        ResizableWindow::mouseDown(e);
+    }
+    
     class Listener {
-        
+    public:
+        virtual ~Listener(){}
+        virtual void sceneMouseDown(Scene* scene) = 0;
     };
+    
+    void setSceneListener(Listener* l) { listener = l; }
     
 private:
     Scene* scene;
     
     Rectangle<int> boundsInParent;
     int parentHeight;
+    
+    Listener* listener = nullptr;
 };

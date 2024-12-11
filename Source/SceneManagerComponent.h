@@ -33,8 +33,6 @@ public:
         scenesRender.reset();
     }
     
-    //void paint(Graphics&) override {};
-    
     void resized() override
     {
         auto localBounds = getLocalBounds();
@@ -110,6 +108,7 @@ private:
         Scene* sc = sceneManager.getScene(tmp);
         scenesRender->addScene(sc);
         SceneComponent* scComp = new SceneComponent(sc);
+        scComp->setSceneListener(scenesRender.get());
         addAndMakeVisible(scComp);
         sceneComponents.add(scComp);
         scComp->setResizable(true, true);
