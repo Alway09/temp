@@ -15,19 +15,18 @@ SceneManager::~SceneManager() {
 }
 
 Uuid SceneManager::createScene() {
-    Uuid uuid;
-    scenes.set(uuid, new Scene(valueTree));
-    return uuid;
+    Scene* scene = new Scene(valueTree);
+    scenes.set(scene->getUuidIdentifier(), scene);
+    createSceneObject(scene, SceneObjectRealisation::Background);
+    createSceneObject(scene, SceneObjectRealisation::Waveform);
+    return scene->getUuidIdentifier();
 }
 
 Scene * const SceneManager::getScene(Uuid sceneID) const {
     return scenes[sceneID];
 }
 
-void SceneManager::createSceneObject(Uuid sceneID, SceneObjectRealisation realisation)
-{
-    Scene* scene = scenes[sceneID];
-    
+void SceneManager::createSceneObject(Scene* scene, SceneObjectRealisation realisation) {
     switch (realisation) {
         case SceneObjectRealisation::Waveform:
         {
@@ -43,4 +42,11 @@ void SceneManager::createSceneObject(Uuid sceneID, SceneObjectRealisation realis
             break;
         }
     }
+}
+
+void SceneManager::createSceneObject(Uuid sceneID, SceneObjectRealisation realisation)
+{
+    Scene* scene = scenes[sceneID];
+    createSceneObject(scene, realisation);
+    
 }

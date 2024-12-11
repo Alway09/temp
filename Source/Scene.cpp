@@ -1,11 +1,10 @@
 #include "Scene.h"
 
-Scene::Scene(ValueTree treeAttachTo) : ResizableWindow("Scene", false)
+Scene::Scene(ValueTree treeAttachTo)
 {
-    identifier = Uuid().toString();
+    uuidIdentifier = Uuid();
+    identifier = uuidIdentifier.toString();
     valueTree = treeAttachTo.getOrCreateChildWithName(identifier, nullptr);
-    
-    setOpaque(false);
     
     //openGLContext.detach();
     //openGLContext.setComponentPaintingEnabled(false);// ??? мерцает отображение
@@ -15,11 +14,6 @@ Scene::Scene(ValueTree treeAttachTo) : ResizableWindow("Scene", false)
 Scene::~Scene()
 {
     //shutdownOpenGL();
-}
-
-void Scene::initialise()
-{
-    createShaders();
 }
 
 void Scene::shutdown()
@@ -37,10 +31,6 @@ void Scene::render()
 
     OpenGLContext* currentContext = OpenGLContext::getCurrentContext();
     auto desktopScale = (float) currentContext->getRenderingScale();
-    //OpenGLHelpers::clear (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
-
-    //glEnable (GL_BLEND);
-    //glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     {
         const ScopedLock lock (mutex);
@@ -147,15 +137,6 @@ void Scene::createShaders()
     {
         statusText = newShader->getLastError();
     }
-}
-
-void Scene::resized()
-{
-    changeBounds();
-}
-
-void Scene::paint(Graphics &g) {
-    //g.drawRect(getLocalBounds(), 5);
 }
 
 //==============================================================================

@@ -1,13 +1,14 @@
 #pragma once
 #include <JuceHeader.h>
 #include "SceneManager.h"
-#include "SceneWrapperComponent.h"
 #include "CommandManagerHolder.h"
 #include "SceneEditor.h"
+#include "SceneComponent.h"
+#include "ScenesRender.h"
 
 using namespace juce;
 
-class SceneManagerComponent : public OpenGLAppComponent, public ActionListener, public ApplicationCommandTarget, public Button::Listener
+class SceneManagerComponent : public Component, public ActionListener, public ApplicationCommandTarget, public Button::Listener
 {
 public:
     SceneManagerComponent(SamplesHolder * const samplesHolder, ValueTree valueTree) : sceneManager(samplesHolder, valueTree)
@@ -15,52 +16,24 @@ public:
         CommandManagerHolder::getInstance()->registerAllCommandsForTarget(this);
         addKeyListener(CommandManagerHolder::getInstance()->getKeyMappings());
         
-        addAndMakeVisible(button); // without is keyboard events not working
+        addAndMakeVisible(button); // without it keyboard events is not working
         
         sceneEditor.addListener(this);
         addChildComponent(sceneEditor);
-        //addAndMakeVisible(sceneEditor);
         
         sceneFlex.flexWrap = FlexBox::Wrap::wrap;
         sceneFlex.justifyContent = FlexBox::JustifyContent::center;
         sceneFlex.flexDirection = FlexBox::Direction::column;
+        
+        scenesRender.reset(new ScenesRender(this));
     }
     
     ~SceneManagerComponent()
     {
-        shutdownOpenGL();
-        for(auto sc : scenes) {
-            sc->removeAllActionListeners();
-        }
+        scenesRender.reset();
     }
     
-    void initialise() override {
-        for(auto ID : tmpID) {
-            sceneManager.getScene(ID)->initialise();
-        }
-    }
-    
-    void shutdown() override {
-        for(auto ID : tmpID) {
-            sceneManager.getScene(ID)->shutdown();
-        }
-    }
-    
-    void render() override {
-        using namespace ::juce::gl;
-        int counter = 0;
-        OpenGLHelpers::clear (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
-        glEnable (GL_BLEND);
-        glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        for(auto ID : tmpID) {
-            //if(counter > 0)
-                sceneManager.getScene(ID)->render();
-            
-            ++counter;
-        }
-    }
-    
-    void paint(Graphics&) override {};
+    //void paint(Graphics&) override {};
     
     void resized() override
     {
@@ -69,9 +42,6 @@ public:
         
         sceneEditor.setBounds(localBounds.removeFromRight(scenesBoundPadding));
         
-        //button.setBounds(getWidth()/2 - 50, getHeight()/2 - 50, 100, 100);
-        
-        //scenesGrid.performLayout(scenesBound);
         sceneFlex.performLayout(scenesBound);
         
     }
@@ -118,28 +88,6 @@ public:
         static int min = 200;
         static int amountLimit = 6;
         if(info.commandID == Commands::addScene) {
-            /*GridItem gi{createScene()};
-            scenesGrid.items.add(gi);
-            
-            int w = scenesGrid.templateRows.size();
-            int h = scenesGrid.templateColumns.size();
-            int am = w * h;
-            
-            int evenTo = sqrt(scenesGrid.items.size());
-            
-            if(am == 0) {
-                scenesGrid.templateRows.add(Grid::TrackInfo(Grid::Fr(1)));
-                scenesGrid.templateColumns.add(Grid::TrackInfo(Grid::Fr(1)));
-            } else if(scenesGrid.items.size() - 1 == am) {
-                if(am % evenTo == 0) {
-                    scenesGrid.templateRows.add(Grid::TrackInfo(Grid::Fr(1)));
-                } else {
-                    scenesGrid.templateColumns.add(Grid::TrackInfo(Grid::Fr(1)));
-                    scenesGrid.templateRows.removeLast();
-                }
-                
-            }*/
-            
             if(sceneFlex.items.size() < amountLimit)
             {
                 FlexItem fi{*createScene()};
@@ -147,7 +95,7 @@ public:
                 
                 resized();
             } else {
-                DBG("Scenes limit amount");
+                DBG("Scenes limit exceeded");
             }
             
             return true;
@@ -158,26 +106,15 @@ public:
     
 private:
     Component* createScene() {
-        /*Uuid scID = sceneManager.createScene();
-        sceneManager.createSceneObject(scID, SceneObjectRealisation::Waveform);
-        auto sc = new SceneWrapperComponent(sceneManager.getScene(scID), scID);
-        scenes.add(sc);
-        sc->addActionListener(this);
-        openGLContext.executeOnGLThread([this, &scID](OpenGLContext&){ sceneManager.getScene(scID)->initialise();}, false);
-        addAndMakeVisible(sc);
-        //sc->addToDesktop();
-        //sc->getPeer()->setAlwaysOnTop(true);*/
-        
         Uuid tmp = sceneManager.createScene();
-        sceneManager.createSceneObject(tmp, SceneObjectRealisation::Background);
-        sceneManager.createSceneObject(tmp, SceneObjectRealisation::Waveform);
         Scene* sc = sceneManager.getScene(tmp);
-        openGLContext.executeOnGLThread([&sc](OpenGLContext&){ sc->initialise();}, true);
-        addAndMakeVisible(sc);
-        sc->setResizable(true, true);
-        tmpID.add(tmp);
+        scenesRender->addScene(sc);
+        SceneComponent* scComp = new SceneComponent(sc);
+        addAndMakeVisible(scComp);
+        sceneComponents.add(scComp);
+        scComp->setResizable(true, true);
         
-        return sc;
+        return scComp;
     }
     
     enum Commands
@@ -186,12 +123,11 @@ private:
     };
     
     SceneManager sceneManager;
-    OwnedArray<SceneWrapperComponent> scenes;
-    Array<Uuid> tmpID;
-    //Grid scenesGrid;
+    OwnedArray<SceneComponent> sceneComponents;
     SceneEditor sceneEditor;
     TextButton button{"+"};
     FlexBox sceneFlex;
     int scenesBoundPadding = 0;
     Rectangle<int> scenesBound;
+    std::unique_ptr<ScenesRender> scenesRender;
 };

@@ -4,18 +4,14 @@
 
 using namespace juce;
 
-class Scene : public ResizableWindow
+class Scene
 {
 public:
     Scene(ValueTree treeAttachTo);
-    ~Scene() override;
+    ~Scene();
     
-    void initialise();
     void shutdown();
     void render();
-    
-    void resized() override;
-    void paint(Graphics& g) override;
     
     Matrix3D<float> getProjectionMatrix() const;
     Matrix3D<float> getViewMatrix() const;
@@ -28,46 +24,15 @@ public:
     }
     
     Identifier& getIdentifier() { return identifier; }
+    Uuid& getUuidIdentifier() { return uuidIdentifier; }
     
-    /*void mouseDoubleClick(const MouseEvent& e) override
-    {
-        getParentComponent()->mouseDoubleClick(e);
-    }
-    
-    void mouseEnter(const MouseEvent& e) override {
-        getParentComponent()->mouseEnter(e);
-    }
-    void mouseExit(const MouseEvent& e) override {
-        getParentComponent()->mouseExit(e);
-    }
-    
-    void mouseDrag(const MouseEvent& e) override {
-        getParentComponent()->mouseDrag(e);
-    }
-    
-    void mouseMove(const MouseEvent& e) override {
-        getParentComponent()->mouseMove(e);
-    }
-    
-    void mouseDown(const MouseEvent& e) override {
-        getParentComponent()->mouseDown(e);
-    }
-    
-    void mouseUp(const MouseEvent& e) override {
-        getParentComponent()->mouseUp(e);
-    }*/
-private:
-    void changeBounds() {
+    void changeBounds(Rectangle<int>& bounds, int height) {
         const ScopedLock lock (mutex);
-        //bounds = getLocalBounds();
-        bounds = getBoundsInParent();
-        parentHeight = getParentHeight();
-        parentWidth = getParentWidth();
+        this->bounds = bounds;
+        parentHeight = height;
     }
-    void moved() override {
-        ResizableWindow::moved();
-        changeBounds();
-    }
+    
+private:
     //==============================================================================
     struct Uniforms
     {
@@ -93,6 +58,7 @@ private:
     
     ValueTree valueTree;
     Identifier identifier;
+    Uuid uuidIdentifier;
     
     const char* vertexShader;
     const char* fragmentShader;
@@ -100,10 +66,7 @@ private:
     
     Rectangle<int> bounds;
     int parentHeight;
-    int parentWidth;
     CriticalSection mutex;
-    
-    TextButton button;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Scene)
 };
