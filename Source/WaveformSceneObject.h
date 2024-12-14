@@ -1,17 +1,24 @@
 #pragma once
 #include "SceneObject.h"
-#include "SamplesHolder.h"
+#include "SamplesHolderHolder.h"
 
-class WaveformSceneObject : public SceneObject, public ValueTree::Listener
+class WaveformSceneObject : public SceneObject
 {
 public:
-    WaveformSceneObject(SamplesHolder* samplesHolder);
+    WaveformSceneObject(ValueTree treeAttachTo);
     
     void fillBuffers() override;
     
-    void valueTreePropertyChanged(ValueTree &treeWhosePropertyHasChanged, const Identifier &property) override {
-        gain = treeWhosePropertyHasChanged.getProperty(property, 1.f);
+    void changeSettings(const Identifier& property) override {
+        if(property == IDs::gain) {
+            gain = valueTree.getProperty(property);
+        }
     }
+    
+    struct IDs {
+        inline static const Identifier gain{"Gain"};
+    };
+    
 private:
     Array<Vertex> vertices;
     int tps = 60;

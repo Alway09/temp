@@ -5,7 +5,6 @@ class SamplesHolder
 {
 public:
     
-    
     SamplesHolder(size_t channelSize) : channelSize(channelSize) {
         
     };

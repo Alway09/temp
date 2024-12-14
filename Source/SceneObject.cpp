@@ -1,9 +1,11 @@
 #include "SceneObject.h"
 
 //==============================================================================
-SceneObject::SceneObject(SamplesHolder * const samplesHolder) : samplesHolder(samplesHolder)
+SceneObject::SceneObject(ValueTree treeAttachTo, SceneObjectRealisation realisation)
 {
-    
+    valueTree = treeAttachTo.getOrCreateChildWithName(NameGenerator::createIdentifier("Object"), nullptr);
+    valueTree.setProperty(objectTypeID, realisation, nullptr);
+    valueTree.addListener(this);
 }
 
 SceneObject::~SceneObject() {
@@ -58,15 +60,6 @@ void SceneObject::VertexBuffer::initialize() {
     glGenBuffers (1, &indexBuffer);
     
     initialized = true;
-    
-    /*Array<Vertex> vertices;
-    for(int i = 0; i < 4410; ++i) {
-        vertices.add({{0.f, 0.f, 0.f},
-            {0.5f, 0.5f, 0.5f},
-            {1.f, 1.f, 1.f, 1.f},
-            {2.f, 2.f}});
-    }
-    putVertices(vertices);*/
 }
 
 SceneObject::VertexBuffer::~VertexBuffer()

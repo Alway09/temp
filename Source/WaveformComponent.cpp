@@ -40,9 +40,6 @@ void WaveformComponent::update() {
         }
         ++samplesCounter;
     }
-    //auto l = lines.getReference(lines.size() - 1);
-    //l.setStart(blockCounter, blockMax + getHeight() / 2);
-    //l.setEnd(blockCounter, blockMin + getHeight() / 2);
 }
 
 void  WaveformComponent::paint(Graphics &g) {
@@ -50,8 +47,6 @@ void  WaveformComponent::paint(Graphics &g) {
     g.setColour(Colours::white);
     g.drawText(String(lines.size()), 0, 0, 100, 20, Justification::centred);
     for(int i = 0; i < lines.size(); ++i) {
-        //auto l = lines[i];
-        //std::cout << l.getStart().getX() << " " << l.getStart().getY() << " " << l.getEnd().getY() << "\n";
         g.drawLine(lines[i], 1);
     }
 }

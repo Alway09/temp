@@ -4,6 +4,7 @@
 #include "SceneManagerComponent.h"
 #include "GlobalOptionsComponent.h"
 #include "CommandManagerHolder.h"
+#include "SamplesHolderHolder.h"
 
 #ifdef TESTS_ENABLED
 #include "TestRunnerComponent.h"
@@ -103,13 +104,6 @@ public:
             tree = ValueTree::fromXml(*xml.get());
             
             GlobalOptionsComponent::restore(tree, deviceManager);
-            
-            if(tree.hasProperty(sliderID)) {
-                slider.setValue(tree.getProperty(sliderID));
-            } else {
-                tree.setProperty(sliderID, 1.f, nullptr);
-                slider.setValue(10.f);
-            }
         }
     }
         
@@ -120,15 +114,8 @@ public:
     }
     //==============================================================================
 private:
-    const size_t samplesHolderChannelSize = 44100 * 60; // 60 seconds with sample rate 44100
-    SamplesHolder samplesHolder;
-    //Uuid sceneID;
-    //std::unique_ptr<SceneManager> sceneManager;
     std::unique_ptr<SceneManagerComponent> sceneManagerComponent;
     ValueTree tree;
-    Identifier sliderID{"slider"};
-    Slider slider;
-    //ApplicationCommandManager commandManager;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

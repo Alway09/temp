@@ -7,16 +7,10 @@
 
 using namespace juce;
 
-enum SceneObjectRealisation
-{
-    Waveform,
-    Background
-};
-
 class SceneManager
 {
 public:
-    SceneManager(SamplesHolder * const samplesHolder, ValueTree valueTree);
+    SceneManager(ValueTree treeAttachTo);
     ~SceneManager();
     
     Uuid createScene();
@@ -26,6 +20,5 @@ public:
 private:
     void createSceneObject(Scene* scene, SceneObjectRealisation realisation);
     HashMap<Uuid, Scene*> scenes;
-    SamplesHolder * const samplesHolder;
-    ValueTree valueTree;
+    ValueTree treeAttachTo;
 };

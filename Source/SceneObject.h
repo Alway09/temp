@@ -1,19 +1,30 @@
 #pragma once
 #include <JuceHeader.h>
-#include "SamplesHolder.h"
+#include "NameGenerator.h"
 
 using namespace juce;
 
-class SceneObject
+enum SceneObjectRealisation
+{
+    Waveform,
+    Background
+};
+
+class SceneObject : public ValueTree::Listener
 {
 public:
-    
-    SceneObject(SamplesHolder * const samplesHolder);
+    SceneObject(ValueTree treeAttachTo, SceneObjectRealisation realisation);
     virtual ~SceneObject();
     void draw();
     
     void reset(OpenGLShaderProgram& shaderProgram);
+    static Identifier getTypeID() { return objectTypeID; }
 protected:
+    virtual void changeSettings(const Identifier& property)=0;
+    void valueTreePropertyChanged(ValueTree &treeWhosePropertyHasChanged, const Identifier &property) override {
+        changeSettings(property);
+    }
+    
     struct Vertex
     {
         float position[3];
@@ -44,8 +55,8 @@ protected:
         } drawBufferUsage = Stream;
     } config;
     
-    SamplesHolder * const samplesHolder;
     bool needToUpdateBuffer = false;
+    ValueTree valueTree;
 private:
     //==============================================================================
     class Attributes
@@ -89,4 +100,6 @@ private:
     
     VertexBuffer vertexBuffer;
     std::unique_ptr<Attributes> attributes;
+    
+    inline static Identifier objectTypeID{"Type"};
 };

@@ -5,7 +5,7 @@
 class BackgroundSceneObject : public SceneObject
 {
 public:
-    BackgroundSceneObject(SamplesHolder* samplesHolder) : SceneObject(samplesHolder)
+    BackgroundSceneObject(ValueTree treeAttachTo) : SceneObject(treeAttachTo, SceneObjectRealisation::Background)
     {
         config.source = SceneObject::Config::DrawSource::Indices;
         config.primitiveType = SceneObject::Config::DrawPrimitiveType::Triangles;
@@ -48,6 +48,8 @@ public:
     ~BackgroundSceneObject() {
         delete[] indices;
     }
+    
+    void changeSettings(const Identifier&) override {};
     
 private:
     Array<Vertex> vertices;

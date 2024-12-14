@@ -1,6 +1,6 @@
 #include "SceneManager.h"
 
-SceneManager::SceneManager(SamplesHolder * const samplesHolder, ValueTree valueTree) : samplesHolder(samplesHolder), valueTree(valueTree)
+SceneManager::SceneManager(ValueTree treeAttachTo) : treeAttachTo(treeAttachTo)
 {
     
 }
@@ -15,7 +15,7 @@ SceneManager::~SceneManager() {
 }
 
 Uuid SceneManager::createScene() {
-    Scene* scene = new Scene(valueTree);
+    Scene* scene = new Scene(treeAttachTo);
     scenes.set(scene->getUuidIdentifier(), scene);
     createSceneObject(scene, SceneObjectRealisation::Background);
     createSceneObject(scene, SceneObjectRealisation::Waveform);
@@ -30,14 +30,13 @@ void SceneManager::createSceneObject(Scene* scene, SceneObjectRealisation realis
     switch (realisation) {
         case SceneObjectRealisation::Waveform:
         {
-            WaveformSceneObject * wf = new WaveformSceneObject(samplesHolder);
-            valueTree.addListener(wf);
+            WaveformSceneObject * wf = new WaveformSceneObject(scene->getValueTree());
             scene->createObject(wf);
             break;
         }
         case SceneObjectRealisation::Background:
         {
-            BackgroundSceneObject* bg = new BackgroundSceneObject(samplesHolder);
+            BackgroundSceneObject* bg = new BackgroundSceneObject(scene->getValueTree());
             scene->createObject(bg);
             break;
         }

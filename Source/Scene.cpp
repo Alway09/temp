@@ -3,12 +3,14 @@
 Scene::Scene(ValueTree treeAttachTo)
 {
     uuidIdentifier = Uuid();
-    identifier = uuidIdentifier.toString();
-    valueTree = treeAttachTo.getOrCreateChildWithName(identifier, nullptr);
-    
-    //openGLContext.detach();
-    //openGLContext.setComponentPaintingEnabled(false);// ??? мерцает отображение
-    //openGLContext.attachTo(*this);
+    valueTree = treeAttachTo.getOrCreateChildWithName(NameGenerator::createIdentifier("Scene"), nullptr);
+}
+
+void Scene::setName(String name) {
+    Identifier newIdentifier{name};
+    ValueTree newValueTree{newIdentifier};
+    newValueTree.copyPropertiesAndChildrenFrom(valueTree, nullptr);
+    valueTree = newValueTree;
 }
 
 Scene::~Scene()

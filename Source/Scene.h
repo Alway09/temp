@@ -1,6 +1,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "SceneObject.h"
+#include "NameGenerator.h"
 
 using namespace juce;
 
@@ -20,10 +21,11 @@ public:
     void createObject(SceneObject * const obj) {
         if(shader.get() != nullptr)
             obj->reset(*shader);
+
         objects.add(obj);
     }
     
-    Identifier& getIdentifier() { return identifier; }
+    //Identifier& getIdentifier() { return valueTree.getType(); }
     Uuid& getUuidIdentifier() { return uuidIdentifier; }
     
     void changeBounds(Rectangle<int>& bounds, int height) {
@@ -31,6 +33,10 @@ public:
         this->bounds = bounds;
         parentHeight = height;
     }
+    
+    void setName(String name);
+    String getName() const { return NameGenerator::fromIdentifier(valueTree.getType()); }
+    ValueTree getValueTree() const { return valueTree; }
     
 private:
     //==============================================================================
@@ -57,7 +63,7 @@ private:
     OwnedArray<SceneObject> objects;
     
     ValueTree valueTree;
-    Identifier identifier;
+    //Identifier identifier;
     Uuid uuidIdentifier;
     
     const char* vertexShader;

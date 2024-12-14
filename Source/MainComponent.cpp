@@ -1,6 +1,6 @@
 #include "MainComponent.h"
 
-MainComponent::MainComponent() : samplesHolder(samplesHolderChannelSize), tree("root")
+MainComponent::MainComponent() : tree("root")
 {
 
     // Some platforms require permissions to open input channels so request that here
@@ -18,31 +18,21 @@ MainComponent::MainComponent() : samplesHolder(samplesHolderChannelSize), tree("
     
     restore();
     
-    sceneManagerComponent.reset(new SceneManagerComponent(&samplesHolder, tree));
+    sceneManagerComponent.reset(new SceneManagerComponent(tree));
     addAndMakeVisible(sceneManagerComponent.get());
-//    sceneManager.reset(new SceneManager(&samplesHolder, tree));
-//    sceneID = sceneManager->createScene();
-//    addAndMakeVisible(sceneManager->getScene(sceneID));    
-    
-    slider.onValueChange = [this] { tree.setProperty(sliderID, slider.getValue(), nullptr); };
-    slider.setRange(0.1f, 15.f);
-    
-    addAndMakeVisible(slider);
-    
     
     CommandManagerHolder::getInstance()->registerAllCommandsForTarget(this);
     CommandManagerHolder::getInstance()->getKeyMappings()->resetToDefaultMappings();
     addKeyListener(CommandManagerHolder::getInstance()->getKeyMappings());
 
     setSize (1200, 600);
-    //startTimer(1000);
 }
 
 MainComponent::~MainComponent()
 {
-    CommandManagerHolder::destruct();
     shutdownAudio();
-    //sceneManager = nullptr;
+    CommandManagerHolder::destruct();
+    SamplesHolderHolder::destruct();
 }
 
 //==============================================================================
@@ -52,7 +42,7 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
     BigInteger activeInputChannels  = device->getActiveInputChannels();
     int maxInputChannels  = activeInputChannels .getHighestBit() + 1;
     
-    samplesHolder.prepare(maxInputChannels);
+    SamplesHolderHolder::getInstance()->prepare(maxInputChannels);
 }
 
 void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill)
@@ -64,7 +54,7 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
     for (auto channel = 0; channel < maxInputChannels; ++channel)
     {
         auto* inBuffer = bufferToFill.buffer->getReadPointer(channel, bufferToFill.startSample);
-        samplesHolder.add(inBuffer, bufferToFill.numSamples, channel);
+        SamplesHolderHolder::getInstance()->add(inBuffer, bufferToFill.numSamples, channel);
     }
 }
 
@@ -80,7 +70,5 @@ void MainComponent::resized()
 {
     auto r = getLocalBounds().reduced(4);
 
-    //sceneManager->getScene(sceneID)->setBounds(r.removeFromTop(getHeight() - 70));
-    sceneManagerComponent->setBounds(r.removeFromTop(getHeight() - 70));
-    slider.setBounds(r);
+    sceneManagerComponent->setBounds(r);
 }
