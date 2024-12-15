@@ -5,7 +5,9 @@
 class SamplesHolderHolder // FIX NAMING!!!
 {
 public:
-    inline static int samplesHolderChannelSize = 44100 * 60;
+    inline static const int secondsToHold = 60;
+    inline static const int sampleRate = 44100;
+    inline static const int samplesHolderChannelSize = 44100 * 60;
     
     static SamplesHolder* getInstance() {
         if(samplesHolder == nullptr) {

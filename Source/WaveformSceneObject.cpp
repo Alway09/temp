@@ -6,15 +6,15 @@ WaveformSceneObject::WaveformSceneObject(ValueTree treeAttachTo) : SceneObject(t
     config.primitiveType = SceneObject::Config::DrawPrimitiveType::Lines;
     config.drawBufferUsage = SceneObject::Config::DrawBufferUsage::Stream;
     
-    vertices.resize(4410);
+    vertices.resize(samplesToShow);
     
     needToUpdateBuffer = true;
 }
 
 void WaveformSceneObject::fillBuffers() {
-    float step = 2.f/4410.f;
+    float step = 2.f/samplesToShow;
     vertices.clearQuick();
-    auto iter = SamplesHolderHolder::getInstance()->get(0, 4410);
+    auto iter = SamplesHolderHolder::getInstance()->get(0, samplesToShow);
     float counter = 0.f;
     while(iter.hasNext()) {
         vertices.add({{-1.f + counter * step, iter.getNext() * gain,  0.f},

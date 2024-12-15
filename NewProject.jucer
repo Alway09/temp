@@ -14,6 +14,16 @@
             file="Source/GlobalOptionsComponent.cpp"/>
       <GROUP id="{D6DD7CEF-2611-8F31-B38B-CD9A33E0AD3A}" name="Scene">
         <GROUP id="{88BA990E-12FE-C03E-11CA-4E1CCC0FF735}" name="Data">
+          <GROUP id="{2776FDA7-0309-2B4F-1FB1-01C8E1453026}" name="SceneObjectRealisation">
+            <FILE id="JKAFDZ" name="BackgroundSceneObject.h" compile="0" resource="0"
+                  file="Source/BackgroundSceneObject.h"/>
+            <FILE id="xHnySC" name="BackgroundSceneObject.cpp" compile="1" resource="0"
+                  file="Source/BackgroundSceneObject.cpp"/>
+            <FILE id="YVlHYn" name="WaveformSceneObject.h" compile="0" resource="0"
+                  file="Source/WaveformSceneObject.h"/>
+            <FILE id="Zc40Qj" name="WaveformSceneObject.cpp" compile="1" resource="0"
+                  file="Source/WaveformSceneObject.cpp"/>
+          </GROUP>
           <FILE id="WpIQdk" name="ScenesRender.h" compile="0" resource="0" file="Source/ScenesRender.h"/>
           <FILE id="AqrgHh" name="ScenesRender.cpp" compile="1" resource="0"
                 file="Source/ScenesRender.cpp"/>
@@ -54,16 +64,6 @@
                 file="Source/SceneManagerComponent.h"/>
           <FILE id="J46RgP" name="SceneManagerComponent.cpp" compile="1" resource="0"
                 file="Source/SceneManagerComponent.cpp"/>
-        </GROUP>
-        <GROUP id="{2776FDA7-0309-2B4F-1FB1-01C8E1453026}" name="SceneObjectRealisation">
-          <FILE id="JKAFDZ" name="BackgroundSceneObject.h" compile="0" resource="0"
-                file="Source/BackgroundSceneObject.h"/>
-          <FILE id="xHnySC" name="BackgroundSceneObject.cpp" compile="1" resource="0"
-                file="Source/BackgroundSceneObject.cpp"/>
-          <FILE id="YVlHYn" name="WaveformSceneObject.h" compile="0" resource="0"
-                file="Source/WaveformSceneObject.h"/>
-          <FILE id="Zc40Qj" name="WaveformSceneObject.cpp" compile="1" resource="0"
-                file="Source/WaveformSceneObject.cpp"/>
         </GROUP>
       </GROUP>
       <FILE id="NBhaPk" name="WaveformComponent.cpp" compile="1" resource="0"
