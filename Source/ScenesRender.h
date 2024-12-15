@@ -17,6 +17,7 @@ public:
     }
     
     ~ScenesRender() {
+        scenes.clearQuick(false);
         if(context.isAttached())
             context.detach();
     }
@@ -46,6 +47,10 @@ public:
         //scene->addListener(this);
     }
     
+    void removeScene(Scene* scene) {
+        scenes.removeObject(scene, false);
+    }
+    
     void sceneMouseDown(Scene* scene) override {
         bringToFront(scene);
     }
@@ -56,14 +61,15 @@ private:
         Scene* tmp = scenes[currentScenePos];
         
         for(int i = currentScenePos; i < scenes.size() - 1; ++i) {
-            scenes.setUnchecked(i, scenes[i + 1]);
+            scenes.set(i, scenes[i + 1], false);
         }
         
-        scenes.setUnchecked(scenes.size() - 1, tmp);
+        scenes.set(scenes.size() - 1, tmp, false);
     }
     
     OpenGLContext context;
-    Array<Scene*> scenes;
+    OwnedArray<Scene> scenes;
+    //Array<Scene*> scenes;
     
     Colour clearColour{0.f, 0.f, 0.f, 0.f};
 };

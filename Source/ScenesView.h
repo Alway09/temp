@@ -37,12 +37,25 @@ public:
         resized();
     }
     
-    void createScene(SceneComponent::Listener* parent) {
-        static int min = 200;
-        static int amountLimit = 6;
+    void sceneDeleteButtonClicked(SceneComponent* sceneComponent) override {
+        //sceneManager->deleteScene(scene->getUuidIdentifier());
+        Scene* scene = sceneComponent->getScene();
+        scene->shutdown();
+        scenesRender->removeScene(scene);
+        sceneComponents.removeObject(sceneComponent);
+        sceneManager->deleteScene(scene->getUuidIdentifier());
         
+        scenesFlex.items.clear();
+        for(auto sceneComponent : sceneComponents) {
+            addFlexItem(sceneComponent);
+        }
+        resized();
+    }
+    
+    void createScene(SceneComponent::Listener* parent) {
         Uuid tmp = sceneManager->createScene();
         Scene* scene = sceneManager->getScene(tmp);
+        //valueTree.removeChild(scene->getValueTree(), nullptr);
         SceneComponent* sceneComponent = new SceneComponent(scene);
         sceneComponents.add(sceneComponent);
         sceneComponent->addSceneListener(parent);
@@ -52,20 +65,28 @@ public:
         scenesRender->addScene(scene);
         sceneComponent->addSceneListener(scenesRender.get());
         sceneComponent->addSceneListener(this);
+        sceneComponent->setDeleterListener(this);
         addAndMakeVisible(sceneComponent);
+        
+        addFlexItem(sceneComponent);
+        
+        resized();
+    }
+    
+private:
+    void addFlexItem(Component* itemToControl) {
+        static int min = 200;
+        static int amountLimit = 6;
         
         if(scenesFlex.items.size() < amountLimit)
         {
-            FlexItem fi{*sceneComponent};
+            FlexItem fi{*itemToControl};
             scenesFlex.items.add(fi.withMinWidth(min).withMinHeight(min).withFlex(1.f, 4.f, 1.f));
-            
-            resized();
-        } else {
+        }  else {
             DBG("Scenes limit exceeded");
         }
     }
     
-private:
     FlexBox scenesFlex;
     std::unique_ptr<SceneManager> sceneManager;
     std::unique_ptr<ScenesRender> scenesRender;

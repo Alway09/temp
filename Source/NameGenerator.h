@@ -42,6 +42,11 @@ public:
         return identifier.toString().replace("_", " ");
     }
     
+    static void freeName(String name, String prefix) {
+        int number = name.trimCharactersAtStart(prefix).trimStart().getIntValue();
+        prefixWithTheirNumbers.getReference(prefix).removeValue(number);
+    }
+    
 private:
     inline static HashMap<String, SortedSet<int>> prefixWithTheirNumbers;
 };

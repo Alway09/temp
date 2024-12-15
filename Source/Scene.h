@@ -38,6 +38,7 @@ public:
     String getName() const { return NameGenerator::fromIdentifier(valueTree.getType()); }
     ValueTree getValueTree() const { return valueTree; }
     
+    CriticalSection renderMutex;
 private:
     //==============================================================================
     struct Uniforms

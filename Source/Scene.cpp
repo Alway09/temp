@@ -28,8 +28,10 @@ void Scene::shutdown()
 void Scene::render()
 {
     using namespace ::juce::gl;
-
+    
     jassert (OpenGLHelpers::isContextActive());
+    
+    const ScopedLock lock (renderMutex);
 
     OpenGLContext* currentContext = OpenGLContext::getCurrentContext();
     auto desktopScale = (float) currentContext->getRenderingScale();

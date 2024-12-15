@@ -36,6 +36,7 @@ public:
     }
     
     void attach(Scene* scene) {
+        attachedTo = scene;
         headerLabel.setText(scene->getName(), NotificationType::dontSendNotification);
         
         objectEditors.clear();
@@ -62,7 +63,10 @@ public:
         resized();
     }
     
+    bool isAttachedTo(Scene* scene) { return scene == attachedTo; }
+    
 private:
+    Scene* attachedTo = nullptr;
     TextButton closeButton;
     Label headerLabel;
     OwnedArray<SceneObjectEditor> objectEditors;

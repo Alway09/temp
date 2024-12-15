@@ -22,6 +22,15 @@ Uuid SceneManager::createScene() {
     return scene->getUuidIdentifier();
 }
 
+void SceneManager::deleteScene(Uuid sceneID) {
+    Scene* scene = getScene(sceneID);
+    NameGenerator::freeName(scene->getName(), "Scene");
+    ValueTree sceneTree = scene->getValueTree();
+    sceneTree.getParent().removeChild(sceneTree, nullptr);
+    delete scene;
+    scenes.remove(sceneID);
+}
+
 Scene * const SceneManager::getScene(Uuid sceneID) const {
     return scenes[sceneID];
 }

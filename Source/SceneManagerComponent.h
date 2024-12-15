@@ -80,6 +80,12 @@ public:
         sceneEditor.attach(sc);
     }
     
+    void sceneDeleteButtonClicked(SceneComponent* sceneComponent) override {
+        if(sceneEditor.isAttachedTo(sceneComponent->getScene())) {
+            buttonClicked(nullptr);
+        }
+    }
+    
 private:
     
     enum Commands

@@ -15,6 +15,7 @@ public:
     
     Uuid createScene();
     Scene * const getScene(Uuid sceneID) const;
+    void deleteScene(Uuid sceneID);
     
     void createSceneObject(Uuid sceneID, SceneObjectRealisation realisation);
 private:
