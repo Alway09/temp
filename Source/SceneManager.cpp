@@ -56,5 +56,4 @@ void SceneManager::createSceneObject(Uuid sceneID, SceneObjectRealisation realis
 {
     Scene* scene = scenes[sceneID];
     createSceneObject(scene, realisation);
-    
 }

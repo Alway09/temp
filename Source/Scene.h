@@ -25,7 +25,6 @@ public:
         objects.add(obj);
     }
     
-    //Identifier& getIdentifier() { return valueTree.getType(); }
     Uuid& getUuidIdentifier() { return uuidIdentifier; }
     
     void changeBounds(Rectangle<int>& bounds, int height) {
@@ -47,15 +46,7 @@ private:
 
         std::unique_ptr<OpenGLShaderProgram::Uniform> projectionMatrix, viewMatrix;
     private:
-        static OpenGLShaderProgram::Uniform* createUniform (OpenGLShaderProgram& shaderProgram, const char* uniformName)
-        {
-            using namespace ::juce::gl;
-
-            if (glGetUniformLocation (shaderProgram.getProgramID(), uniformName) < 0)
-                return nullptr;
-
-            return new OpenGLShaderProgram::Uniform (shaderProgram, uniformName);
-        }
+        static OpenGLShaderProgram::Uniform* createUniform (OpenGLShaderProgram& shaderProgram, const char* uniformName);
     };
     //==============================================================================
     
@@ -64,7 +55,6 @@ private:
     OwnedArray<SceneObject> objects;
     
     ValueTree valueTree;
-    //Identifier identifier;
     Uuid uuidIdentifier;
     
     const char* vertexShader;

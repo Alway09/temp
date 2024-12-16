@@ -25,3 +25,17 @@ void WaveformSceneObject::fillBuffers() {
     }
     putVertices(vertices);
 }
+
+void WaveformSceneObject::changeSettings(const Identifier& property) {
+    if(property == IDs::gain) {
+        gain = valueTree.getProperty(property);
+    }
+    if(property == IDs::secondsToShow) {
+        needToUpdateBuffer = false;
+        float secondsToShow = valueTree.getProperty(property);
+        samplesToShow = SamplesHolderHolder::sampleRate * secondsToShow;
+        vertices.clearQuick();
+        vertices.resize(samplesToShow);
+        needToUpdateBuffer = true;
+    }
+}

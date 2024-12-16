@@ -149,4 +149,14 @@ Scene::Uniforms::Uniforms(OpenGLShaderProgram& shaderProgram)
     projectionMatrix.reset (createUniform (shaderProgram, "projectionMatrix"));
     viewMatrix      .reset (createUniform (shaderProgram, "viewMatrix"));
 }
+
+OpenGLShaderProgram::Uniform* Scene::Uniforms::createUniform(OpenGLShaderProgram& shaderProgram, const char* uniformName)
+{
+    using namespace ::juce::gl;
+
+    if (glGetUniformLocation (shaderProgram.getProgramID(), uniformName) < 0)
+        return nullptr;
+
+    return new OpenGLShaderProgram::Uniform (shaderProgram, uniformName);
+}
 //==============================================================================

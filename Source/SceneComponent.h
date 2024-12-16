@@ -1,7 +1,6 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "SceneOverlayComponent.h"
 #include "Scene.h"
 
 using namespace juce;
@@ -10,51 +9,20 @@ class SceneComponent : public ResizableWindow, public Button::Listener
 {
 public:
     SceneComponent(Scene* scene);
-    ~SceneComponent() {
-        shutdown();
-    }
+    ~SceneComponent() { shutdown(); }
     
     void resized() override;
     void moved() override;
     void paint(Graphics&) override {};
     
+    void mouseDown(const MouseEvent& e) override;
+    void mouseUp(const MouseEvent& e) override;
+    
+    void buttonClicked(Button* button) override;
+    
     void shutdown() { scene->shutdown(); }
     void render() { scene->render(); }
     Scene* getScene() { return scene; }
-    
-    void mouseDown(const MouseEvent& e) override {
-        ResizableWindow::mouseDown(e);
-        
-        for(auto listener : listeners) {
-            listener->sceneMouseDown(scene);
-        }
-    }
-    
-    void mouseUp(const MouseEvent& e) override {
-        ResizableWindow::mouseUp(e);
-        
-        if(e.mouseWasClicked()) {
-            for(auto listener : listeners) {
-                listener->sceneMouseClicked(scene);
-            }
-        } else {
-            for(auto listener : listeners) {
-                listener->sceneMouseUp(scene);
-            }
-        }
-    }
-    
-    void buttonClicked(Button* button) override {
-        //const ScopedLock lock (scene->renderMutex);
-        //shutdown();
-        for(auto listener : listeners) {
-            if(listener == deleteListener) {
-                continue;
-            }
-            listener->sceneDeleteButtonClicked(this);
-        }
-        deleteListener->sceneDeleteButtonClicked(this);
-    }
     
     class Listener {
     public:
@@ -72,17 +40,9 @@ private:
     class SceneOverlayComponent : public Component
     {
     public:
-        SceneOverlayComponent(SceneComponent* parent) : parent(parent)
-        {
-            deleteButton.addListener(parent);
-            addAndMakeVisible(deleteButton);
-        }
+        SceneOverlayComponent(SceneComponent* parent);
         
-        void resized() override
-        {
-            auto localBounds = getLocalBounds();
-            deleteButton.setBounds(localBounds.getWidth() - 20, 0, 20, 20);
-        }
+        void resized() override;
         
         void mouseDoubleClick(const MouseEvent& e) override { parent->mouseDoubleClick(e); }
         void mouseEnter(const MouseEvent& e) override { parent->mouseEnter(e); }

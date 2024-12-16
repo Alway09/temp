@@ -56,10 +56,6 @@
                 file="Source/SceneComponent.h"/>
           <FILE id="QGObYg" name="SceneComponent.cpp" compile="1" resource="0"
                 file="Source/SceneComponent.cpp"/>
-          <FILE id="jHN16U" name="SceneOverlayComponent.h" compile="0" resource="0"
-                file="Source/SceneOverlayComponent.h"/>
-          <FILE id="xdwpOH" name="SceneOverlayComponent.cpp" compile="1" resource="0"
-                file="Source/SceneOverlayComponent.cpp"/>
           <FILE id="OL6ChZ" name="SceneManagerComponent.h" compile="0" resource="0"
                 file="Source/SceneManagerComponent.h"/>
           <FILE id="J46RgP" name="SceneManagerComponent.cpp" compile="1" resource="0"

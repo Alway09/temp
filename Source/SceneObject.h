@@ -20,7 +20,7 @@ public:
     void reset(OpenGLShaderProgram& shaderProgram);
     static Identifier getTypeID() { return objectTypeID; }
 protected:
-    virtual void changeSettings(const Identifier& property)=0;
+    virtual void changeSettings(const Identifier& property) = 0;
     void valueTreePropertyChanged(ValueTree &treeWhosePropertyHasChanged, const Identifier &property) override {
         changeSettings(property);
     }
@@ -68,14 +68,7 @@ private:
 
         std::unique_ptr<OpenGLShaderProgram::Attribute> position, normal, sourceColour, textureCoordIn;
     private:
-        static OpenGLShaderProgram::Attribute* createAttribute (OpenGLShaderProgram& shader, const char* attributeName) {
-            using namespace ::juce::gl;
-
-            if (glGetAttribLocation (shader.getProgramID(), attributeName) < 0)
-                return nullptr;
-
-            return new OpenGLShaderProgram::Attribute (shader, attributeName);
-        }
+        static OpenGLShaderProgram::Attribute* createAttribute (OpenGLShaderProgram& shader, const char* attributeName);
     };
     //==============================================================================
     struct VertexBuffer
