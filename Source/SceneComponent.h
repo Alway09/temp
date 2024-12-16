@@ -10,6 +10,9 @@ class SceneComponent : public ResizableWindow, public Button::Listener
 {
 public:
     SceneComponent(Scene* scene);
+    ~SceneComponent() {
+        shutdown();
+    }
     
     void resized() override;
     void moved() override;
@@ -42,7 +45,7 @@ public:
     }
     
     void buttonClicked(Button* button) override {
-        const ScopedLock lock (scene->renderMutex);
+        //const ScopedLock lock (scene->renderMutex);
         //shutdown();
         for(auto listener : listeners) {
             if(listener == deleteListener) {

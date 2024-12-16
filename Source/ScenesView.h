@@ -38,9 +38,7 @@ public:
     }
     
     void sceneDeleteButtonClicked(SceneComponent* sceneComponent) override {
-        //sceneManager->deleteScene(scene->getUuidIdentifier());
         Scene* scene = sceneComponent->getScene();
-        scene->shutdown();
         scenesRender->removeScene(scene);
         sceneComponents.removeObject(sceneComponent);
         sceneManager->deleteScene(scene->getUuidIdentifier());
@@ -55,7 +53,6 @@ public:
     void createScene(SceneComponent::Listener* parent) {
         Uuid tmp = sceneManager->createScene();
         Scene* scene = sceneManager->getScene(tmp);
-        //valueTree.removeChild(scene->getValueTree(), nullptr);
         SceneComponent* sceneComponent = new SceneComponent(scene);
         sceneComponents.add(sceneComponent);
         sceneComponent->addSceneListener(parent);

@@ -48,6 +48,7 @@ public:
     }
     
     void removeScene(Scene* scene) {
+        const ScopedLock lock (scene->renderMutex);
         scenes.removeObject(scene, false);
     }
     
