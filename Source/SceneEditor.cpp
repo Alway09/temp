@@ -2,49 +2,60 @@
 
 SceneEditor::SceneEditor()
 {
-    addAndMakeVisible(closeButton);
-    addAndMakeVisible(headerLabel);
+    setHeaderComponent(std::make_unique<Header>(this));
+    setModel(&model);
+    setRowHeight(40);
+    //addAndMakeVisible(closeButton);
+    //addAndMakeVisible(headerLabel);
 }
 
 void SceneEditor::resized() {
-    auto localBounds = getLocalBounds();
+    ListBox::resized();
+    //auto localBounds = getLocalBounds();
     
-    auto headerBounds = localBounds.removeFromTop(getHeight() * 0.1f);
+    //auto headerBounds = localBounds.removeFromTop(getHeight() * 0.1f);
     
-    closeButton.setBounds(headerBounds.removeFromLeft(50));
-    headerLabel.setBounds(headerBounds);
+    /*closeButton.setBounds(headerBounds.removeFromLeft(50));
+    headerLabel.setBounds(headerBounds);*/
     
-    if(!objectEditors.isEmpty()) {
+    /*if(!objectEditors.isEmpty()) {
         for(auto editor : objectEditors) {
             editor->setBounds(localBounds);
         }
-    }
+    }*/
 }
 
 void SceneEditor::attach(Scene* scene) {
-    attachedTo = scene;
-    headerLabel.setText(scene->getName(), NotificationType::dontSendNotification);
-    
-    objectEditors.clear();
-    
-    ValueTree sceneTree = scene->getValueTree();
-    ValueTree::Iterator iter = sceneTree.begin();
-    while(iter != sceneTree.end()) {
-        int realisation = (*iter).getProperty(SceneObject::getTypeID());
+    if(!isAttachedTo(scene)) {
+        attachedTo = scene;
+        //headerLabel.setText(scene->getName(), NotificationType::dontSendNotification);
         
-        SceneObjectEditor* editor;
-        if(realisation == SceneObjectRealisation::Waveform) {
-            editor = new WaveformSceneObjectEditor(*iter);
-            objectEditors.add(editor);
-            addAndMakeVisible(editor);
-        } else if(realisation == SceneObjectRealisation::Background) {
+        //objectEditors.clear();
+        model.clear();
+        getHeader()->setText(scene->getName());
+        
+        ValueTree sceneTree = scene->getValueTree();
+        ValueTree::Iterator iter = sceneTree.begin();
+        while(iter != sceneTree.end()) {
+            int realisation = (*iter).getProperty(SceneObject::getTypeID());
             
-        } else {
-            jassertfalse;
+            SceneObjectEditor* editor;
+            if(realisation == SceneObjectRealisation::Waveform) {
+                editor = new WaveformSceneObjectEditor(*iter);
+                //objectEditors.add(editor);
+                //addAndMakeVisible(editor);
+                model.addObjectEditor(editor);
+            } else if(realisation == SceneObjectRealisation::Background) {
+                
+            } else {
+                jassertfalse;
+            }
+            
+            ++iter;
         }
         
-        ++iter;
+        //resized();
+        updateContent();
     }
     
-    resized();
 }

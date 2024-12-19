@@ -38,4 +38,5 @@ void WaveformSceneObject::changeSettings(const Identifier& property) {
         vertices.resize(samplesToShow);
         needToUpdateBuffer = true;
     }
+    // hide when loud or hide when quiet
 }

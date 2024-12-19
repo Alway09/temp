@@ -7,7 +7,7 @@ SceneManagerComponent::SceneManagerComponent(ValueTree valueTree) : scenesView(v
     
     addAndMakeVisible(button); // without it keyboard events is not working
     
-    sceneEditor.addListener(this);
+    sceneEditor.setCloseButtonListener(this);
     addChildComponent(sceneEditor);
     
     addAndMakeVisible(scenesView);
