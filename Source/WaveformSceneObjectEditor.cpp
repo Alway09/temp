@@ -2,21 +2,14 @@
 
 WaveformSceneObjectEditor::WaveformSceneObjectEditor(ValueTree treeEditTo) : SceneObjectEditor(treeEditTo)
 {
-    gainSlider.setRange(1.0, 15.0);
-    gainSlider.setValue(valueTree.getProperty(WaveformSceneObject::IDs::gain));
-    gainSlider.onValueChange = [this] { valueTree.setProperty(WaveformSceneObject::IDs::gain, gainSlider.getValue(), nullptr); };
-    addAndMakeVisible(gainSlider);
+    gainSlider = new SliderPropertyComponent(valueTree.getPropertyAsValue(WaveformSceneObject::IDs::gain, nullptr), "Gain", 1.0, 15.0, 0.1);
+    controls.add(gainSlider);
     
-    secondsToShowSlider.setRange(0.01f, SamplesHolderHolder::secondsToHold);
-    secondsToShowSlider.setSkewFactorFromMidPoint(1.f);
-    secondsToShowSlider.setValue(valueTree.getProperty(WaveformSceneObject::IDs::secondsToShow));
-    secondsToShowSlider.onValueChange = [this]{ valueTree.setProperty(WaveformSceneObject::IDs::secondsToShow, secondsToShowSlider.getValue(), nullptr); };
-    addAndMakeVisible(secondsToShowSlider);
+    double skewFactor = 1.0 / 6;
+    secondsToShowSlider = new SliderPropertyComponent(valueTree.getPropertyAsValue(WaveformSceneObject::IDs::secondsToShow, nullptr), "Seconds to show", 0.1, SamplesHolderHolder::secondsToHold, 0.01, skewFactor, false);
+    controls.add(secondsToShowSlider);
 }
 
-void WaveformSceneObjectEditor::resized() {
-    auto localBounds = getLocalBounds();
+WaveformSceneObjectEditor::~WaveformSceneObjectEditor() {
     
-    gainSlider.setBounds(localBounds.removeFromTop(getHeight()/2));
-    secondsToShowSlider.setBounds(localBounds);
 }

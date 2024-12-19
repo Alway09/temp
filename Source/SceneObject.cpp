@@ -3,7 +3,8 @@
 //==============================================================================
 SceneObject::SceneObject(ValueTree treeAttachTo, SceneObjectRealisation realisation)
 {
-    valueTree = treeAttachTo.getOrCreateChildWithName(NameGenerator::createIdentifier("Object"), nullptr);
+    String parentName = NameGenerator::fromIdentifier(treeAttachTo.getType());
+    valueTree = treeAttachTo.getOrCreateChildWithName(NameGenerator::createIdentifier(parentName, "Object"), nullptr);
     valueTree.setProperty(objectTypeID, realisation, nullptr);
     valueTree.addListener(this);
 }

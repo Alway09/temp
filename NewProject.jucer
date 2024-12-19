@@ -47,10 +47,6 @@
                   file="Source/SceneObjectEditor.h"/>
             <FILE id="JFEOaV" name="SceneObjectEditor.cpp" compile="1" resource="0"
                   file="Source/SceneObjectEditor.cpp"/>
-            <FILE id="bDkFzD" name="SceneEditorModel.h" compile="0" resource="0"
-                  file="Source/SceneEditorModel.h"/>
-            <FILE id="Z7x0nt" name="SceneEditorModel.cpp" compile="1" resource="0"
-                  file="Source/SceneEditorModel.cpp"/>
             <FILE id="qAAEea" name="SceneEditor.h" compile="0" resource="0" file="Source/SceneEditor.h"/>
             <FILE id="MmWiNU" name="SceneEditor.cpp" compile="1" resource="0" file="Source/SceneEditor.cpp"/>
           </GROUP>

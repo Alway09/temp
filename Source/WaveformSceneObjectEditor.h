@@ -7,9 +7,9 @@ class WaveformSceneObjectEditor : public SceneObjectEditor
 {
 public:
     WaveformSceneObjectEditor(ValueTree treeEditTo);
+    ~WaveformSceneObjectEditor();
     
-    void resized() override;
 private:
-    Slider gainSlider;
-    Slider secondsToShowSlider;
+    SliderPropertyComponent* gainSlider;
+    SliderPropertyComponent* secondsToShowSlider;
 };

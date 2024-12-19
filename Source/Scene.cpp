@@ -3,7 +3,7 @@
 Scene::Scene(ValueTree treeAttachTo)
 {
     uuidIdentifier = Uuid();
-    valueTree = treeAttachTo.getOrCreateChildWithName(NameGenerator::createIdentifier("Scene"), nullptr);
+    valueTree = treeAttachTo.getOrCreateChildWithName(NameGenerator::createIdentifier("Global", "Scene"), nullptr);
 }
 
 void Scene::setName(String name) {
@@ -16,6 +16,10 @@ void Scene::setName(String name) {
 Scene::~Scene()
 {
     //shutdownOpenGL();
+    ValueTree parentTree = valueTree.getParent();
+    parentTree.removeChild(valueTree, nullptr);
+    NameGenerator::freeName("Global", "Scene", getName());
+    NameGenerator::freeScope(getName());
 }
 
 void Scene::shutdown()

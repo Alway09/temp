@@ -7,31 +7,23 @@ using namespace juce;
 class NameGenerator
 {
 public:
-    static String createName(String prefix) {
-        String name;
-        if(prefixWithTheirNumbers.contains(prefix)) {
-            int counter = 0;
-            while(true) {
-                if(prefixWithTheirNumbers.getReference(prefix).contains(counter)) {
-                    ++counter;
-                } else {
-                    prefixWithTheirNumbers.getReference(prefix).add(counter);
-                    break;
-                }
-            }
-            name = prefix + " " + String(counter);
-        } else {
-            SortedSet<int> set;
-            set.add(0);
-            prefixWithTheirNumbers.set(prefix, set);
-            name = prefix;
-        }
+    static String createName(String scope, String prefix) {
+        SortedSet<int>& numSet = getPrefix(scope, prefix);
         
-        return name;
+        int counter = 0;
+        while(true) {
+            if(numSet.contains(counter)) {
+                ++counter;
+            } else {
+                numSet.add(counter);
+                break;
+            }
+        }
+        return prefix + " " + String(counter);
     }
     
-    static Identifier createIdentifier(String prefix) {
-        return convertToIdentifier(createName(prefix));
+    static Identifier createIdentifier(String scope, String prefix) {
+        return convertToIdentifier(createName(scope, prefix));
     }
     
     static Identifier convertToIdentifier(String name) {
@@ -42,11 +34,41 @@ public:
         return identifier.toString().replace("_", " ");
     }
     
-    static void freeName(String name, String prefix) {
+    static void freeName(String scope, String prefix, String name) {
         int number = name.trimCharactersAtStart(prefix).trimStart().getIntValue();
-        prefixWithTheirNumbers.getReference(prefix).removeValue(number);
+        SortedSet<int>& numSet = getPrefix(scope, prefix);
+        numSet.removeValue(number);
+    }
+    
+    static void freeScope(String scope) {
+        if(scope_prefix_number.contains(scope)) {
+            delete scope_prefix_number[scope];
+            scope_prefix_number.remove(scope);
+        }
+    }
+    
+    static void destruct() {
+        for(auto hm : scope_prefix_number) {
+            delete hm;
+        }
     }
     
 private:
-    inline static HashMap<String, SortedSet<int>> prefixWithTheirNumbers;
+    static SortedSet<int>& getPrefix(String scope, String prefix) {
+        HashMap<String, SortedSet<int>>& scopeMap = getScope(scope);
+        if(!scopeMap.contains(prefix)) {
+            scopeMap.set(prefix, SortedSet<int>());
+        }
+        return scopeMap.getReference(prefix);
+    }
+    
+    static HashMap<String, SortedSet<int>>& getScope(String scope) {
+        if(!scope_prefix_number.contains(scope)) {
+            HashMap<String, SortedSet<int>>* map = new HashMap<String, SortedSet<int>>();
+            scope_prefix_number.set(scope, map);
+        }
+        return *scope_prefix_number.getReference(scope);
+    }
+    
+    inline static HashMap<String, HashMap<String, SortedSet<int>>*> scope_prefix_number;
 };

@@ -2,6 +2,9 @@
 
 WaveformSceneObject::WaveformSceneObject(ValueTree treeAttachTo) : SceneObject(treeAttachTo, SceneObjectRealisation::Waveform)
 {
+    valueTree.setProperty(IDs::gain, 10.f, nullptr);
+    valueTree.setProperty(IDs::secondsToShow, 1.f, nullptr);
+    
     config.source = SceneObject::Config::DrawSource::Vertices;
     config.primitiveType = SceneObject::Config::DrawPrimitiveType::Lines;
     config.drawBufferUsage = SceneObject::Config::DrawBufferUsage::Stream;

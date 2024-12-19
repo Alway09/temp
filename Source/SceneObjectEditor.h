@@ -1,27 +1,23 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "NameGenerator.h"
 
 using namespace juce;
 
-class SceneObjectEditor : public Component
+class SceneObjectEditor
 {
 public:
     SceneObjectEditor(ValueTree treeEditTo) : valueTree(treeEditTo){}
-    
-    void setSelected(bool shouldBeSelected) { selected = shouldBeSelected; }
-    
-    void paint(Graphics& g) override {
-        if(selected) {
-            g.setColour(Colours::red);
-        } else {
-            g.setColour(Colours::white);
-        }
-        
-        g.drawRect(getLocalBounds());
+    ~SceneObjectEditor() { // PropertyComponents deletes with pannel
+        controls.clear();
     }
+    
+    const Array<PropertyComponent*>& getControls() { return controls; };
+    String getName() const { return NameGenerator::fromIdentifier(valueTree.getType()); }
 protected:
     ValueTree valueTree;
+    Array<PropertyComponent*> controls;
 private:
-    bool selected = false;
+    
 };
