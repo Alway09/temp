@@ -1,12 +1,9 @@
 #include "SceneObject.h"
 
 //==============================================================================
-SceneObject::SceneObject(ValueTree treeAttachTo, SceneObjectRealisation realisation)
+SceneObject::SceneObject(StatefulObject& parent, String namePrefix, SceneObjectRealisation realisation) : StatefulObject(parent.getValueTree(), parent.getName(), namePrefix)
 {
-    String parentName = NameGenerator::fromIdentifier(treeAttachTo.getType());
-    valueTree = treeAttachTo.getOrCreateChildWithName(NameGenerator::createIdentifier(parentName, "Object"), nullptr);
-    valueTree.setProperty(objectTypeID, realisation, nullptr);
-    valueTree.addListener(this);
+    getValueTree().setProperty(objectTypeID, realisation, nullptr);
 }
 
 SceneObject::~SceneObject() {

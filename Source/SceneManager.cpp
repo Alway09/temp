@@ -39,13 +39,13 @@ void SceneManager::createSceneObject(Scene* scene, SceneObjectRealisation realis
     switch (realisation) {
         case SceneObjectRealisation::Waveform:
         {
-            WaveformSceneObject * wf = new WaveformSceneObject(scene->getValueTree());
+            WaveformSceneObject * wf = new WaveformSceneObject(*scene);
             scene->createObject(wf);
             break;
         }
         case SceneObjectRealisation::Background:
         {
-            BackgroundSceneObject* bg = new BackgroundSceneObject(scene->getValueTree());
+            BackgroundSceneObject* bg = new BackgroundSceneObject(*scene);
             scene->createObject(bg);
             break;
         }

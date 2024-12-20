@@ -4,7 +4,7 @@
 
 using namespace juce;
 
-class NameGenerator
+class NameGeneratorl
 {
 public:
     static String createName(String scope, String prefix) {

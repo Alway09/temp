@@ -1,6 +1,6 @@
 #include "BackgroundSceneObject.h"
 
-BackgroundSceneObject::BackgroundSceneObject(ValueTree treeAttachTo) : SceneObject(treeAttachTo, SceneObjectRealisation::Background)
+BackgroundSceneObject::BackgroundSceneObject(StatefulObject& parent) : SceneObject(parent, "Background", SceneObjectRealisation::Background)
 {
     config.source = SceneObject::Config::DrawSource::Indices;
     config.primitiveType = SceneObject::Config::DrawPrimitiveType::Triangles;

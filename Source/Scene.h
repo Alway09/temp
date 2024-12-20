@@ -1,11 +1,10 @@
 #pragma once
 #include <JuceHeader.h>
 #include "SceneObject.h"
-#include "NameGenerator.h"
 
 using namespace juce;
 
-class Scene
+class Scene : public StatefulObject
 {
 public:
     Scene(ValueTree treeAttachTo);
@@ -33,10 +32,6 @@ public:
         parentHeight = height;
     }
     
-    void setName(String name);
-    String getName() const { return NameGenerator::fromIdentifier(valueTree.getType()); }
-    ValueTree getValueTree() const { return valueTree; }
-    
     CriticalSection renderMutex;
 private:
     //==============================================================================
@@ -54,7 +49,6 @@ private:
     std::unique_ptr<Uniforms> uniforms;
     OwnedArray<SceneObject> objects;
     
-    ValueTree valueTree;
     Uuid uuidIdentifier;
     
     const char* vertexShader;

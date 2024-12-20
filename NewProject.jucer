@@ -67,6 +67,12 @@
       <FILE id="NBhaPk" name="WaveformComponent.cpp" compile="1" resource="0"
             file="Source/WaveformComponent.cpp"/>
       <GROUP id="{0358BA39-20DC-3C3A-C2AD-8180A17FFE51}" name="Util">
+        <FILE id="pbrE0V" name="StatefulObject.h" compile="0" resource="0"
+              file="Source/StatefulObject.h"/>
+        <FILE id="edIlgv" name="StatefulObject.cpp" compile="1" resource="0"
+              file="Source/StatefulObject.cpp"/>
+        <FILE id="aYVkBo" name="NamedObject.h" compile="0" resource="0" file="Source/NamedObject.h"/>
+        <FILE id="odyAFL" name="NamedObject.cpp" compile="1" resource="0" file="Source/NamedObject.cpp"/>
         <FILE id="mc8XIg" name="NameGenerator.h" compile="0" resource="0" file="Source/NameGenerator.h"/>
         <FILE id="VU2fGq" name="SamplesHolderHolder.h" compile="0" resource="0"
               file="Source/SamplesHolderHolder.h"/>

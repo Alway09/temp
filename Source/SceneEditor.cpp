@@ -29,7 +29,8 @@ void SceneEditor::attach(Scene* scene) {
             if(realisation == SceneObjectRealisation::Waveform) {
                 editor = new WaveformSceneObjectEditor(*iter);
                 objectEditors.add(editor);
-                addSection(editor->getName(), editor->getControls());
+                //addSection(editor->getName(), editor->getControls());
+                addSection("Section", editor->getControls());
                 //model.addObjectEditor(editor);
             } else if(realisation == SceneObjectRealisation::Background) {
                 

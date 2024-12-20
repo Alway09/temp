@@ -1,9 +1,9 @@
 #include "WaveformSceneObject.h"
 
-WaveformSceneObject::WaveformSceneObject(ValueTree treeAttachTo) : SceneObject(treeAttachTo, SceneObjectRealisation::Waveform)
+WaveformSceneObject::WaveformSceneObject(StatefulObject& parent) : SceneObject(parent, "Waveform" , SceneObjectRealisation::Waveform)
 {
-    valueTree.setProperty(IDs::gain, 10.f, nullptr);
-    valueTree.setProperty(IDs::secondsToShow, 1.f, nullptr);
+    getValueTree().setProperty(IDs::gain, 10.f, nullptr);
+    getValueTree().setProperty(IDs::secondsToShow, 1.f, nullptr);
     
     config.source = SceneObject::Config::DrawSource::Vertices;
     config.primitiveType = SceneObject::Config::DrawPrimitiveType::Lines;
@@ -29,13 +29,13 @@ void WaveformSceneObject::fillBuffers() {
     putVertices(vertices);
 }
 
-void WaveformSceneObject::changeSettings(const Identifier& property) {
+void WaveformSceneObject::stateChanged(const Identifier& property) {
     if(property == IDs::gain) {
-        gain = valueTree.getProperty(property);
+        gain = getValueTree().getProperty(property);
     }
     if(property == IDs::secondsToShow) {
         needToUpdateBuffer = false;
-        float secondsToShow = valueTree.getProperty(property);
+        float secondsToShow = getValueTree().getProperty(property);
         samplesToShow = SamplesHolderHolder::sampleRate * secondsToShow;
         vertices.clearQuick();
         vertices.resize(samplesToShow);

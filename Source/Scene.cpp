@@ -1,25 +1,13 @@
 #include "Scene.h"
 
-Scene::Scene(ValueTree treeAttachTo)
+Scene::Scene(ValueTree treeAttachTo) : StatefulObject(treeAttachTo, "Global", "Scene")
 {
     uuidIdentifier = Uuid();
-    valueTree = treeAttachTo.getOrCreateChildWithName(NameGenerator::createIdentifier("Global", "Scene"), nullptr);
-}
-
-void Scene::setName(String name) {
-    Identifier newIdentifier{name};
-    ValueTree newValueTree{newIdentifier};
-    newValueTree.copyPropertiesAndChildrenFrom(valueTree, nullptr);
-    valueTree = newValueTree;
 }
 
 Scene::~Scene()
 {
     //shutdownOpenGL();
-    ValueTree parentTree = valueTree.getParent();
-    parentTree.removeChild(valueTree, nullptr);
-    NameGenerator::freeName("Global", "Scene", getName());
-    NameGenerator::freeScope(getName());
 }
 
 void Scene::shutdown()

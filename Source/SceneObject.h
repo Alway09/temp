@@ -1,6 +1,6 @@
 #pragma once
 #include <JuceHeader.h>
-#include "NameGenerator.h"
+#include "StatefulObject.h"
 
 using namespace juce;
 
@@ -10,20 +10,16 @@ enum SceneObjectRealisation
     Background
 };
 
-class SceneObject : public ValueTree::Listener
+class SceneObject : public StatefulObject
 {
 public:
-    SceneObject(ValueTree treeAttachTo, SceneObjectRealisation realisation);
+    SceneObject(StatefulObject& parent, String namePrefix, SceneObjectRealisation realisation);
     virtual ~SceneObject();
     void draw();
     
     void reset(OpenGLShaderProgram& shaderProgram);
     static Identifier getTypeID() { return objectTypeID; }
 protected:
-    virtual void changeSettings(const Identifier& property) = 0;
-    void valueTreePropertyChanged(ValueTree &treeWhosePropertyHasChanged, const Identifier &property) override {
-        changeSettings(property);
-    }
     
     struct Vertex
     {
@@ -56,7 +52,6 @@ protected:
     } config;
     
     bool needToUpdateBuffer = false;
-    ValueTree valueTree;
 private:
     //==============================================================================
     class Attributes

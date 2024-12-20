@@ -33,7 +33,6 @@ MainComponent::~MainComponent()
     shutdownAudio();
     CommandManagerHolder::destruct();
     SamplesHolderHolder::destruct();
-    NameGenerator::destruct();
 }
 
 //==============================================================================

@@ -5,10 +5,11 @@
 class WaveformSceneObject : public SceneObject
 {
 public:
-    WaveformSceneObject(ValueTree treeAttachTo);
+    WaveformSceneObject(StatefulObject& parent);
     
     void fillBuffers() override;
-    void changeSettings(const Identifier& property) override;
+    //void changeSettings(const Identifier& property) override;
+    void stateChanged(const Identifier &property) override;
     
     struct IDs {
         inline static const Identifier gain{"Gain"};

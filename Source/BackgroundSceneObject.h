@@ -5,11 +5,11 @@
 class BackgroundSceneObject : public SceneObject
 {
 public:
-    BackgroundSceneObject(ValueTree treeAttachTo);
+    BackgroundSceneObject(StatefulObject& parent);
     ~BackgroundSceneObject();
     
     void fillBuffers() override;
-    void changeSettings(const Identifier&) override {};
+    //void changeSettings(const Identifier&) override {};
     
 private:
     Array<Vertex> vertices;
