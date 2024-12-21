@@ -15,11 +15,11 @@ SceneManager::~SceneManager() {
 }
 
 Uuid SceneManager::createScene() {
-    Scene* scene = new Scene(treeAttachTo);
+    /*Scene* scene = new Scene(treeAttachTo);
     scenes.set(scene->getUuidIdentifier(), scene);
     createSceneObject(scene, SceneObjectRealisation::Background);
     createSceneObject(scene, SceneObjectRealisation::Waveform);
-    return scene->getUuidIdentifier();
+    return scene->getUuidIdentifier();*/
 }
 
 void SceneManager::deleteScene(Uuid sceneID) {

@@ -1,12 +1,12 @@
 #include "WaveformSceneObjectEditor.h"
 
-WaveformSceneObjectEditor::WaveformSceneObjectEditor(ValueTree treeEditTo) : SceneObjectEditor(treeEditTo)
+WaveformSceneObjectEditor::WaveformSceneObjectEditor(SceneObject& objectEditTo) : SceneObjectEditor(objectEditTo)
 {
-    gainSlider = new SliderPropertyComponent(valueTree.getPropertyAsValue(WaveformSceneObject::IDs::gain, nullptr), "Gain", 1.0, 15.0, 0.1);
+    gainSlider = new SliderPropertyComponent(object.getPropertyAsValue(WaveformSceneObject::IDs::gain), "Gain", 1.0, 15.0, 0.1);
     controls.add(gainSlider);
     
     double skewFactor = 1.0 / 6;
-    secondsToShowSlider = new SliderPropertyComponent(valueTree.getPropertyAsValue(WaveformSceneObject::IDs::secondsToShow, nullptr), "Seconds to show", 0.1, SamplesHolderHolder::secondsToHold, 0.01, skewFactor, false);
+    secondsToShowSlider = new SliderPropertyComponent(object.getPropertyAsValue(WaveformSceneObject::IDs::secondsToShow), "Seconds to show", 0.1, SamplesHolderHolder::secondsToHold, 0.01, skewFactor, false);
     controls.add(secondsToShowSlider);
 }
 

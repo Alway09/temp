@@ -20,8 +20,6 @@ public:
         setCustomName(this, newName);
     }
     
-    //String getScope() { return scope; }
-    
 private:
     const String scope;
     const String prefix;
@@ -39,7 +37,10 @@ private:
         prefix.add(counter);
         
         object->number = counter;
-        object->name = object->prefix + " " + String(counter);
+        object->name = object->prefix;
+        if(counter != 0) {
+            object->name += " " + String(counter);
+        }
     }
     
     static void deleteName(NamedObject* object) {

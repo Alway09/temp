@@ -4,6 +4,7 @@
 #include "Scene.h"
 #include "SceneObject.h"
 #include "WaveformSceneObjectEditor.h"
+#include "BackgroundSceneObjectEditor.h"
 
 using namespace juce;
 
@@ -20,8 +21,9 @@ public:
     bool isAttachedTo(Scene* scene) { return scene == attachedTo; }
 private:
     void clear() {
-        for(int i = 0; i < getSectionNames().size(); ++i) {
-            removeSection(i);
+        int amount = getSectionNames().size();
+        for(int i = 0; i < amount; ++i) {
+            removeSection(0);
         }
         objectEditors.clear();
     }

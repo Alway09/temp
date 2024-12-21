@@ -5,10 +5,16 @@
 class StatefulObject : public NamedObject, public ValueTree::Listener
 {
 public:
-    StatefulObject(ValueTree treeAttachTo, String nameScope, String namePrefix) : NamedObject(nameScope, namePrefix)
+    StatefulObject(String nameScope, String namePrefix) : NamedObject(nameScope, namePrefix) {
+        const Identifier identifier{stringToIdentifier(getName())};
+        valueTree = ValueTree(identifier);
+        valueTree.addListener(this);
+    }
+    
+    StatefulObject(StatefulObject& parent, String nameScope, String namePrefix) : NamedObject(nameScope, namePrefix)
     {
         const Identifier identifier{stringToIdentifier(getName())};
-        valueTree = treeAttachTo.getOrCreateChildWithName(identifier, nullptr);
+        valueTree = parent.valueTree.getOrCreateChildWithName(identifier, nullptr);
         valueTree.addListener(this);
     }
     
@@ -33,7 +39,19 @@ public:
     
     virtual void stateChanged(const Identifier &property) {}
     
-    ValueTree& getValueTree() { return valueTree; }
+    //ValueTree& getValueTree() { return valueTree; }
+    
+    void setProperty(const Identifier &name, const var &newValue) {
+        valueTree.setProperty(name, newValue, nullptr);
+    }
+    
+    const var& getProperty(const Identifier &name) const {
+        return valueTree.getProperty(name);
+    }
+    
+    Value getPropertyAsValue(const Identifier &name) {
+        return valueTree.getPropertyAsValue(name, nullptr);
+    }
     
 private:
     ValueTree valueTree;

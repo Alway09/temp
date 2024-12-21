@@ -7,7 +7,7 @@ using namespace juce;
 class Scene : public StatefulObject
 {
 public:
-    Scene(ValueTree treeAttachTo);
+    Scene(StatefulObject& parent);
     ~Scene();
     
     void shutdown();
@@ -31,6 +31,8 @@ public:
         this->bounds = bounds;
         parentHeight = height;
     }
+    
+    OwnedArray<SceneObject>& getObjects() { return objects; }
     
     CriticalSection renderMutex;
 private:

@@ -11,6 +11,8 @@ public:
     //void changeSettings(const Identifier& property) override;
     void stateChanged(const Identifier &property) override;
     
+    SceneObjectRealisation getRealisation() override { return SceneObjectRealisation::Waveform; }
+    
     struct IDs {
         inline static const Identifier gain{"Gain"};
         inline static const Identifier secondsToShow{"SecondsToShow"};

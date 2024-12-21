@@ -1,9 +1,9 @@
 #include "SceneObject.h"
 
 //==============================================================================
-SceneObject::SceneObject(StatefulObject& parent, String namePrefix, SceneObjectRealisation realisation) : StatefulObject(parent.getValueTree(), parent.getName(), namePrefix)
+SceneObject::SceneObject(StatefulObject& parent, String namePrefix, SceneObjectRealisation realisation) : StatefulObject(parent, parent.getName(), namePrefix)
 {
-    getValueTree().setProperty(objectTypeID, realisation, nullptr);
+    setProperty(objectTypeID, realisation);
 }
 
 SceneObject::~SceneObject() {

@@ -1,11 +1,11 @@
 #include "ScenesView.h"
 
-ScenesView::ScenesView(ValueTree treeAttachTo)
+ScenesView::ScenesView(StatefulObject& parent) : StatefulObject(parent, "Global", "ScenesView")
 {
     scenesRender.reset(new ScenesRender(*this));
     
-    valueTree = treeAttachTo.getOrCreateChildWithName(identifier, nullptr);
-    sceneManager.reset(new SceneManager(valueTree));
+    //valueTree = treeAttachTo.getOrCreateChildWithName(identifier, nullptr);
+    //sceneManager.reset(new SceneManager(valueTree));
     
     scenesFlex.flexWrap = FlexBox::Wrap::wrap;
     scenesFlex.justifyContent = FlexBox::JustifyContent::center;
@@ -16,7 +16,8 @@ void ScenesView::sceneDeleteButtonClicked(SceneComponent* sceneComponent) {
     Scene* scene = sceneComponent->getScene();
     scenesRender->removeScene(scene);
     sceneComponents.removeObject(sceneComponent);
-    sceneManager->deleteScene(scene->getUuidIdentifier());
+    //sceneManager->deleteScene(scene->getUuidIdentifier());
+    scenes.removeObject(scene);
     
     scenesFlex.items.clear();
     for(auto sceneComponent : sceneComponents) {
@@ -26,8 +27,12 @@ void ScenesView::sceneDeleteButtonClicked(SceneComponent* sceneComponent) {
 }
 
 void ScenesView::createScene(SceneComponent::Listener* parent) {
-    Uuid tmp = sceneManager->createScene();
-    Scene* scene = sceneManager->getScene(tmp);
+    //Uuid tmp = sceneManager->createScene();
+    //Scene* scene = sceneManager->getScene(tmp);
+    Scene* scene = new Scene(*this);
+    createObject(scene, SceneObjectRealisation::Background);
+    createObject(scene, SceneObjectRealisation::Waveform);
+    scenes.add(scene);
     SceneComponent* sceneComponent = new SceneComponent(scene);
     sceneComponents.add(sceneComponent);
     sceneComponent->addSceneListener(parent);

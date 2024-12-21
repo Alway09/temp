@@ -2,8 +2,8 @@
 
 WaveformSceneObject::WaveformSceneObject(StatefulObject& parent) : SceneObject(parent, "Waveform" , SceneObjectRealisation::Waveform)
 {
-    getValueTree().setProperty(IDs::gain, 10.f, nullptr);
-    getValueTree().setProperty(IDs::secondsToShow, 1.f, nullptr);
+    setProperty(IDs::gain, 10.f);
+    setProperty(IDs::secondsToShow, 1.f);
     
     config.source = SceneObject::Config::DrawSource::Vertices;
     config.primitiveType = SceneObject::Config::DrawPrimitiveType::Lines;
@@ -31,11 +31,11 @@ void WaveformSceneObject::fillBuffers() {
 
 void WaveformSceneObject::stateChanged(const Identifier& property) {
     if(property == IDs::gain) {
-        gain = getValueTree().getProperty(property);
+        gain = getProperty(property);
     }
     if(property == IDs::secondsToShow) {
         needToUpdateBuffer = false;
-        float secondsToShow = getValueTree().getProperty(property);
+        float secondsToShow = getProperty(property);
         samplesToShow = SamplesHolderHolder::sampleRate * secondsToShow;
         vertices.clearQuick();
         vertices.resize(samplesToShow);

@@ -20,28 +20,24 @@ void SceneEditor::attach(Scene* scene) {
         clear();
         header.setText(scene->getName());
         
-        ValueTree sceneTree = scene->getValueTree();
-        ValueTree::Iterator iter = sceneTree.begin();
-        while(iter != sceneTree.end()) {
-            int realisation = (*iter).getProperty(SceneObject::getTypeID());
+        for(int i = 0; i < scene->getObjects().size(); ++i) {
+            SceneObject* object = scene->getObjects()[i];
+            int realisation = object->getRealisation();
             
             SceneObjectEditor* editor;
-            if(realisation == SceneObjectRealisation::Waveform) {
-                editor = new WaveformSceneObjectEditor(*iter);
-                objectEditors.add(editor);
-                //addSection(editor->getName(), editor->getControls());
-                addSection("Section", editor->getControls());
-                //model.addObjectEditor(editor);
-            } else if(realisation == SceneObjectRealisation::Background) {
-                
-            } else {
-                jassertfalse;
+            switch (realisation) {
+                case SceneObjectRealisation::Waveform:
+                    editor = new WaveformSceneObjectEditor(*object);
+                    break;
+                case SceneObjectRealisation::Background:
+                    editor = new BackgroundSceneObjectEditor(*object);
+                    break;
             }
             
-            ++iter;
+            objectEditors.add(editor);
+            addSection(object->getName(), editor->getControls());
         }
         
-        //updateContent();
         refreshAll();
     }
     

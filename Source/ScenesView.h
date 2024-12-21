@@ -8,10 +8,10 @@
 
 using namespace juce;
 
-class ScenesView : public Component, public SceneComponent::Listener
+class ScenesView : public Component, public StatefulObject, public SceneComponent::Listener
 {
 public:
-    ScenesView(ValueTree treeAttachTo);
+    ScenesView(StatefulObject& parent);
     ~ScenesView() { scenesRender.reset(); }
     
     void resized() override { scenesFlex.performLayout(getLocalBounds()); }
@@ -24,11 +24,29 @@ public:
 private:
     void addFlexItem(Component* itemToControl);
     
+    static void createObject(Scene* scene, SceneObjectRealisation realisation) {
+        switch (realisation) {
+            case SceneObjectRealisation::Waveform:
+            {
+                WaveformSceneObject * wf = new WaveformSceneObject(*scene);
+                scene->createObject(wf);
+                break;
+            }
+            case SceneObjectRealisation::Background:
+            {
+                BackgroundSceneObject* bg = new BackgroundSceneObject(*scene);
+                scene->createObject(bg);
+                break;
+            }
+        }
+    }
+    
     FlexBox scenesFlex;
-    std::unique_ptr<SceneManager> sceneManager;
+    //std::unique_ptr<SceneManager> sceneManager;
+    OwnedArray<Scene> scenes;
     std::unique_ptr<ScenesRender> scenesRender;
     OwnedArray<SceneComponent> sceneComponents;
     
-    ValueTree valueTree;
+    //ValueTree valueTree;
     Identifier identifier{"ScenesView"};
 };

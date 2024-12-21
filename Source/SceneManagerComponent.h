@@ -10,7 +10,7 @@ using namespace juce;
 class SceneManagerComponent : public Component, public ApplicationCommandTarget, public Button::Listener, public SceneComponent::Listener
 {
 public:
-    SceneManagerComponent(ValueTree valueTree);
+    SceneManagerComponent(StatefulObject& parent);
     ~SceneManagerComponent() {}
     
     void resized() override;

@@ -1,6 +1,6 @@
 #include "Scene.h"
 
-Scene::Scene(ValueTree treeAttachTo) : StatefulObject(treeAttachTo, "Global", "Scene")
+Scene::Scene(StatefulObject& parent) : StatefulObject(parent, "Global", "Scene")
 {
     uuidIdentifier = Uuid();
 }

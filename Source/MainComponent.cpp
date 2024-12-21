@@ -1,6 +1,6 @@
 #include "MainComponent.h"
 
-MainComponent::MainComponent() : tree("root")
+MainComponent::MainComponent() : StatefulObject("Global", "root")
 {
 
     // Some platforms require permissions to open input channels so request that here
@@ -18,7 +18,7 @@ MainComponent::MainComponent() : tree("root")
     
     restoreSettings();
     
-    sceneManagerComponent.reset(new SceneManagerComponent(tree));
+    sceneManagerComponent.reset(new SceneManagerComponent(*this));
     addAndMakeVisible(sceneManagerComponent.get());
     
     CommandManagerHolder::getInstance()->registerAllCommandsForTarget(this);
@@ -88,22 +88,22 @@ void MainComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo &
 
 bool MainComponent::perform(const InvocationInfo &info) {
     if(info.commandID == 1) {
-        if(info.isKeyDown) {
+        /*if(info.isKeyDown) {
             DialogWindow::LaunchOptions opt;
             opt.dialogTitle = "Options";
             opt.dialogBackgroundColour = getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId);
-            opt.content.set(new GlobalOptionsComponent(deviceManager, tree), true);
+            opt.content.set(new GlobalOptionsComponent(deviceManager, getValueTree()), true);
             opt.resizable = false;
             opt.launchAsync();
-        }
+        }*/
         return true;
     }
     
     if(info.commandID == 2) {
         if(info.isKeyDown) {\
             File file("/Users/alvvay/Desktop/settings.xml"); // need premissions
-            std::unique_ptr<XmlElement> xml = tree.createXml();
-            xml->writeTo(file);
+            //std::unique_ptr<XmlElement> xml = getValueTree().createXml();
+            //xml->writeTo(file);
         }
         return true;
     }
@@ -140,8 +140,8 @@ void MainComponent::restoreSettings() {
     File file("/Users/alvvay/Desktop/settings.xml"); // need premissions
     if(file.existsAsFile()) {
         std::unique_ptr<XmlElement> xml = XmlDocument::parse(file);
-        tree = ValueTree::fromXml(*xml.get());
+        //getValueTree() = ValueTree::fromXml(*xml.get());
         
-        GlobalOptionsComponent::restoreSettings(tree, deviceManager);
+        //GlobalOptionsComponent::restoreSettings(getValueTree(), deviceManager);
     }
 }

@@ -17,6 +17,8 @@ public:
     virtual ~SceneObject();
     void draw();
     
+    virtual SceneObjectRealisation getRealisation() = 0;
+    
     void reset(OpenGLShaderProgram& shaderProgram);
     static Identifier getTypeID() { return objectTypeID; }
 protected:

@@ -6,7 +6,7 @@
 class WaveformSceneObjectEditor : public SceneObjectEditor
 {
 public:
-    WaveformSceneObjectEditor(ValueTree treeEditTo);
+    WaveformSceneObjectEditor(SceneObject& objectEditTo);
     ~WaveformSceneObjectEditor();
     
 private:

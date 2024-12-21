@@ -38,6 +38,10 @@
         <GROUP id="{94D3361A-3677-DE41-99F7-0C05D9F8E04B}" name="GUI">
           <GROUP id="{2101038D-4770-CFA0-40FE-F575E4D1BF2C}" name="Editor">
             <GROUP id="{BC30DDAB-3C6E-C36C-2E2F-AE7F53753E7D}" name="ObjectEditorImpl">
+              <FILE id="UnFVZJ" name="BackgroundSceneObjectEditor.h" compile="0"
+                    resource="0" file="Source/BackgroundSceneObjectEditor.h"/>
+              <FILE id="JU5Mf3" name="BackgroundSceneObjectEditor.cpp" compile="1"
+                    resource="0" file="Source/BackgroundSceneObjectEditor.cpp"/>
               <FILE id="UF8d6E" name="WaveformSceneObjectEditor.h" compile="0" resource="0"
                     file="Source/WaveformSceneObjectEditor.h"/>
               <FILE id="Z8eiic" name="WaveformSceneObjectEditor.cpp" compile="1"
@@ -73,7 +77,6 @@
               file="Source/StatefulObject.cpp"/>
         <FILE id="aYVkBo" name="NamedObject.h" compile="0" resource="0" file="Source/NamedObject.h"/>
         <FILE id="odyAFL" name="NamedObject.cpp" compile="1" resource="0" file="Source/NamedObject.cpp"/>
-        <FILE id="mc8XIg" name="NameGenerator.h" compile="0" resource="0" file="Source/NameGenerator.h"/>
         <FILE id="VU2fGq" name="SamplesHolderHolder.h" compile="0" resource="0"
               file="Source/SamplesHolderHolder.h"/>
         <FILE id="rkddvu" name="CommandManagerHolder.h" compile="0" resource="0"

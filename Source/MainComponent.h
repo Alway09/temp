@@ -12,7 +12,7 @@
 
 using namespace juce;
 
-class MainComponent  : public AudioAppComponent, public ApplicationCommandTarget
+class MainComponent  : public AudioAppComponent, public ApplicationCommandTarget, public StatefulObject
 {
 public:
     //==============================================================================
@@ -35,7 +35,7 @@ public:
     //==============================================================================
 private:
     std::unique_ptr<SceneManagerComponent> sceneManagerComponent;
-    ValueTree tree;
+    //ValueTree tree;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };
