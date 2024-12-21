@@ -4,7 +4,8 @@
 #include "SceneComponent.h"
 #include "ScenesRender.h"
 #include "SamplesHolderHolder.h"
-#include "SceneManager.h"
+#include "WaveformSceneObject.h"
+#include "BackgroundSceneObject.h"
 
 using namespace juce;
 

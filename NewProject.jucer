@@ -27,9 +27,6 @@
           <FILE id="WpIQdk" name="ScenesRender.h" compile="0" resource="0" file="Source/ScenesRender.h"/>
           <FILE id="AqrgHh" name="ScenesRender.cpp" compile="1" resource="0"
                 file="Source/ScenesRender.cpp"/>
-          <FILE id="b2XhlG" name="SceneManager.h" compile="0" resource="0" file="Source/SceneManager.h"/>
-          <FILE id="WqmuI7" name="SceneManager.cpp" compile="1" resource="0"
-                file="Source/SceneManager.cpp"/>
           <FILE id="mur56A" name="Scene.h" compile="0" resource="0" file="Source/Scene.h"/>
           <FILE id="xmK02T" name="Scene.cpp" compile="1" resource="0" file="Source/Scene.cpp"/>
           <FILE id="A5r8B2" name="SceneObject.h" compile="0" resource="0" file="Source/SceneObject.h"/>
