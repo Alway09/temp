@@ -16,7 +16,11 @@ MainComponent::MainComponent() : StatefulObject("Global", "root")
         setAudioChannels (2, 0);
     }
     
-    restoreSettings();
+    restoreState("/Users/alvvay/Desktop/settings.xml");
+    {
+        AudioSettings audioSettings{*this, deviceManager};
+        audioSettings.restoreAudioSettings();
+    }
     
     sceneManagerComponent.reset(new SceneManagerComponent(*this));
     addAndMakeVisible(sceneManagerComponent.get());
@@ -88,22 +92,23 @@ void MainComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo &
 
 bool MainComponent::perform(const InvocationInfo &info) {
     if(info.commandID == 1) {
-        /*if(info.isKeyDown) {
+        if(info.isKeyDown) {
             DialogWindow::LaunchOptions opt;
             opt.dialogTitle = "Options";
             opt.dialogBackgroundColour = getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId);
-            opt.content.set(new GlobalOptionsComponent(deviceManager, getValueTree()), true);
+            opt.content.set(new GlobalOptionsComponent(*this, deviceManager), true);
             opt.resizable = false;
             opt.launchAsync();
-        }*/
+        }
         return true;
     }
     
     if(info.commandID == 2) {
         if(info.isKeyDown) {\
-            File file("/Users/alvvay/Desktop/settings.xml"); // need premissions
+            //File file("/Users/alvvay/Desktop/settings.xml"); // need premissions
             //std::unique_ptr<XmlElement> xml = getValueTree().createXml();
             //xml->writeTo(file);
+            saveState("/Users/alvvay/Desktop/settings.xml");
         }
         return true;
     }
@@ -136,7 +141,7 @@ void MainComponent::resized()
     sceneManagerComponent->setBounds(r);
 }
 //==============================================================================
-void MainComponent::restoreSettings() {
+/*void MainComponent::restoreSettings() {
     File file("/Users/alvvay/Desktop/settings.xml"); // need premissions
     if(file.existsAsFile()) {
         std::unique_ptr<XmlElement> xml = XmlDocument::parse(file);
@@ -144,4 +149,4 @@ void MainComponent::restoreSettings() {
         
         //GlobalOptionsComponent::restoreSettings(getValueTree(), deviceManager);
     }
-}
+}*/

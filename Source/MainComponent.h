@@ -31,7 +31,7 @@ public:
     void getCommandInfo(CommandID commandID, ApplicationCommandInfo &result) override;
     bool perform(const InvocationInfo &info) override;
     //==============================================================================
-    void restoreSettings();
+    //void restoreSettings();
     //==============================================================================
 private:
     std::unique_ptr<SceneManagerComponent> sceneManagerComponent;

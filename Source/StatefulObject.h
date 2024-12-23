@@ -5,13 +5,13 @@
 class StatefulObject : public NamedObject, public ValueTree::Listener
 {
 public:
-    StatefulObject(String nameScope, String namePrefix) : NamedObject(nameScope, namePrefix) {
+    StatefulObject(String nameScope, String namePrefix) : NamedObject(nameScope, namePrefix), deleteStateWhenDestroyed(true) {
         const Identifier identifier{stringToIdentifier(getName())};
         valueTree = ValueTree(identifier);
         valueTree.addListener(this);
     }
     
-    StatefulObject(StatefulObject& parent, String nameScope, String namePrefix) : NamedObject(nameScope, namePrefix)
+    StatefulObject(StatefulObject& parent, String nameScope, String namePrefix, bool deleteStateWhenDestroyed = true) : NamedObject(nameScope, namePrefix), deleteStateWhenDestroyed(deleteStateWhenDestroyed)
     {
         const Identifier identifier{stringToIdentifier(getName())};
         valueTree = parent.valueTree.getOrCreateChildWithName(identifier, nullptr);
@@ -19,8 +19,10 @@ public:
     }
     
     ~StatefulObject() {
-        ValueTree parentTree = valueTree.getParent();
-        parentTree.removeChild(valueTree, nullptr);
+        if(deleteStateWhenDestroyed) {
+            ValueTree parentTree = valueTree.getParent();
+            parentTree.removeChild(valueTree, nullptr);
+        }
     }
     
     void rename(String newName) override {
@@ -37,9 +39,29 @@ public:
         valueTree.addListener(this);
     }
     
-    virtual void stateChanged(const Identifier &property) {}
+    void saveState(String filename) {
+        File file(filename); // need premissions
+        std::unique_ptr<XmlElement> xml = valueTree.createXml();
+        xml->writeTo(file);
+    }
     
-    //ValueTree& getValueTree() { return valueTree; }
+    void restoreState(String filename) {
+        File file(filename); // need premissions
+        if(file.existsAsFile()) {
+            std::unique_ptr<XmlElement> xml = XmlDocument::parse(file);
+            ValueTree restoreTree = ValueTree::fromXml(*xml.get());
+            
+            if(restoreTree.getType() == valueTree.getType()) {
+                valueTree = restoreTree;
+            } else {
+                jassertfalse;
+            }
+            
+            //GlobalOptionsComponent::restoreSettings(getValueTree(), deviceManager);
+        }
+    }
+    
+    virtual void stateChanged(const Identifier &property) {}
     
     void setProperty(const Identifier &name, const var &newValue) {
         valueTree.setProperty(name, newValue, nullptr);
@@ -55,6 +77,7 @@ public:
     
 private:
     ValueTree valueTree;
+    const bool deleteStateWhenDestroyed;
     
     void valueTreePropertyChanged(ValueTree &treeWhosePropertyHasChanged, const Identifier &property) override {
         stateChanged(property);

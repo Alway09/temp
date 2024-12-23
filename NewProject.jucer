@@ -12,6 +12,15 @@
             file="Source/GlobalOptionsComponent.h"/>
       <FILE id="eyXZgL" name="GlobalOptionsComponent.cpp" compile="1" resource="0"
             file="Source/GlobalOptionsComponent.cpp"/>
+      <GROUP id="{B7D1D929-4FCB-7BC6-B827-46B4AB35D497}" name="Settings">
+        <FILE id="C8xO26" name="AudioSettings.cpp" compile="1" resource="0"
+              file="Source/AudioSettings.cpp"/>
+        <FILE id="aAXvwO" name="AudioSettings.h" compile="0" resource="0" file="Source/AudioSettings.h"/>
+        <FILE id="II7al4" name="AudioSettingsComponent.cpp" compile="1" resource="0"
+              file="Source/AudioSettingsComponent.cpp"/>
+        <FILE id="BPNFS2" name="AudioSettingsComponent.h" compile="0" resource="0"
+              file="Source/AudioSettingsComponent.h"/>
+      </GROUP>
       <GROUP id="{D6DD7CEF-2611-8F31-B38B-CD9A33E0AD3A}" name="Scene">
         <GROUP id="{88BA990E-12FE-C03E-11CA-4E1CCC0FF735}" name="Data">
           <GROUP id="{2776FDA7-0309-2B4F-1FB1-01C8E1453026}" name="SceneObjectRealisation">
