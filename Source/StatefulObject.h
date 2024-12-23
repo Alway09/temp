@@ -31,7 +31,7 @@ public:
         ValueTree parentTree = valueTree.getParent();
         const Identifier newIdentifier{stringToIdentifier(getName())};
         ValueTree newValueTree{newIdentifier};
-        newValueTree.copyPropertiesFrom(valueTree, nullptr);
+        newValueTree.copyPropertiesAndChildrenFrom(valueTree, nullptr);
         valueTree.removeListener(this);
         parentTree.removeChild(valueTree, nullptr);
         parentTree.addChild(newValueTree, -1, nullptr);
@@ -84,6 +84,10 @@ private:
     }
     
     static Identifier stringToIdentifier(String str) {
-        return Identifier(str.replace(" ", "_"));
+        String possibleID = str.replace(" ", "_");
+        if(!XmlElement::isValidXmlName(possibleID)) {
+            possibleID = "_" + possibleID;
+        }
+        return Identifier(possibleID);
     }
 };

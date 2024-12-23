@@ -16,9 +16,22 @@ public:
     String getName() { return name; }
     
     virtual void rename(String newName) {
+        validateCustomName(this, newName);
         deleteName(this);
         setCustomName(this, newName);
     }
+    
+    class NameException : public std::exception
+    {
+    public:
+        NameException() {}
+        NameException(String message) : message(message) {}
+        
+        String getMessage() const { return message; }
+        bool hasMessage() const { return !message.isEmpty(); }
+    private:
+        String message;
+    };
     
 private:
     const String scope;
@@ -91,13 +104,22 @@ private:
     
     static void setCustomName(NamedObject* object, String customName) {
         SortedSet<String>& scope = getScopeCustom(object->scope);
-        if(!scope.contains(customName)) {
-            // validate(customName);
-            object->name = customName;
-            object->isCustom = true;
-            scope.add(customName);
-        } else {
-            // throw exception or smth like this;
+        object->name = customName;
+        object->isCustom = true;
+        scope.add(customName);
+    }
+    
+    static void validateCustomName(NamedObject* object, String name) {
+        SortedSet<String>& scope = getScopeCustom(object->scope);
+        
+        // TODO CHECK IN AUTOMATIC GENERATED SCOPE -> need to delete custom pool and make refactoring
+        
+        if(name == object->getName() || name.isEmpty()) {
+            throw NameException();
+        }
+        
+        if(scope.contains(name)) {
+            throw NameException("Name \"" + name + "\" exsists in scope \"" + object->scope + "\"!");
         }
     }
     

@@ -13,10 +13,6 @@ public:
         deviceManager.removeChangeListener(this);
     }
     
-    /*void audioSettingsChanged() {
-        
-    }*/
-    
     void restoreAudioSettings() {
         AudioDeviceManager::AudioDeviceSetup setup;
         setup.outputDeviceName = getProperty(IDs::outputDeviceName);

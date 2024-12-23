@@ -8,18 +8,34 @@
 
 using namespace juce;
 
-class SceneEditor : public PropertyPanel
+class SceneEditor : public PropertyPanel, public Label::Listener
 {
 public:
     SceneEditor();
     
     void resized() override;
     
-    void addCloseButtonListener(Button::Listener* listener) { header.getCloseButton().addListener(listener); }
+    void addCloseButtonListener(Button::Listener* listener) { header.addCloseButtonListener(listener); }
     
     void attach(Scene* scene);
     bool isAttachedTo(Scene* scene) { return scene == attachedTo; }
 private:
+    void labelTextChanged(Label* l) override {
+        String newName = l->getText();
+        
+        try {
+            attachedTo->rename(newName);
+        } catch (const NamedObject::NameException& e) {
+            if(e.hasMessage()) {
+                //DBG(e.getMessage());
+                AlertWindow::showAsync(MessageBoxOptions::makeOptionsOk(MessageBoxIconType::WarningIcon, "Warning", e.getMessage()), nullptr);
+            }
+            
+            header.setSceneName(attachedTo->getName());
+        }
+        
+    }
+    
     void clear() {
         int amount = getSectionNames().size();
         for(int i = 0; i < amount; ++i) {
@@ -32,7 +48,9 @@ private:
     {
     public:
         Header() {
-            addAndMakeVisible(headerLabel);
+            sceneNameLabel.setEditable(false, true, true);
+            
+            addAndMakeVisible(sceneNameLabel);
             addAndMakeVisible(closeButton);
         }
         
@@ -40,15 +58,16 @@ private:
             auto localBounds = getLocalBounds();
             
             closeButton.setBounds(localBounds.removeFromLeft(50));
-            headerLabel.setBounds(localBounds);
+            sceneNameLabel.setBounds(localBounds);
         }
         
+        void addCloseButtonListener(Button::Listener* listener) { closeButton.addListener(listener); }
+        void addSceneNameLabelListener(Label::Listener* listener) { sceneNameLabel.addListener(listener); }
         
-        void setText(String text) { headerLabel.setText(text, NotificationType::dontSendNotification); }
-        Button& getCloseButton() { return closeButton; }
+        void setSceneName(String name) { sceneNameLabel.setText(name, NotificationType::dontSendNotification); }
     private:
         TextButton closeButton;
-        Label headerLabel{"Hello"};
+        Label sceneNameLabel;
     };
     
     Header header;

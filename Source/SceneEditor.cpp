@@ -2,6 +2,7 @@
 
 SceneEditor::SceneEditor()
 {
+    header.addSceneNameLabelListener(this);
     addAndMakeVisible(header);
 }
 
@@ -18,7 +19,7 @@ void SceneEditor::attach(Scene* scene) {
     if(!isAttachedTo(scene)) {
         attachedTo = scene;
         clear();
-        header.setText(scene->getName());
+        header.setSceneName(scene->getName());
         
         for(int i = 0; i < scene->getObjects().size(); ++i) {
             SceneObject* object = scene->getObjects()[i];
