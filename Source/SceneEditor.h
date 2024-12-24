@@ -27,13 +27,11 @@ private:
             attachedTo->rename(newName);
         } catch (const NamedObject::NameException& e) {
             if(e.hasMessage()) {
-                //DBG(e.getMessage());
                 AlertWindow::showAsync(MessageBoxOptions::makeOptionsOk(MessageBoxIconType::WarningIcon, "Warning", e.getMessage()), nullptr);
             }
-            
-            header.setSceneName(attachedTo->getName());
         }
         
+        header.setSceneName(attachedTo->getName());
     }
     
     void clear() {

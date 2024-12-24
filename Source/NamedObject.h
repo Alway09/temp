@@ -5,20 +5,26 @@ using namespace juce;
 
 class NamedObject {
 public:
-    NamedObject(String scope, String prefix) : scope(scope), prefix(prefix) {
+    NamedObject(String scope, String prefix) : name(scope, prefix) {
         createName(this);
+        /*if(validateScopeAndPrefix(scope, prefix)) {
+            createName(this);
+        } else {
+            jassertfalse;
+        }*/
+        
     }
     
     virtual ~NamedObject() {
         deleteName(this);
     }
     
-    String getName() { return name; }
+    String getName() { return name.get(); }
     
     virtual void rename(String newName) {
-        validateCustomName(this, newName);
+        Name name = validateCustomName(this, newName);
         deleteName(this);
-        setCustomName(this, newName);
+        setCustomName(this, name);
     }
     
     class NameException : public std::exception
@@ -34,14 +40,32 @@ public:
     };
     
 private:
-    const String scope;
-    const String prefix;
-    int number;
-    String name;
-    bool isCustom = false;
+    struct Name {
+        Name(String scope, String prefix) : scope(scope.trim()), prefix(prefix.trim()) {}
+        Name(String scope, String prefix, int number) : Name(scope, prefix) { this->number = number; }
+        
+        String scope;
+        String prefix;
+        int number;
+        
+        Name& operator=(const Name& other) {
+            this->scope = other.scope;
+            this->prefix = other.prefix;
+            this->number = other.number;
+            return *this;
+        }
+        
+        String get() {
+            if(number == 0) {
+                return prefix;
+            } else {
+                return prefix + " " + String(number);
+            }
+        }
+    } name;
     
     static void createName(NamedObject* object) {
-        SortedSet<int>& prefix = getPrefix(object->scope, object->prefix);
+        SortedSet<int>& prefix = getPrefix(object->name.scope, object->name.prefix);
         int counter = 0;
         while(prefix.contains(counter)) {
             ++counter;
@@ -49,40 +73,32 @@ private:
         
         prefix.add(counter);
         
-        object->number = counter;
-        object->name = object->prefix;
-        if(counter != 0) {
-            object->name += " " + String(counter);
-        }
+        object->name.number = counter;
     }
     
     static void deleteName(NamedObject* object) {
-        if(!object->isCustom) {
-            if(scope_prefix_number_pool.contains(object->scope)) {
-                HashMap<String, SortedSet<int>>* prefix = scope_prefix_number_pool.getReference(object->scope);
+        if(scope_prefix_number_pool.contains(object->name.scope)) {
+            HashMap<String, SortedSet<int>>* prefix = scope_prefix_number_pool.getReference(object->name.scope);
+            
+            if(prefix->contains(object->name.prefix)) {
+                SortedSet<int>& number = prefix->getReference(object->name.prefix);
                 
-                if(prefix->contains(object->prefix)) {
-                    SortedSet<int>& number = prefix->getReference(object->prefix);
-                    
-                    number.removeValue(object->number);
-                    if(number.isEmpty()) {
-                        prefix->remove(object->prefix);
-                        if(prefix->size() == 0) {
-                            scope_prefix_number_pool.remove(object->scope);
-                            delete prefix;
-                        }
+                number.removeValue(object->name.number);
+                if(number.isEmpty()) {
+                    prefix->remove(object->name.prefix);
+                    if(prefix->size() == 0) {
+                        scope_prefix_number_pool.remove(object->name.scope);
+                        delete prefix;
                     }
                 }
             }
-        } else {
-            if(scope_name_custom_pool.contains(object->scope)) {
-                SortedSet<String>& scope = scope_name_custom_pool.getReference(object->scope);
-                
-                scope.removeValue(object->name);
-                if(scope.isEmpty()) {
-                    scope_name_custom_pool.remove(object->scope);
-                }
-            }
+        }
+        
+        String nameScope = object->getName();
+        if(scope_prefix_number_pool.contains(nameScope)) {
+            HashMap<String, SortedSet<int>>* prefix = scope_prefix_number_pool.getReference(nameScope);
+            scope_prefix_number_pool.remove(nameScope);
+            delete prefix;
         }
     }
     
@@ -102,34 +118,41 @@ private:
         return scope_prefix_number_pool.getReference(scope);
     }
     
-    static void setCustomName(NamedObject* object, String customName) {
-        SortedSet<String>& scope = getScopeCustom(object->scope);
-        object->name = customName;
-        object->isCustom = true;
-        scope.add(customName);
+    static Name validateCustomName(NamedObject* object, String name) {
+        HashMap<String, SortedSet<int>>* scopeMap = getScope(object->name.scope);
+        
+        if(scopeMap->contains(name)) {
+            throw NameException("Name \"" + name + "\" exsists in scope \"" + object->name.scope + "\"!");
+        } else {
+            // try to split on word and number (autogen like)
+            String efficientNumberStr = name.fromFirstOccurrenceOf(" ", false, false);
+            int efficientNumber = efficientNumberStr.getIntValue();
+            if(efficientNumber == 0) { // efficientNumberStr is not a number or 0
+                // its ok!
+                return Name(object->name.scope, name, 0);
+            } else {
+                String efficientPrefix = name.upToFirstOccurrenceOf(" ", false, false);
+                if(scopeMap->contains(efficientPrefix)) {
+                    SortedSet<int>& prefix = scopeMap->getReference(efficientPrefix);
+                    if(prefix.contains(efficientNumber)) {
+                        throw NameException("Name \"" + name + "\" exsists in scope \"" + object->name.scope + "\"!");
+                    } else {
+                        // its ok!
+                        return Name(object->name.scope, efficientPrefix, efficientNumber);
+                    }
+                } else {
+                    // its ok!
+                    return Name(object->name.scope, efficientPrefix, efficientNumber);
+                }
+            }
+        }
     }
     
-    static void validateCustomName(NamedObject* object, String name) {
-        SortedSet<String>& scope = getScopeCustom(object->scope);
-        
-        // TODO CHECK IN AUTOMATIC GENERATED SCOPE -> need to delete custom pool and make refactoring
-        
-        if(name == object->getName() || name.isEmpty()) {
-            throw NameException();
-        }
-        
-        if(scope.contains(name)) {
-            throw NameException("Name \"" + name + "\" exsists in scope \"" + object->scope + "\"!");
-        }
-    }
-    
-    static SortedSet<String>& getScopeCustom(String scope) {
-        if(!scope_name_custom_pool.contains(scope)) {
-            scope_name_custom_pool.set(scope, SortedSet<String>());
-        }
-        return scope_name_custom_pool.getReference(scope);
+    void setCustomName(NamedObject* object, Name name) {
+        SortedSet<int>& prefix = getPrefix(name.scope, name.prefix);
+        prefix.add(name.number);
+        object->name = name;
     }
     
     inline static HashMap<String, HashMap<String, SortedSet<int>>*> scope_prefix_number_pool;
-    inline static HashMap<String, SortedSet<String>> scope_name_custom_pool;
 };
