@@ -26,10 +26,18 @@ public:
     }
     
     void rename(String newName) override {
+        String nameToRollback = getName();
         NamedObject::rename(newName);
         
+        Identifier newIdentifier;
+        try {
+            newIdentifier = stringToIdentifier(getName());
+        } catch (const StateException& e) {
+            NamedObject::rename(nameToRollback);
+            throw e;
+        }
+        
         ValueTree parentTree = valueTree.getParent();
-        const Identifier newIdentifier{stringToIdentifier(getName())};
         ValueTree newValueTree{newIdentifier};
         newValueTree.copyPropertiesAndChildrenFrom(valueTree, nullptr);
         valueTree.removeListener(this);
@@ -75,6 +83,16 @@ public:
         return valueTree.getPropertyAsValue(name, nullptr);
     }
     
+    class StateException : public std::exception
+    {
+    public:
+        StateException(String message) : message(message) {}
+        
+        String getMessage() const { return message; }
+    private:
+        const String message;
+    };
+    
 private:
     ValueTree valueTree;
     const bool deleteStateWhenDestroyed;
@@ -87,6 +105,9 @@ private:
         String possibleID = str.replace(" ", "_");
         if(!XmlElement::isValidXmlName(possibleID)) {
             possibleID = "_" + possibleID;
+            if(!XmlElement::isValidXmlName(possibleID)) {
+                throw StateException("Name \"" + str + "\" is not valid!");
+            }
         }
         return Identifier(possibleID);
     }

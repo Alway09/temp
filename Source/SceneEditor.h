@@ -29,6 +29,8 @@ private:
             if(e.hasMessage()) {
                 AlertWindow::showAsync(MessageBoxOptions::makeOptionsOk(MessageBoxIconType::WarningIcon, "Warning", e.getMessage()), nullptr);
             }
+        } catch (const StatefulObject::StateException& e) {
+            AlertWindow::showAsync(MessageBoxOptions::makeOptionsOk(MessageBoxIconType::WarningIcon, "Warning", e.getMessage()), nullptr);
         }
         
         header.setSceneName(attachedTo->getName());

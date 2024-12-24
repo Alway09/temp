@@ -119,7 +119,6 @@ private:
             throw NameException("Name \"" + name + "\" exsists in scope \"" + object->name.scope + "\"!");
         } else {
             // try to split on word(s) and number in the end (autogen like)
-            //String efficientNumberStr = name.fromFirstOccurrenceOf(" ", false, false);
             String efficientNumberStr = name.fromLastOccurrenceOf(" ", false, false);
             int efficientNumber = efficientNumberStr.getIntValue();
             if(efficientNumber == 0) { // efficientNumberStr is not a number or 0
