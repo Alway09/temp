@@ -7,12 +7,6 @@ class NamedObject {
 public:
     NamedObject(String scope, String prefix) : name(scope, prefix) {
         createName(this);
-        /*if(validateScopeAndPrefix(scope, prefix)) {
-            createName(this);
-        } else {
-            jassertfalse;
-        }*/
-        
     }
     
     virtual ~NamedObject() {
@@ -124,24 +118,22 @@ private:
         if(scopeMap->contains(name)) {
             throw NameException("Name \"" + name + "\" exsists in scope \"" + object->name.scope + "\"!");
         } else {
-            // try to split on word and number (autogen like)
-            String efficientNumberStr = name.fromFirstOccurrenceOf(" ", false, false);
+            // try to split on word(s) and number in the end (autogen like)
+            //String efficientNumberStr = name.fromFirstOccurrenceOf(" ", false, false);
+            String efficientNumberStr = name.fromLastOccurrenceOf(" ", false, false);
             int efficientNumber = efficientNumberStr.getIntValue();
             if(efficientNumber == 0) { // efficientNumberStr is not a number or 0
-                // its ok!
                 return Name(object->name.scope, name, 0);
             } else {
-                String efficientPrefix = name.upToFirstOccurrenceOf(" ", false, false);
+                String efficientPrefix = name.upToLastOccurrenceOf(" ", false, false);
                 if(scopeMap->contains(efficientPrefix)) {
                     SortedSet<int>& prefix = scopeMap->getReference(efficientPrefix);
                     if(prefix.contains(efficientNumber)) {
                         throw NameException("Name \"" + name + "\" exsists in scope \"" + object->name.scope + "\"!");
                     } else {
-                        // its ok!
                         return Name(object->name.scope, efficientPrefix, efficientNumber);
                     }
                 } else {
-                    // its ok!
                     return Name(object->name.scope, efficientPrefix, efficientNumber);
                 }
             }
