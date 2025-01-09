@@ -1,6 +1,8 @@
 #pragma once
 #include <JuceHeader.h>
-#include "SceneObject.h"
+//#include "SceneObjectRealisationCreator.h"
+#include "WaveformSceneObject.h"
+#include "BackgroundSceneObject.h"
 
 using namespace juce;
 
@@ -8,6 +10,7 @@ class Scene : public StatefulObject
 {
 public:
     Scene(StatefulObject& parent);
+    Scene(ObjectState objectState);
     ~Scene();
     
     void shutdown();
@@ -17,7 +20,44 @@ public:
     Matrix3D<float> getViewMatrix() const;
     
     void createShaders();
-    void createObject(SceneObject * const obj) {
+    void createObject(SceneObjectRealisation realisation) {
+        SceneObject* obj = nullptr;
+        
+        switch (realisation) {
+            case SceneObjectRealisation::Waveform:
+            {
+                obj = new WaveformSceneObject(*this);
+                break;
+            }
+            case SceneObjectRealisation::Background:
+            {
+                obj = new BackgroundSceneObject(*this);
+                break;
+            }
+        }
+        
+        if(shader.get() != nullptr)
+            obj->reset(*shader);
+
+        objects.add(obj);
+    }
+    
+    void createObject(SceneObjectRealisation realisation, ObjectState objectState) {
+        SceneObject* obj = nullptr;
+        
+        switch (realisation) {
+            case SceneObjectRealisation::Waveform:
+            {
+                obj = new WaveformSceneObject(objectState);
+                break;
+            }
+            case SceneObjectRealisation::Background:
+            {
+                obj = new BackgroundSceneObject(objectState);
+                break;
+            }
+        }
+        
         if(shader.get() != nullptr)
             obj->reset(*shader);
 

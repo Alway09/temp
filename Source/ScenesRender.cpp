@@ -36,6 +36,7 @@ void ScenesRender::sceneMouseDown(Scene* scene) {
 }
 
 void ScenesRender::addScene(Scene* scene) {
+    
     context.executeOnGLThread([&scene](OpenGLContext&){ scene->createShaders(); }, true);
     scenes.add(scene);
 }

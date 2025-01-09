@@ -1,8 +1,24 @@
 #include "Scene.h"
 
-Scene::Scene(StatefulObject& parent) : StatefulObject(parent, "Global", "Scene")
+Scene::Scene(StatefulObject& parent) : StatefulObject(parent, parent.getName(), "Scene")
 {
     uuidIdentifier = Uuid();
+}
+
+Scene::Scene(ObjectState objectState) : StatefulObject(objectState) {
+    uuidIdentifier = Uuid();
+    
+    if(hasChilds()) {
+        auto statesArray = getChildStates();
+        for(auto state : statesArray) {
+            int type = state.getTree().getProperty("Type");
+            if(type == 0) {
+                createObject(SceneObjectRealisation::Waveform, state);
+            } else if (type == 1) {
+                createObject(SceneObjectRealisation::Background, state);
+            }
+        }
+    }
 }
 
 Scene::~Scene()

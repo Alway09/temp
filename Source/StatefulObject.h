@@ -5,6 +5,32 @@
 class StatefulObject : public NamedObject, public ValueTree::Listener
 {
 public:
+    class ObjectState {
+    public:
+        ObjectState(ValueTree valueTree, Name name) : valueTree(valueTree), name(name) {}
+        
+        Name getName() {return name;}
+        ValueTree getTree() { return valueTree; }
+        
+    private:
+        ValueTree valueTree;
+        Name name;
+    };
+    
+    Array<ObjectState> getChildStates() {
+        Array<ObjectState> arr;
+        
+        ValueTree::Iterator iter = valueTree.begin();
+        while(iter != valueTree.end()) {
+            Name name(this->name.get(), "some");
+            ObjectState state(*iter, validateCustomName(name, identifierToString((*iter).getType())));
+            arr.add(state);
+            ++iter;
+        }
+        
+        return arr;
+    }
+    
     StatefulObject(String nameScope, String namePrefix) : NamedObject(nameScope, namePrefix), deleteStateWhenDestroyed(true) {
         const Identifier identifier{stringToIdentifier(getName())};
         valueTree = ValueTree(identifier);
@@ -15,6 +41,12 @@ public:
     {
         const Identifier identifier{stringToIdentifier(getName())};
         valueTree = parent.valueTree.getOrCreateChildWithName(identifier, nullptr);
+        valueTree.addListener(this);
+    }
+    
+    StatefulObject(ObjectState state) : NamedObject(state.getName()), deleteStateWhenDestroyed(true)
+    {
+        valueTree = state.getTree();
         valueTree.addListener(this);
     }
     
@@ -64,8 +96,6 @@ public:
             } else {
                 jassertfalse;
             }
-            
-            //GlobalOptionsComponent::restoreSettings(getValueTree(), deviceManager);
         }
     }
     
@@ -83,6 +113,10 @@ public:
         return valueTree.getPropertyAsValue(name, nullptr);
     }
     
+    bool hasChilds() {
+        return valueTree.getNumChildren() != 0;
+    }
+    
     class StateException : public std::exception
     {
     public:
@@ -92,6 +126,8 @@ public:
     private:
         const String message;
     };
+    
+    
     
 private:
     ValueTree valueTree;
@@ -110,5 +146,10 @@ private:
             }
         }
         return Identifier(possibleID);
+    }
+    
+    static String identifierToString(Identifier identifier) {
+        String possibleStr = identifier.toString().replace("_", " ").trim();
+        return possibleStr;
     }
 };

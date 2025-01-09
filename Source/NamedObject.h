@@ -16,7 +16,7 @@ public:
     String getName() { return name.get(); }
     
     virtual void rename(String newName) {
-        Name name = validateCustomName(this, newName);
+        Name name = validateCustomName(this->name, newName);
         deleteName(this);
         setCustomName(this, name);
     }
@@ -32,8 +32,8 @@ public:
     private:
         String message;
     };
-    
-private:
+  
+protected:
     struct Name {
         Name(String scope, String prefix) : scope(scope.trim()), prefix(prefix.trim()) {}
         Name(String scope, String prefix, int number) : Name(scope, prefix) { this->number = number; }
@@ -58,6 +58,40 @@ private:
         }
     } name;
     
+    NamedObject(Name name) : name(name) {
+        // create name
+        reserveName(name);
+    }
+    
+    //Name getNameInternal() { return name; }
+    
+    static Name validateCustomName(Name& objectName, String name) {
+        HashMap<String, SortedSet<int>>* scopeMap = getScope(objectName.scope);
+        
+        if(scopeMap->contains(name)) {
+            throw NameException("Name \"" + name + "\" exsists in scope \"" + objectName.scope + "\"!");
+        } else {
+            // try to split on word(s) and number in the end (autogen like)
+            String efficientNumberStr = name.fromLastOccurrenceOf(" ", false, false);
+            int efficientNumber = efficientNumberStr.getIntValue();
+            if(efficientNumber == 0) { // efficientNumberStr is not a number or 0
+                return Name(objectName.scope, name, 0);
+            } else {
+                String efficientPrefix = name.upToLastOccurrenceOf(" ", false, false);
+                if(scopeMap->contains(efficientPrefix)) {
+                    SortedSet<int>& prefix = scopeMap->getReference(efficientPrefix);
+                    if(prefix.contains(efficientNumber)) {
+                        throw NameException("Name \"" + name + "\" exsists in scope \"" + objectName.scope + "\"!");
+                    } else {
+                        return Name(objectName.scope, efficientPrefix, efficientNumber);
+                    }
+                } else {
+                    return Name(objectName.scope, efficientPrefix, efficientNumber);
+                }
+            }
+        }
+    }
+private:
     static void createName(NamedObject* object) {
         SortedSet<int>& prefix = getPrefix(object->name.scope, object->name.prefix);
         int counter = 0;
@@ -68,6 +102,11 @@ private:
         prefix.add(counter);
         
         object->name.number = counter;
+    }
+    
+    static void reserveName(Name name) {
+        SortedSet<int>& prefix = getPrefix(name.scope, name.prefix);
+        prefix.add(name.number);
     }
     
     static void deleteName(NamedObject* object) {
@@ -112,32 +151,7 @@ private:
         return scope_prefix_number_pool.getReference(scope);
     }
     
-    static Name validateCustomName(NamedObject* object, String name) {
-        HashMap<String, SortedSet<int>>* scopeMap = getScope(object->name.scope);
-        
-        if(scopeMap->contains(name)) {
-            throw NameException("Name \"" + name + "\" exsists in scope \"" + object->name.scope + "\"!");
-        } else {
-            // try to split on word(s) and number in the end (autogen like)
-            String efficientNumberStr = name.fromLastOccurrenceOf(" ", false, false);
-            int efficientNumber = efficientNumberStr.getIntValue();
-            if(efficientNumber == 0) { // efficientNumberStr is not a number or 0
-                return Name(object->name.scope, name, 0);
-            } else {
-                String efficientPrefix = name.upToLastOccurrenceOf(" ", false, false);
-                if(scopeMap->contains(efficientPrefix)) {
-                    SortedSet<int>& prefix = scopeMap->getReference(efficientPrefix);
-                    if(prefix.contains(efficientNumber)) {
-                        throw NameException("Name \"" + name + "\" exsists in scope \"" + object->name.scope + "\"!");
-                    } else {
-                        return Name(object->name.scope, efficientPrefix, efficientNumber);
-                    }
-                } else {
-                    return Name(object->name.scope, efficientPrefix, efficientNumber);
-                }
-            }
-        }
-    }
+    
     
     void setCustomName(NamedObject* object, Name name) {
         SortedSet<int>& prefix = getPrefix(name.scope, name.prefix);

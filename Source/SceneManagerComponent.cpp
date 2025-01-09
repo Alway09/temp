@@ -1,6 +1,6 @@
 #include "SceneManagerComponent.h"
 
-SceneManagerComponent::SceneManagerComponent(StatefulObject& parent) : scenesView(parent)
+SceneManagerComponent::SceneManagerComponent(StatefulObject& parent) : scenesView(parent, this)
 {
     CommandManagerHolder::getInstance()->registerAllCommandsForTarget(this);
     addKeyListener(CommandManagerHolder::getInstance()->getKeyMappings());

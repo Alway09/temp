@@ -1,22 +1,54 @@
 #include "ScenesView.h"
 
-ScenesView::ScenesView(StatefulObject& parent) : StatefulObject(parent, "Global", "ScenesView")
+ScenesView::ScenesView(StatefulObject& parent, SceneComponent::Listener* listener) : StatefulObject(parent, "Global", "ScenesView"), listener(listener)
 {
     scenesRender.reset(new ScenesRender(*this));
-    
-    //valueTree = treeAttachTo.getOrCreateChildWithName(identifier, nullptr);
-    //sceneManager.reset(new SceneManager(valueTree));
     
     scenesFlex.flexWrap = FlexBox::Wrap::wrap;
     scenesFlex.justifyContent = FlexBox::JustifyContent::center;
     scenesFlex.flexDirection = FlexBox::Direction::column;
+    
+    startTimer(100);
+}
+
+void ScenesView::timerCallback() {
+    if(isVisible()) {
+        if(hasChilds()) {
+            auto statesArray = getChildStates();
+            
+            for(auto state : statesArray) {
+                Scene* scene = new Scene(state);
+                //createObject(scene, SceneObjectRealisation::Background);
+                //createObject(scene, SceneObjectRealisation::Waveform);
+                //scene->createObject(SceneObjectRealisation::Background);
+                //scene->createObject(SceneObjectRealisation::Waveform);
+                scenes.add(scene);
+                SceneComponent* sceneComponent = new SceneComponent(scene);
+                sceneComponents.add(sceneComponent);
+                sceneComponent->addSceneListener(listener);
+                
+                sceneComponent->setResizable(true, true);
+                
+                scenesRender->addScene(scene);
+                sceneComponent->addSceneListener(scenesRender.get());
+                sceneComponent->addSceneListener(this);
+                sceneComponent->setDeleterListener(this);
+                addAndMakeVisible(sceneComponent);
+                
+                addFlexItem(sceneComponent);
+            }
+            
+            resized();
+        }
+        
+        stopTimer();
+    }
 }
 
 void ScenesView::sceneDeleteButtonClicked(SceneComponent* sceneComponent) {
     Scene* scene = sceneComponent->getScene();
     scenesRender->removeScene(scene);
     sceneComponents.removeObject(sceneComponent);
-    //sceneManager->deleteScene(scene->getUuidIdentifier());
     scenes.removeObject(scene);
     
     scenesFlex.items.clear();
@@ -27,11 +59,11 @@ void ScenesView::sceneDeleteButtonClicked(SceneComponent* sceneComponent) {
 }
 
 void ScenesView::createScene(SceneComponent::Listener* parent) {
-    //Uuid tmp = sceneManager->createScene();
-    //Scene* scene = sceneManager->getScene(tmp);
     Scene* scene = new Scene(*this);
-    createObject(scene, SceneObjectRealisation::Background);
-    createObject(scene, SceneObjectRealisation::Waveform);
+    scene->createObject(SceneObjectRealisation::Background);
+    scene->createObject(SceneObjectRealisation::Waveform);
+    //createObject(scene, SceneObjectRealisation::Background);
+    //createObject(scene, SceneObjectRealisation::Waveform);
     scenes.add(scene);
     SceneComponent* sceneComponent = new SceneComponent(scene);
     sceneComponents.add(sceneComponent);

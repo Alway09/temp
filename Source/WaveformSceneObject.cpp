@@ -5,6 +5,12 @@ WaveformSceneObject::WaveformSceneObject(StatefulObject& parent) : SceneObject(p
     setProperty(IDs::gain, 10.f);
     setProperty(IDs::secondsToShow, 1.f);
     
+    init();
+}
+
+WaveformSceneObject::WaveformSceneObject(ObjectState objectState) : SceneObject(objectState) {init();}
+
+void WaveformSceneObject::init() {
     config.source = SceneObject::Config::DrawSource::Vertices;
     config.primitiveType = SceneObject::Config::DrawPrimitiveType::Lines;
     config.drawBufferUsage = SceneObject::Config::DrawBufferUsage::Stream;

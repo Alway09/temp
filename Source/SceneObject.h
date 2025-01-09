@@ -10,10 +10,22 @@ enum SceneObjectRealisation
     Background
 };
 
+/*SceneObjectRealisation fromIntToEnum(int i) {
+    if(i == 0) {
+        return Waveform;
+    }
+    if(i == 1) {
+        return Background;
+    }
+    
+    throw std::invalid_argument("Unknown SceneObjectRealisation int type");
+};*/
+
 class SceneObject : public StatefulObject
 {
 public:
     SceneObject(StatefulObject& parent, String namePrefix, SceneObjectRealisation realisation);
+    SceneObject(ObjectState objectState);
     virtual ~SceneObject();
     void draw();
     

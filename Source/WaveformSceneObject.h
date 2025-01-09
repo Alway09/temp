@@ -6,6 +6,7 @@ class WaveformSceneObject : public SceneObject
 {
 public:
     WaveformSceneObject(StatefulObject& parent);
+    WaveformSceneObject(ObjectState objectState);
     
     void fillBuffers() override;
     //void changeSettings(const Identifier& property) override;
@@ -19,6 +20,7 @@ public:
     };
     
 private:
+    void init();
     Array<Vertex> vertices;
     int samplesToShow = 44100;
     float gain = 10.f;

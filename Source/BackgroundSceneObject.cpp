@@ -2,6 +2,12 @@
 
 BackgroundSceneObject::BackgroundSceneObject(StatefulObject& parent) : SceneObject(parent, "Background", SceneObjectRealisation::Background)
 {
+    init();
+}
+
+BackgroundSceneObject::BackgroundSceneObject(ObjectState objectState) : SceneObject(objectState) { init(); }
+
+void BackgroundSceneObject::init() {
     config.source = SceneObject::Config::DrawSource::Indices;
     config.primitiveType = SceneObject::Config::DrawPrimitiveType::Triangles;
     config.drawBufferUsage = SceneObject::Config::DrawBufferUsage::Static;
