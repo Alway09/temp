@@ -10,7 +10,6 @@ public:
     ~BackgroundSceneObject();
     
     void fillBuffers() override;
-    //void changeSettings(const Identifier&) override {};
     
     SceneObjectRealisation getRealisation() override { return SceneObjectRealisation::Background; }
     

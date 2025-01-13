@@ -5,21 +5,12 @@ using namespace juce;
 
 class NamedObject {
 public:
-    NamedObject(String scope, String prefix) : name(scope, prefix) {
-        createName(this);
-    }
+    NamedObject(const String& scope, const String& prefix);
+    virtual ~NamedObject();
     
-    virtual ~NamedObject() {
-        deleteName(this);
-    }
+    const String& getName() { return name.get(); }
     
-    String getName() { return name.get(); }
-    
-    virtual void rename(String newName) {
-        Name name = validateCustomName(this->name, newName);
-        deleteName(this);
-        setCustomName(this, name);
-    }
+    virtual void rename(String newName);
     
     class NameException : public std::exception
     {
@@ -34,130 +25,57 @@ public:
     };
   
 protected:
-    struct Name {
-        Name(String scope, String prefix) : scope(scope.trim()), prefix(prefix.trim()) {}
-        Name(String scope, String prefix, int number) : Name(scope, prefix) { this->number = number; }
+    class Name {
+    public:
+        Name(const String& scope, const String& prefix) : scope(scope.trim()), prefix(prefix.trim()) {}
+        Name(const String& scope, const String& prefix, uint16 number) : Name(scope, prefix) { this->number = number; }
+        Name(const Name& other) : Name(other.scope, other.prefix, other.number) {}
         
-        String scope;
-        String prefix;
-        int number;
+        const String& get() {
+            if(changed) {
+                constructedName = number == 0 ? prefix : prefix + " " + String(number);
+                changed = false;
+            }
+            return constructedName;
+        }
+        
+        int64 getScope() const { return scope.hashCode64(); }
+        String getScopeString() const { return scope; }
+        int64 getPrefix() const { return prefix.hashCode64(); }
+        uint16 getNumber() const { return number; }
+        
+        void setScope(const String& newScope) { scope = newScope; }
+        void setPrefix(const String& newPrefix) { prefix = newPrefix; changed = true; }
+        void setNumber(uint16 newNumber) { number = newNumber; changed = true; }
         
         Name& operator=(const Name& other) {
             this->scope = other.scope;
             this->prefix = other.prefix;
             this->number = other.number;
+            this->changed = true;
             return *this;
         }
-        
-        String get() {
-            if(number == 0) {
-                return prefix;
-            } else {
-                return prefix + " " + String(number);
-            }
-        }
+
+    private:
+        String scope;
+        String prefix;
+        uint16 number;
+        bool changed = true;
+        String constructedName;
     } name;
     
-    NamedObject(Name name) : name(name) {
-        // create name
-        reserveName(name);
-    }
+    NamedObject(Name name);
     
-    //Name getNameInternal() { return name; }
+    static Name validateAndCreateCustomName(Name& objectName, String name);
     
-    static Name validateCustomName(Name& objectName, String name) {
-        HashMap<String, SortedSet<int>>* scopeMap = getScope(objectName.scope);
-        
-        if(scopeMap->contains(name)) {
-            throw NameException("Name \"" + name + "\" exsists in scope \"" + objectName.scope + "\"!");
-        } else {
-            // try to split on word(s) and number in the end (autogen like)
-            String efficientNumberStr = name.fromLastOccurrenceOf(" ", false, false);
-            int efficientNumber = efficientNumberStr.getIntValue();
-            if(efficientNumber == 0) { // efficientNumberStr is not a number or 0
-                return Name(objectName.scope, name, 0);
-            } else {
-                String efficientPrefix = name.upToLastOccurrenceOf(" ", false, false);
-                if(scopeMap->contains(efficientPrefix)) {
-                    SortedSet<int>& prefix = scopeMap->getReference(efficientPrefix);
-                    if(prefix.contains(efficientNumber)) {
-                        throw NameException("Name \"" + name + "\" exsists in scope \"" + objectName.scope + "\"!");
-                    } else {
-                        return Name(objectName.scope, efficientPrefix, efficientNumber);
-                    }
-                } else {
-                    return Name(objectName.scope, efficientPrefix, efficientNumber);
-                }
-            }
-        }
-    }
 private:
-    static void createName(NamedObject* object) {
-        SortedSet<int>& prefix = getPrefix(object->name.scope, object->name.prefix);
-        int counter = 0;
-        while(prefix.contains(counter)) {
-            ++counter;
-        }
-        
-        prefix.add(counter);
-        
-        object->name.number = counter;
-    }
+    static void createName(NamedObject * const object);
+    static void reserveName(const Name& name);
+    void setCustomName(NamedObject * const object, const Name& name);
+    static void deleteName(NamedObject * const object);
     
-    static void reserveName(Name name) {
-        SortedSet<int>& prefix = getPrefix(name.scope, name.prefix);
-        prefix.add(name.number);
-    }
+    static SortedSet<uint16>& getPrefix(const Name& name);
+    static HashMap<int64, SortedSet<uint16>>* getScope(const Name& name);
     
-    static void deleteName(NamedObject* object) {
-        if(scope_prefix_number_pool.contains(object->name.scope)) {
-            HashMap<String, SortedSet<int>>* prefix = scope_prefix_number_pool.getReference(object->name.scope);
-            
-            if(prefix->contains(object->name.prefix)) {
-                SortedSet<int>& number = prefix->getReference(object->name.prefix);
-                
-                number.removeValue(object->name.number);
-                if(number.isEmpty()) {
-                    prefix->remove(object->name.prefix);
-                    if(prefix->size() == 0) {
-                        scope_prefix_number_pool.remove(object->name.scope);
-                        delete prefix;
-                    }
-                }
-            }
-        }
-        
-        String nameScope = object->getName();
-        if(scope_prefix_number_pool.contains(nameScope)) {
-            HashMap<String, SortedSet<int>>* prefix = scope_prefix_number_pool.getReference(nameScope);
-            scope_prefix_number_pool.remove(nameScope);
-            delete prefix;
-        }
-    }
-    
-    static SortedSet<int>& getPrefix(String scope, String prefix) {
-        HashMap<String, SortedSet<int>>* scopeMap = getScope(scope);
-        if(!scopeMap->contains(prefix)) {
-            scopeMap->set(prefix, SortedSet<int>());
-        }
-        return scopeMap->getReference(prefix);
-    }
-    
-    static HashMap<String, SortedSet<int>>* getScope(String scope) {
-        if(!scope_prefix_number_pool.contains(scope)) {
-            HashMap<String, SortedSet<int>>* map = new HashMap<String, SortedSet<int>>();
-            scope_prefix_number_pool.set(scope, map);
-        }
-        return scope_prefix_number_pool.getReference(scope);
-    }
-    
-    
-    
-    void setCustomName(NamedObject* object, Name name) {
-        SortedSet<int>& prefix = getPrefix(name.scope, name.prefix);
-        prefix.add(name.number);
-        object->name = name;
-    }
-    
-    inline static HashMap<String, HashMap<String, SortedSet<int>>*> scope_prefix_number_pool;
+    inline static HashMap<int64, HashMap<int64, SortedSet<uint16>>*> scope_prefix_number_pool;
 };

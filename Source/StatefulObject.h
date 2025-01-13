@@ -23,7 +23,7 @@ public:
         ValueTree::Iterator iter = valueTree.begin();
         while(iter != valueTree.end()) {
             Name name(this->name.get(), "some");
-            ObjectState state(*iter, validateCustomName(name, identifierToString((*iter).getType())));
+            ObjectState state(*iter, validateAndCreateCustomName(name, identifierToString((*iter).getType())));
             arr.add(state);
             ++iter;
         }
@@ -126,8 +126,6 @@ public:
     private:
         const String message;
     };
-    
-    
     
 private:
     ValueTree valueTree;
