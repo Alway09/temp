@@ -13,8 +13,8 @@ ScenesView::ScenesView(StatefulObject& parent, SceneComponent::Listener* listene
 
 void ScenesView::timerCallback() {
     if(isVisible()) {
-        if(hasChilds()) {
-            auto statesArray = getChildStates();
+        if(hasChildren()) {
+            auto statesArray = getChildrenStates();
             
             for(auto state : statesArray) {
                 Scene* scene = new Scene(state);

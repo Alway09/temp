@@ -2,20 +2,27 @@
 
 WaveformSceneObject::WaveformSceneObject(StatefulObject& parent) : SceneObject(parent, "Waveform" , SceneObjectRealisation::Waveform)
 {
-    setProperty(IDs::gain, 10.f);
-    setProperty(IDs::secondsToShow, 1.f);
+    setProperty(IDs::gain, IDs::getDefault(IDs::gain));
+    setProperty(IDs::secondsToShow, IDs::getDefault(IDs::secondsToShow));
     
     init();
 }
 
-WaveformSceneObject::WaveformSceneObject(ObjectState objectState) : SceneObject(objectState) {init();}
+WaveformSceneObject::WaveformSceneObject(ObjectState objectState) : SceneObject(objectState) {
+    for(auto id : IDs::getAll()) {
+        //setPropertyIfNotExists(id, IDs::getDefault(id));
+        stateChanged(id);
+    }
+    
+    init();
+}
 
 void WaveformSceneObject::init() {
     config.source = SceneObject::Config::DrawSource::Vertices;
     config.primitiveType = SceneObject::Config::DrawPrimitiveType::Lines;
     config.drawBufferUsage = SceneObject::Config::DrawBufferUsage::Stream;
     
-    vertices.resize(samplesToShow);
+    //vertices.resize(samplesToShow);
     
     needToUpdateBuffer = true;
 }

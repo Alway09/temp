@@ -16,7 +16,7 @@ MainComponent::MainComponent() : StatefulObject("Global", "root")
         setAudioChannels (2, 0);
     }
     
-    restoreState("/Users/alvvay/Desktop/settings.xml");
+    restoreState(operationalConfigFile);
     {
         AudioSettings audioSettings{*this, deviceManager};
         audioSettings.restoreAudioSettings();
@@ -104,11 +104,8 @@ bool MainComponent::perform(const InvocationInfo &info) {
     }
     
     if(info.commandID == 2) {
-        if(info.isKeyDown) {\
-            //File file("/Users/alvvay/Desktop/settings.xml"); // need premissions
-            //std::unique_ptr<XmlElement> xml = getValueTree().createXml();
-            //xml->writeTo(file);
-            saveState("/Users/alvvay/Desktop/settings.xml");
+        if(info.isKeyDown) {
+            saveState(operationalConfigFile);
         }
         return true;
     }
@@ -140,13 +137,3 @@ void MainComponent::resized()
 
     sceneManagerComponent->setBounds(r);
 }
-//==============================================================================
-/*void MainComponent::restoreSettings() {
-    File file("/Users/alvvay/Desktop/settings.xml"); // need premissions
-    if(file.existsAsFile()) {
-        std::unique_ptr<XmlElement> xml = XmlDocument::parse(file);
-        //getValueTree() = ValueTree::fromXml(*xml.get());
-        
-        //GlobalOptionsComponent::restoreSettings(getValueTree(), deviceManager);
-    }
-}*/

@@ -7,6 +7,7 @@ public:
     AudioSettings(StatefulObject& parent, AudioDeviceManager& deviceManager) : StatefulObject(parent, "Settings", "AudioSettings", false), deviceManager(deviceManager)
     {
         deviceManager.addChangeListener(this);
+        changeListenerCallback(nullptr);
     }
     
     ~AudioSettings() {

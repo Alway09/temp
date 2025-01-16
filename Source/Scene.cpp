@@ -8,8 +8,8 @@ Scene::Scene(StatefulObject& parent) : StatefulObject(parent, parent.getName(), 
 Scene::Scene(ObjectState objectState) : StatefulObject(objectState) {
     uuidIdentifier = Uuid();
     
-    if(hasChilds()) {
-        auto statesArray = getChildStates();
+    if(hasChildren()) {
+        auto statesArray = getChildrenStates();
         for(auto state : statesArray) {
             int type = state.getTree().getProperty("Type");
             if(type == 0) {

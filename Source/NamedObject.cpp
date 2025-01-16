@@ -62,35 +62,36 @@ void NamedObject::reserveName(const Name& name) {
     prefix.add(name.getNumber());
 }
 
-void NamedObject::rename(String newName) {
+void NamedObject::rename(const String& newName) {
     Name name = validateAndCreateCustomName(this->name, newName);
     deleteName(this);
     setCustomName(this, name);
 }
 
-NamedObject::Name NamedObject::validateAndCreateCustomName(Name& objectName, String name) {
+NamedObject::Name NamedObject::validateAndCreateCustomName(Name& objectName, const String& name) {
     HashMap<int64, SortedSet<uint16>>* scopeMap = getScope(objectName);
     
     if(scopeMap->contains(name.hash())) {
         throw NameException("Name \"" + name + "\" already exsists!");
     } else {
         // try to split on word(s) and number in the end (autogen like)
-        String efficientNumberStr = name.fromLastOccurrenceOf(" ", false, false);
+        String efficientNumberStr = name.fromLastOccurrenceOf(" ", false, true);
         int efficientNumber = efficientNumberStr.getIntValue();
-        if(efficientNumber == 0) { // efficientNumberStr is not a number or 0
+        if(efficientNumber == 0 || name.startsWith(String(efficientNumber))) {
+            // (efficientNumberStr is not a number or 0) or (whole name is one word starts with number (atoi("123SSS") -> 123))
             return Name(objectName.getScopeString(), name, 0);
-        } else {
-            String efficientPrefix = name.upToLastOccurrenceOf(" ", false, false);
-            if(scopeMap->contains(efficientPrefix.hash())) {
-                SortedSet<uint16>& prefix = scopeMap->getReference(efficientPrefix.hash());
-                if(prefix.contains(efficientNumber)) {
-                    throw NameException("Name \"" + name + "\" already exsists!");
-                } else {
-                    return Name(objectName.getScopeString(), efficientPrefix, efficientNumber);
-                }
+        }
+            
+        String efficientPrefix = name.upToLastOccurrenceOf(" ", false, false);
+        if(scopeMap->contains(efficientPrefix.hash())) {
+            SortedSet<uint16>& prefix = scopeMap->getReference(efficientPrefix.hash());
+            if(prefix.contains(efficientNumber)) {
+                throw NameException("Name \"" + name + "\" already exsists!");
             } else {
                 return Name(objectName.getScopeString(), efficientPrefix, efficientNumber);
             }
+        } else {
+            return Name(objectName.getScopeString(), efficientPrefix, efficientNumber);
         }
     }
 }

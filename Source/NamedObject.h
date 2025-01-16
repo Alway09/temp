@@ -10,7 +10,7 @@ public:
     
     const String& getName() { return name.get(); }
     
-    virtual void rename(String newName);
+    virtual void rename(const String& newName);
     
     class NameException : public std::exception
     {
@@ -27,17 +27,11 @@ public:
 protected:
     class Name {
     public:
-        Name(const String& scope, const String& prefix) : scope(scope.trim()), prefix(prefix.trim()) {}
-        Name(const String& scope, const String& prefix, uint16 number) : Name(scope, prefix) { this->number = number; }
+        Name(const String& scope, const String& prefix) : scope(scope.trim()), prefix(prefix.trim()) { constructName(); }
+        Name(const String& scope, const String& prefix, uint16 number) : Name(scope, prefix) { this->number = number; constructName(); }
         Name(const Name& other) : Name(other.scope, other.prefix, other.number) {}
         
-        const String& get() {
-            if(changed) {
-                constructedName = number == 0 ? prefix : prefix + " " + String(number);
-                changed = false;
-            }
-            return constructedName;
-        }
+        const String& get() const { return constructedName; }
         
         int64 getScope() const { return scope.hashCode64(); }
         String getScopeString() const { return scope; }
@@ -45,30 +39,33 @@ protected:
         uint16 getNumber() const { return number; }
         
         void setScope(const String& newScope) { scope = newScope; }
-        void setPrefix(const String& newPrefix) { prefix = newPrefix; changed = true; }
-        void setNumber(uint16 newNumber) { number = newNumber; changed = true; }
+        void setPrefix(const String& newPrefix) { prefix = newPrefix; constructName(); }
+        void setNumber(uint16 newNumber) { number = newNumber; constructName(); }
         
         Name& operator=(const Name& other) {
             this->scope = other.scope;
             this->prefix = other.prefix;
             this->number = other.number;
-            this->changed = true;
+            constructName();
             return *this;
         }
 
     private:
+        void constructName() { constructedName = number == 0 ? prefix : prefix + " " + String(number); }
+        
         String scope;
         String prefix;
         uint16 number;
-        bool changed = true;
         String constructedName;
-    } name;
+    };
     
     NamedObject(Name name);
     
-    static Name validateAndCreateCustomName(Name& objectName, String name);
+    static Name validateAndCreateCustomName(Name& objectName, const String& name);
+    const Name& getNameInternal() const { return name; }
     
 private:
+    Name name;
     static void createName(NamedObject * const object);
     static void reserveName(const Name& name);
     void setCustomName(NamedObject * const object, const Name& name);

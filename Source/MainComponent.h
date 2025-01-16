@@ -35,7 +35,11 @@ public:
     //==============================================================================
 private:
     std::unique_ptr<SceneManagerComponent> sceneManagerComponent;
-    //ValueTree tree;
+    File operationalConfigFile = File::getSpecialLocation(File::SpecialLocationType::userHomeDirectory).getFullPathName()
+    + File::getSeparatorString()
+    + ".deleteMe"
+    + File::getSeparatorString()
+    + "operConfig.xml";
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };
