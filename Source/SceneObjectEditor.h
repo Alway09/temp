@@ -16,9 +16,7 @@ public:
     }
     
     const Array<PropertyComponent*>& getControls() { return controls; };
-    //String getName() const { return NameGenerator::fromIdentifier(valueTree.getType()); }
 protected:
-    //ValueTree valueTree;
     SceneObject& object;
     Array<PropertyComponent*> controls;
 private:

@@ -6,6 +6,7 @@ using namespace juce;
 class NamedObject {
 public:
     NamedObject(const String& scope, const String& prefix);
+    NamedObject(const String& uniqueName);
     virtual ~NamedObject();
     
     const String& getName() { return name.get(); }
@@ -55,7 +56,7 @@ protected:
         
         String scope;
         String prefix;
-        uint16 number;
+        uint16 number = 0;
         String constructedName;
     };
     
@@ -67,6 +68,7 @@ protected:
 private:
     Name name;
     static void createName(NamedObject * const object);
+    static void createUniqueName(NamedObject * const object);
     static void reserveName(const Name& name);
     void setCustomName(NamedObject * const object, const Name& name);
     static void deleteName(NamedObject * const object);

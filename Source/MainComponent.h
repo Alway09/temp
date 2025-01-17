@@ -23,7 +23,6 @@ public:
     void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill) override;
     void releaseResources() override  {};
     //==============================================================================
-    void paint(juce::Graphics& g) override;
     void resized() override;
     //==============================================================================
     ApplicationCommandTarget* getNextCommandTarget() override { return findFirstTargetParentComponent(); }
@@ -31,9 +30,11 @@ public:
     void getCommandInfo(CommandID commandID, ApplicationCommandInfo &result) override;
     bool perform(const InvocationInfo &info) override;
     //==============================================================================
-    //void restoreSettings();
-    //==============================================================================
 private:
+    struct Commands {
+        //inline static const int 
+    };
+    
     std::unique_ptr<SceneManagerComponent> sceneManagerComponent;
     File operationalConfigFile = File::getSpecialLocation(File::SpecialLocationType::userHomeDirectory).getFullPathName()
     + File::getSeparatorString()

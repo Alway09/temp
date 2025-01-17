@@ -6,8 +6,10 @@ class StatefulObject : public NamedObject, public ValueTree::Listener
 {
 public:
     StatefulObject(const String& nameScope, const String& namePrefix);
+    StatefulObject(const String& uniqueName);
     
     StatefulObject(StatefulObject& parent, const String& nameScope, const String& namePrefix, bool deleteStateWhenDestroyed = true);
+    StatefulObject(StatefulObject& parent, const String& uniqueName, bool deleteStateWhenDestroyed = true);
     
     class ObjectState {
     public:
@@ -54,6 +56,9 @@ private:
     
     Identifier createID();
     static Name createName(const String& scope, const Identifier& identifier);
+    
+    void initTree();
+    void initTreeFromParent(StatefulObject& parent);
 
     ValueTree valueTree;
     const bool deleteStateWhenDestroyed;

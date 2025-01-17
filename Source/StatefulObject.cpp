@@ -2,12 +2,30 @@
 
 StatefulObject::StatefulObject(const String& nameScope, const String& namePrefix) : NamedObject(nameScope, namePrefix), deleteStateWhenDestroyed(true)
 {
+    initTree();
+}
+
+StatefulObject::StatefulObject(const String& uniqueName) : NamedObject(uniqueName), deleteStateWhenDestroyed(true)
+{
+    initTree();
+}
+
+void StatefulObject::initTree() {
     valueTree = ValueTree(createID());
     valueTree.addListener(this);
 }
 
 StatefulObject::StatefulObject(StatefulObject& parent, const String& nameScope, const String& namePrefix, bool deleteStateWhenDestroyed) : NamedObject(nameScope, namePrefix), deleteStateWhenDestroyed(deleteStateWhenDestroyed)
 {
+    initTreeFromParent(parent);
+}
+
+StatefulObject::StatefulObject(StatefulObject& parent, const String& uniqueName, bool deleteStateWhenDestroyed) : NamedObject(uniqueName), deleteStateWhenDestroyed(deleteStateWhenDestroyed)
+{
+    initTreeFromParent(parent);
+}
+
+void StatefulObject::initTreeFromParent(StatefulObject &parent) {
     valueTree = parent.valueTree.getOrCreateChildWithName(createID(), nullptr);
     valueTree.addListener(this);
 }

@@ -16,6 +16,19 @@ void NamedObject::createName(NamedObject * const object) {
     object->name.setNumber(counter);
 }
 
+NamedObject::NamedObject(const String& uniqueName) : name("G", uniqueName) {
+    createUniqueName(this);
+}
+
+void NamedObject::createUniqueName(NamedObject * const object) {
+    SortedSet<uint16>& prefix = getPrefix(object->name);
+    if(prefix.size() > 0) {
+        throw NameException("Name \"" + object->getName() + "\" already exsists!");
+    } else {
+        prefix.add(0);
+    }
+}
+
 NamedObject::~NamedObject() {
     deleteName(this);
 }

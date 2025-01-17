@@ -1,6 +1,6 @@
 #include "ScenesView.h"
 
-ScenesView::ScenesView(StatefulObject& parent, SceneComponent::Listener* listener) : StatefulObject(parent, "Global", "ScenesView"), listener(listener)
+ScenesView::ScenesView(StatefulObject& parent, SceneComponent::Listener* listener) : StatefulObject(parent, "ScenesView"), listener(listener)
 {
     scenesRender.reset(new ScenesRender(*this));
     
