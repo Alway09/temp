@@ -25,9 +25,10 @@ public:
     
     virtual ~StatefulObject();
     
-    Array<ObjectState> getChildrenStates();
-    void saveState(const String& filename);
-    void saveState(File& file);
+    Array<ObjectState> getChildrenStates() const;
+    ObjectState getChildState(const Identifier& identifier) const;
+    void saveState(const String& filename) const;
+    void saveState(File& file) const;
     void restoreState(const String& filename);
     void restoreState(File& file);
     virtual void stateChanged(const Identifier &property) {}
@@ -38,7 +39,8 @@ public:
     void setPropertyIfNotExists(const Identifier &name, const var &newValue);
     const var& getProperty(const Identifier &name, var defaultValue);
     Value getPropertyAsValue(const Identifier &name);
-    bool hasChildren();
+    bool hasChildren() const;
+    bool hasChild(const Identifier& identifier) const;
     
     class StateException : public std::exception
     {

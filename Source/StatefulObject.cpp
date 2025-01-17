@@ -41,7 +41,7 @@ StatefulObject::~StatefulObject() {
     }
 }
 //---------------------------------------------------------
-Array<StatefulObject::ObjectState> StatefulObject::getChildrenStates() {
+Array<StatefulObject::ObjectState> StatefulObject::getChildrenStates() const {
     Array<ObjectState> arr;
     
     ValueTree::Iterator iter = valueTree.begin();
@@ -53,7 +53,12 @@ Array<StatefulObject::ObjectState> StatefulObject::getChildrenStates() {
     return arr;
 }
 
-void StatefulObject::saveState(const String& filename) {
+StatefulObject::ObjectState StatefulObject::getChildState(const Identifier &identifier) const {
+    ValueTree childTree = valueTree.getChildWithName(identifier);
+    return ObjectState(childTree, createName(getName(), identifier));
+}
+
+void StatefulObject::saveState(const String& filename) const {
     File file(filename); // need premissions
     saveState(file);
 }
@@ -63,7 +68,7 @@ void StatefulObject::restoreState(const String& filename) {
     restoreState(file);
 }
 
-void StatefulObject::saveState(File& file) {
+void StatefulObject::saveState(File& file) const {
     std::unique_ptr<XmlElement> xml = valueTree.createXml();
     xml->writeTo(file);
 }
@@ -76,7 +81,7 @@ void StatefulObject::restoreState(File& file) {
         if(restoreTree.getType() == valueTree.getType()) {
             valueTree = restoreTree;
         } else {
-            jassertfalse;
+            throw StateException("Incorrect state file.");
         }
     } else {
         file.create();
@@ -129,8 +134,12 @@ Value StatefulObject::getPropertyAsValue(const Identifier &name) {
     return valueTree.getPropertyAsValue(name, nullptr);
 }
 
-bool StatefulObject::hasChildren() {
+bool StatefulObject::hasChildren() const {
     return valueTree.getNumChildren() != 0;
+}
+
+bool StatefulObject::hasChild(const Identifier &identifier) const {
+    return valueTree.getChildWithName(identifier).isValid();
 }
 //---------------------------------------------------------
 Identifier StatefulObject::createID() {

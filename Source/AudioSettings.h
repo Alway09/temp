@@ -4,43 +4,28 @@
 class AudioSettings : public StatefulObject, public ChangeListener
 {
 public:
-    AudioSettings(StatefulObject& parent, AudioDeviceManager& deviceManager) : StatefulObject(parent, "AudioSettings", false), deviceManager(deviceManager)
+    AudioSettings(StatefulObject& parent, AudioDeviceManager& deviceManager) : StatefulObject(parent, ID.toString(), false), deviceManager(deviceManager)
     {
         deviceManager.addChangeListener(this);
-        changeListenerCallback(nullptr);
+        setStateFromDevice();
+    }
+    
+    AudioSettings(const ObjectState& state, AudioDeviceManager& deviceManager) : StatefulObject(state), deviceManager(deviceManager)
+    {
+        deviceManager.addChangeListener(this);
+        setDeviceFromState();
     }
     
     ~AudioSettings() {
         deviceManager.removeChangeListener(this);
     }
     
-    void restoreAudioSettings() {
-        AudioDeviceManager::AudioDeviceSetup setup;
-        setup.outputDeviceName = getProperty(IDs::outputDeviceName);
-        setup.inputDeviceName = getProperty(IDs::inputDeviceName);
-        setup.sampleRate = getProperty(IDs::sampleRate);
-        setup.bufferSize = getProperty(IDs::bufferSize);
-        setup.inputChannels.parseString(StringRef(getProperty(IDs::inputChannels)), 10);
-        setup.useDefaultInputChannels = getProperty(IDs::useDefaultInputChannels);
-        setup.outputChannels.parseString(StringRef(getProperty(IDs::outputChannels)), 10);
-        setup.useDefaultOutputChannels = getProperty(IDs::useDefaultOutputChannels);
-        
-        deviceManager.setAudioDeviceSetup(setup, false);
-    }
-    
     AudioDeviceManager& getDeviceManager() { return deviceManager; };
     
+    inline static const Identifier ID{"AudioSettings"};
 private:
     void changeListenerCallback(ChangeBroadcaster*) override {
-        AudioDeviceManager::AudioDeviceSetup setup = deviceManager.getAudioDeviceSetup();
-        setProperty(IDs::outputDeviceName, setup.outputDeviceName);
-        setProperty(IDs::inputDeviceName, setup.inputDeviceName);
-        setProperty(IDs::sampleRate, setup.sampleRate);
-        setProperty(IDs::bufferSize, setup.bufferSize);
-        setProperty(IDs::inputChannels, setup.inputChannels.toString(10));
-        setProperty(IDs::useDefaultInputChannels, setup.useDefaultInputChannels);
-        setProperty(IDs::outputChannels, setup.outputChannels.toString(10));
-        setProperty(IDs::useDefaultOutputChannels, setup.useDefaultOutputChannels);
+        setStateFromDevice();
     }
     
     struct IDs
@@ -55,5 +40,32 @@ private:
         inline static const Identifier outputChannels{"outputChannels"};
         inline static const Identifier useDefaultOutputChannels{"useDefaultOutputChannels"};
     };
+    
+    void setDeviceFromState() {
+        AudioDeviceManager::AudioDeviceSetup setup;
+        setup.outputDeviceName = getProperty(IDs::outputDeviceName);
+        setup.inputDeviceName = getProperty(IDs::inputDeviceName);
+        setup.sampleRate = getProperty(IDs::sampleRate);
+        setup.bufferSize = getProperty(IDs::bufferSize);
+        setup.inputChannels.parseString(StringRef(getProperty(IDs::inputChannels)), 10);
+        setup.useDefaultInputChannels = getProperty(IDs::useDefaultInputChannels);
+        setup.outputChannels.parseString(StringRef(getProperty(IDs::outputChannels)), 10);
+        setup.useDefaultOutputChannels = getProperty(IDs::useDefaultOutputChannels);
+        
+        deviceManager.setAudioDeviceSetup(setup, false);
+    }
+    
+    void setStateFromDevice() {
+        AudioDeviceManager::AudioDeviceSetup setup = deviceManager.getAudioDeviceSetup();
+        setProperty(IDs::outputDeviceName, setup.outputDeviceName);
+        setProperty(IDs::inputDeviceName, setup.inputDeviceName);
+        setProperty(IDs::sampleRate, setup.sampleRate);
+        setProperty(IDs::bufferSize, setup.bufferSize);
+        setProperty(IDs::inputChannels, setup.inputChannels.toString(10));
+        setProperty(IDs::useDefaultInputChannels, setup.useDefaultInputChannels);
+        setProperty(IDs::outputChannels, setup.outputChannels.toString(10));
+        setProperty(IDs::useDefaultOutputChannels, setup.useDefaultOutputChannels);
+    }
+    
     AudioDeviceManager& deviceManager;
 };

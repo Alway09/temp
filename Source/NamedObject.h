@@ -9,7 +9,7 @@ public:
     NamedObject(const String& uniqueName);
     virtual ~NamedObject();
     
-    const String& getName() { return name.get(); }
+    const String& getName() const { return name.get(); }
     
     virtual void rename(const String& newName);
     

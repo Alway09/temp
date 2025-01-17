@@ -5,9 +5,10 @@ MainComponent::MainComponent() : StatefulObject("root")
     setAudioChannels (2, 0);
     restoreState(operationalConfigFile);
     
-    {
-        AudioSettings audioSettings{*this, deviceManager};
-        audioSettings.restoreAudioSettings();
+    if(hasChild(AudioSettings::ID)) {
+        AudioSettings(getChildState(AudioSettings::ID), deviceManager);
+    } else {
+        AudioSettings audioSettings(*this, deviceManager);
     }
     
     sceneManagerComponent.reset(new SceneManagerComponent(*this));
