@@ -10,7 +10,7 @@ public:
         setStateFromDevice();
     }
     
-    AudioSettings(const ObjectState& state, AudioDeviceManager& deviceManager) : StatefulObject(state), deviceManager(deviceManager)
+    AudioSettings(const ObjectState& state, AudioDeviceManager& deviceManager) : StatefulObject(state, false), deviceManager(deviceManager)
     {
         deviceManager.addChangeListener(this);
         setDeviceFromState();

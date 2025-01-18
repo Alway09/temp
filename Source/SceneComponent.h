@@ -44,15 +44,17 @@ private:
         
         void resized() override;
         
+        void mouseEnter(const MouseEvent& e) override;
+        void mouseExit(const MouseEvent& e) override;
         void mouseDoubleClick(const MouseEvent& e) override { parent->mouseDoubleClick(e); }
-        void mouseEnter(const MouseEvent& e) override { parent->mouseEnter(e); }
-        void mouseExit(const MouseEvent& e) override { parent->mouseExit(e); }
         void mouseDrag(const MouseEvent& e) override { parent->mouseDrag(e); }
         void mouseMove(const MouseEvent& e) override { parent->mouseMove(e); }
         void mouseDown(const MouseEvent& e) override { parent->mouseDown(e); }
         void mouseUp(const MouseEvent& e) override { parent->mouseUp(e); }
         
     private:
+        Array<Component*> getAllComponents() { return {&deleteButton}; }
+        
         SceneComponent* parent;
         TextButton deleteButton{"d"};
     };

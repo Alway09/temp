@@ -81,12 +81,7 @@ void MainComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo &
 bool MainComponent::perform(const InvocationInfo &info) {
     if(info.commandID == 1) {
         if(info.isKeyDown) {
-            DialogWindow::LaunchOptions opt;
-            opt.dialogTitle = "Options";
-            opt.dialogBackgroundColour = getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId);
-            opt.content.set(new GlobalOptionsComponent(*this, deviceManager), true);
-            opt.resizable = false;
-            opt.launchAsync();
+            showSettings();
         }
         return true;
     }
@@ -112,6 +107,15 @@ bool MainComponent::perform(const InvocationInfo &info) {
     #endif
     
     return false;
+}
+
+void MainComponent::showSettings() {
+    DialogWindow::LaunchOptions opt;
+    opt.dialogTitle = "Options";
+    opt.dialogBackgroundColour = getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId);
+    opt.content.set(new GlobalOptionsComponent(*this, deviceManager), true);
+    opt.resizable = false;
+    opt.launchAsync();
 }
 //==============================================================================
 void MainComponent::resized()

@@ -21,7 +21,7 @@ public:
         const Name name;
     };
     
-    StatefulObject(const ObjectState& state);
+    StatefulObject(const ObjectState& state, bool deleteStateWhenDestroyed = true);
     
     virtual ~StatefulObject();
     

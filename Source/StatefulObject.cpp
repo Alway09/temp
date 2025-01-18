@@ -30,7 +30,7 @@ void StatefulObject::initTreeFromParent(StatefulObject &parent) {
     valueTree.addListener(this);
 }
 
-StatefulObject::StatefulObject(const ObjectState& state) : NamedObject(state.getName()), valueTree(state.getTree()), deleteStateWhenDestroyed(true)
+StatefulObject::StatefulObject(const ObjectState& state, bool deleteStateWhenDestroyed) : NamedObject(state.getName()), valueTree(state.getTree()), deleteStateWhenDestroyed(deleteStateWhenDestroyed)
 {
     valueTree.addListener(this);
 }

@@ -31,11 +31,10 @@ public:
     bool perform(const InvocationInfo &info) override;
     //==============================================================================
 private:
-    struct Commands {
-        //inline static const int 
-    };
+    void showSettings();
     
     std::unique_ptr<SceneManagerComponent> sceneManagerComponent;
+    
     File operationalConfigFile = File::getSpecialLocation(File::SpecialLocationType::userHomeDirectory).getFullPathName()
     + File::getSeparatorString()
     + ".deleteMe"

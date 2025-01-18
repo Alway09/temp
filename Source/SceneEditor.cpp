@@ -23,7 +23,7 @@ void SceneEditor::attach(Scene* scene) {
         
         for(int i = 0; i < scene->getObjects().size(); ++i) {
             SceneObject* object = scene->getObjects()[i];
-            int realisation = object->getRealisation();
+            SceneObjectRealisation realisation = object->getRealisation();
             
             SceneObjectEditor* editor;
             switch (realisation) {
