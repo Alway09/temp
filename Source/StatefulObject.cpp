@@ -102,11 +102,12 @@ void StatefulObject::rename(const String& newName) {
     }
     
     ValueTree parentTree = valueTree.getParent();
+    int index = parentTree.indexOf(valueTree);
     ValueTree newValueTree{newIdentifier};
     newValueTree.copyPropertiesAndChildrenFrom(valueTree, nullptr);
     valueTree.removeListener(this);
     parentTree.removeChild(valueTree, nullptr);
-    parentTree.addChild(newValueTree, -1, nullptr);
+    parentTree.addChild(newValueTree, index, nullptr);
     valueTree = newValueTree;
     valueTree.addListener(this);
 }

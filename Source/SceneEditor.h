@@ -2,13 +2,11 @@
 
 #include <JuceHeader.h>
 #include "Scene.h"
-#include "SceneObject.h"
-#include "WaveformSceneObjectEditor.h"
-#include "BackgroundSceneObjectEditor.h"
+#include "SceneObjectEditorsHolder.h"
 
 using namespace juce;
 
-class SceneEditor : public PropertyPanel, public Label::Listener
+class SceneEditor : public Component, public Label::Listener
 {
 public:
     SceneEditor();
@@ -34,14 +32,6 @@ private:
         }
         
         header.setSceneName(attachedTo->getName());
-    }
-    
-    void clear() {
-        int amount = getSectionNames().size();
-        for(int i = 0; i < amount; ++i) {
-            removeSection(0);
-        }
-        objectEditors.clear();
     }
     
     class Header : public Component
@@ -71,6 +61,6 @@ private:
     };
     
     Header header;
+    SceneObjectEditorsHolder editorsHolder;
     Scene* attachedTo = nullptr;
-    OwnedArray<SceneObjectEditor> objectEditors;
 };

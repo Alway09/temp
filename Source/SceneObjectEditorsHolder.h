@@ -15,8 +15,10 @@ public:
     void resized() override {
         int heightPadding = 0;
         for(auto editor : editors) {
-            editor->setBounds(0, heightPadding, getWidth(), 50);
-            heightPadding += 50;
+            auto bounds = editor->getBoundingRectangle(heightPadding);
+            editor->setBounds(bounds);
+            
+            heightPadding += bounds.getHeight();
         }
     }
     
@@ -33,9 +35,14 @@ public:
                 break;
         }
         
+        
         addAndMakeVisible(editor);
         editors.add(editor);
         resized();
+    }
+    
+    void clear() {
+        editors.clear();
     }
     
 private:
