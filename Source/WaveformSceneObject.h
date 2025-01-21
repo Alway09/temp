@@ -6,7 +6,7 @@ class WaveformSceneObject : public SceneObject
 {
 public:
     WaveformSceneObject(StatefulObject& parent);
-    WaveformSceneObject(ObjectState objectState);
+    WaveformSceneObject(StatefulObject& parent, ObjectState objectState);
     
     void fillBuffers() override;
     //void changeSettings(const Identifier& property) override;

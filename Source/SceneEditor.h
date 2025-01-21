@@ -32,6 +32,7 @@ private:
         }
         
         header.setSceneName(attachedTo->getName());
+        editorsHolder.reinitControls();
     }
     
     class Header : public Component

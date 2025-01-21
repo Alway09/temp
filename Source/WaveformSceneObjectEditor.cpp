@@ -2,6 +2,15 @@
 
 WaveformSceneObjectEditor::WaveformSceneObjectEditor(SceneObject& objectEditTo) : SceneObjectEditor(objectEditTo)
 {
+    initControls();
+}
+
+void WaveformSceneObjectEditor::initControls() {
+    controls.clear();
+    //removeChildComponent(gainSlider);
+    //removeChildComponent(secondsToShowSlider);
+    //removeAllChildren();
+    
     gainSlider = new SliderPropertyComponent(object.getPropertyAsValue(WaveformSceneObject::IDs::gain), "Gain", 1.0, 15.0, 0.1);
     controls.add(gainSlider);
     
@@ -12,6 +21,8 @@ WaveformSceneObjectEditor::WaveformSceneObjectEditor(SceneObject& objectEditTo) 
     for(auto c : controls) {
         addAndMakeVisible(c);
     }
+    
+    resized();
 }
 
 WaveformSceneObjectEditor::~WaveformSceneObjectEditor() {

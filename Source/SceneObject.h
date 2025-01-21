@@ -14,7 +14,7 @@ class SceneObject : public StatefulObject
 {
 public:
     SceneObject(StatefulObject& parent, String namePrefix, SceneObjectRealisation realisation);
-    SceneObject(ObjectState objectState);
+    SceneObject(StatefulObject& parent, ObjectState objectState);
     virtual ~SceneObject();
     void draw();
     

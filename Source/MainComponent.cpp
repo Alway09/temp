@@ -6,7 +6,7 @@ MainComponent::MainComponent() : StatefulObject("root")
     restoreState(operationalConfigFile);
     
     if(hasChild(AudioSettings::ID)) {
-        AudioSettings(getChildState(AudioSettings::ID), deviceManager);
+        AudioSettings(*this, getChildState(AudioSettings::ID), deviceManager);
     } else {
         AudioSettings audioSettings(*this, deviceManager);
     }

@@ -21,7 +21,7 @@ public:
         const Name name;
     };
     
-    StatefulObject(const ObjectState& state, bool deleteStateWhenDestroyed = true);
+    StatefulObject(StatefulObject& parent, const ObjectState& state, bool deleteStateWhenDestroyed = true);
     
     virtual ~StatefulObject();
     
@@ -52,6 +52,16 @@ public:
     };
     
 private:
+    void addChild(StatefulObject* child) { children.add(child); }
+    
+    void parentRenamed(ValueTree& currentParentTree) {
+        valueTree = currentParentTree.getOrCreateChildWithName(valueTree.getType(), nullptr);
+        
+        for(int i = 0; i < children.size(); ++i) {
+            children[i]->parentRenamed(valueTree);
+        }
+    }
+    
     void valueTreePropertyChanged(ValueTree &treeWhosePropertyHasChanged, const Identifier &property) override {
         stateChanged(property);
     }
@@ -64,4 +74,6 @@ private:
 
     ValueTree valueTree;
     const bool deleteStateWhenDestroyed;
+    
+    SortedSet<StatefulObject*> children;
 };

@@ -11,6 +11,7 @@ StatefulObject::StatefulObject(const String& uniqueName) : NamedObject(uniqueNam
 }
 
 void StatefulObject::initTree() {
+    children.minimiseStorageOverheads();
     valueTree = ValueTree(createID());
     valueTree.addListener(this);
 }
@@ -26,12 +27,16 @@ StatefulObject::StatefulObject(StatefulObject& parent, const String& uniqueName,
 }
 
 void StatefulObject::initTreeFromParent(StatefulObject &parent) {
+    children.minimiseStorageOverheads();
+    parent.addChild(this);
     valueTree = parent.valueTree.getOrCreateChildWithName(createID(), nullptr);
     valueTree.addListener(this);
 }
 
-StatefulObject::StatefulObject(const ObjectState& state, bool deleteStateWhenDestroyed) : NamedObject(state.getName()), valueTree(state.getTree()), deleteStateWhenDestroyed(deleteStateWhenDestroyed)
+StatefulObject::StatefulObject(StatefulObject& parent, const ObjectState& state, bool deleteStateWhenDestroyed) : NamedObject(state.getName()), valueTree(state.getTree()), deleteStateWhenDestroyed(deleteStateWhenDestroyed)
 {
+    children.minimiseStorageOverheads();
+    parent.addChild(this);
     valueTree.addListener(this);
 }
 
@@ -110,6 +115,10 @@ void StatefulObject::rename(const String& newName) {
     parentTree.addChild(newValueTree, index, nullptr);
     valueTree = newValueTree;
     valueTree.addListener(this);
+    
+    for(int i = 0; i < children.size(); ++i) {
+        children[i]->parentRenamed(valueTree);
+    }
 }
 //---------------------------------------------------------
 void StatefulObject::setProperty(const Identifier &name, const var &newValue) {

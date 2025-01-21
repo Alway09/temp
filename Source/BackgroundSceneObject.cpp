@@ -5,7 +5,7 @@ BackgroundSceneObject::BackgroundSceneObject(StatefulObject& parent) : SceneObje
     init();
 }
 
-BackgroundSceneObject::BackgroundSceneObject(ObjectState objectState) : SceneObject(objectState) { init(); }
+BackgroundSceneObject::BackgroundSceneObject(StatefulObject& parent, ObjectState objectState) : SceneObject(parent, objectState) { init(); }
 
 void BackgroundSceneObject::init() {
     config.source = SceneObject::Config::DrawSource::Indices;

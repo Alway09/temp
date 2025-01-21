@@ -17,7 +17,7 @@ void ScenesView::timerCallback() {
             auto statesArray = getChildrenStates();
             
             for(auto state : statesArray) {
-                Scene* scene = new Scene(state);
+                Scene* scene = new Scene(*this, state);
                 //createObject(scene, SceneObjectRealisation::Background);
                 //createObject(scene, SceneObjectRealisation::Waveform);
                 //scene->createObject(SceneObjectRealisation::Background);
@@ -60,6 +60,7 @@ void ScenesView::sceneDeleteButtonClicked(SceneComponent* sceneComponent) {
 
 void ScenesView::createScene(SceneComponent::Listener* parent) {
     Scene* scene = new Scene(*this);
+    scene->createObject(SceneObjectRealisation::Background);
     scene->createObject(SceneObjectRealisation::Background);
     scene->createObject(SceneObjectRealisation::Waveform);
     //createObject(scene, SceneObjectRealisation::Background);

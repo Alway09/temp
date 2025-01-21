@@ -27,12 +27,26 @@ public:
         }
     }
     
+    void mouseDrag(const MouseEvent& e) override {
+        Component* parent = getParentComponent();
+        parent->mouseDrag(e.getEventRelativeTo(parent));
+    }
+    
     Rectangle<int> getBoundingRectangle(int Y) { return Rectangle<int>{getParentWidth(), header.getHeight() + controls.size() * controlHeight}.withY(Y); }
     
     const OwnedArray<PropertyComponent>& getControls() { return controls; };
+    virtual void initControls() = 0;
 protected:
     SceneObject& object;
     OwnedArray<PropertyComponent> controls;
+    /*void addControl(PropertyComponent* oldPtr, PropertyComponent* newPtr) {
+        int idx = controls.indexOf(oldPtr);
+        if(idx == -1) {
+            controls.add(newPtr);
+        } else {
+            controls.set(idx, newPtr);
+        }
+    }*/
 private:
     void labelTextChanged(Label* l) override {
         String newName = l->getText();
@@ -48,6 +62,7 @@ private:
         }
         
         header.setObjectName(object.getName());
+        initControls();
     }
     
     class Header : public Component
@@ -56,6 +71,7 @@ private:
         Header() {
             sceneObjectNameLabel.setEditable(false, true, true);
             
+            //sceneObjectNameLabel.setInterceptsMouseClicks(false, false);
             addAndMakeVisible(sceneObjectNameLabel);
             addAndMakeVisible(expandButton);
         }
@@ -73,9 +89,22 @@ private:
         void addsceneObjectNameLabelListener(Label::Listener* listener) { sceneObjectNameLabel.addListener(listener); }
         
         void setObjectName(String name) { sceneObjectNameLabel.setText(name, NotificationType::dontSendNotification); }
+        
+        void mouseDrag(const MouseEvent& e) override {
+            Component* parent = getParentComponent();
+            parent->mouseDrag(e.getEventRelativeTo(parent));
+        }
     private:
+        class CustomLabel : public Label {
+        public:
+            void mouseDrag(const MouseEvent& e) {
+                Component* parent = getParentComponent();
+                parent->mouseDrag(e.getEventRelativeTo(parent));
+            }
+        };
+        
         TextButton expandButton;
-        Label sceneObjectNameLabel;
+        CustomLabel sceneObjectNameLabel;
         int height = 20;
     };
     

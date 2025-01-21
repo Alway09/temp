@@ -6,7 +6,7 @@ SceneObject::SceneObject(StatefulObject& parent, String namePrefix, SceneObjectR
     setProperty(objectTypeID, realisation);
 }
 
-SceneObject::SceneObject(ObjectState objectState) : StatefulObject(objectState)
+SceneObject::SceneObject(StatefulObject& parent, ObjectState objectState) : StatefulObject(parent, objectState)
 {
     
 }

@@ -65,17 +65,17 @@ void SceneComponent::SceneOverlayComponent::resized()
 }
 
 void SceneComponent::SceneOverlayComponent::mouseEnter(const MouseEvent& e) { 
-    for(auto c : getAllComponents()) {
+    /*for(auto c : getAllComponents()) {
         c->setVisible(true);
-    }
+    }*/
     
     parent->mouseEnter(e);
 }
 
 void SceneComponent::SceneOverlayComponent::mouseExit(const MouseEvent& e) { 
-    for(auto c : getAllComponents()) {
+    /*for(auto c : getAllComponents()) {
         c->setVisible(false);
-    }
+    }*/
     
     parent->mouseExit(e);
 }

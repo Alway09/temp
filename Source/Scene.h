@@ -9,7 +9,7 @@ class Scene : public StatefulObject
 {
 public:
     Scene(StatefulObject& parent);
-    Scene(ObjectState objectState);
+    Scene(StatefulObject& parent, ObjectState objectState);
     ~Scene();
     
     void shutdown();
@@ -47,12 +47,12 @@ public:
         switch (realisation) {
             case SceneObjectRealisation::Waveform:
             {
-                obj = new WaveformSceneObject(objectState);
+                obj = new WaveformSceneObject(*this, objectState);
                 break;
             }
             case SceneObjectRealisation::Background:
             {
-                obj = new BackgroundSceneObject(objectState);
+                obj = new BackgroundSceneObject(*this, objectState);
                 break;
             }
         }

@@ -6,7 +6,7 @@ class BackgroundSceneObject : public SceneObject
 {
 public:
     BackgroundSceneObject(StatefulObject& parent);
-    BackgroundSceneObject(ObjectState objectState);
+    BackgroundSceneObject(StatefulObject& parent, ObjectState objectState);
     ~BackgroundSceneObject();
     
     void fillBuffers() override;

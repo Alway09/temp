@@ -8,7 +8,7 @@ WaveformSceneObject::WaveformSceneObject(StatefulObject& parent) : SceneObject(p
     init();
 }
 
-WaveformSceneObject::WaveformSceneObject(ObjectState objectState) : SceneObject(objectState) {
+WaveformSceneObject::WaveformSceneObject(StatefulObject& parent, ObjectState objectState) : SceneObject(parent, objectState) {
     for(auto id : IDs::getAll()) {
         //setPropertyIfNotExists(id, IDs::getDefault(id));
         stateChanged(id);

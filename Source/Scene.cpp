@@ -1,11 +1,11 @@
 #include "Scene.h"
 
-Scene::Scene(StatefulObject& parent) : StatefulObject(parent, parent.getName(), "Scene")
+Scene::Scene(StatefulObject& parent) : StatefulObject(parent, parent.getName(), String("Scene"))
 {
     uuidIdentifier = Uuid();
 }
 
-Scene::Scene(ObjectState objectState) : StatefulObject(objectState) {
+Scene::Scene(StatefulObject& parent, ObjectState objectState) : StatefulObject(parent, objectState) {
     uuidIdentifier = Uuid();
     
     if(hasChildren()) {
