@@ -1,11 +1,11 @@
 #include "Scene.h"
 
-Scene::Scene(StatefulObject& parent) : StatefulObject(parent, parent.getName(), String("Scene"))
+Scene::Scene(StatefulObject& parent, OpenGLContext& context) : StatefulObject(parent, parent.getName(), String("Scene")), context(context)
 {
     uuidIdentifier = Uuid();
 }
 
-Scene::Scene(StatefulObject& parent, ObjectState objectState) : StatefulObject(parent, objectState) {
+Scene::Scene(StatefulObject& parent, ObjectState objectState, OpenGLContext& context) : StatefulObject(parent, objectState), context(context) {
     uuidIdentifier = Uuid();
     
     if(hasChildren()) {

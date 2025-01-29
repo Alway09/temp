@@ -32,10 +32,16 @@ public:
         parent->mouseDrag(e.getEventRelativeTo(parent));
     }
     
-    Rectangle<int> getBoundingRectangle(int Y) { return Rectangle<int>{getParentWidth(), header.getHeight() + controls.size() * controlHeight}.withY(Y); }
+    Rectangle<int> getBoundingRectangle(int Y) const { return Rectangle<int>{getParentWidth(), getHeight()}.withY(Y); }
+    
+    int getHeight() const {
+        return header.getHeight() + controls.size() * controlHeight;
+    }
     
     const OwnedArray<PropertyComponent>& getControls() { return controls; };
     virtual void initControls() = 0;
+    
+    void select(bool shouldBeSelected) { header.select(shouldBeSelected); }
 protected:
     SceneObject& object;
     OwnedArray<PropertyComponent> controls;
@@ -68,7 +74,7 @@ private:
     class Header : public Component
     {
     public:
-        Header() {
+        Header() : selected(false) {
             sceneObjectNameLabel.setEditable(false, true, true);
             
             //sceneObjectNameLabel.setInterceptsMouseClicks(false, false);
@@ -83,6 +89,12 @@ private:
             sceneObjectNameLabel.setBounds(localBounds);
         }
         
+        void paint(Graphics& g) override {
+            if(selected) {
+                g.fillAll(Colours::red);
+            }
+        }
+        
         int getHeight() const { return height; }
         
         //void addCloseButtonListener(Button::Listener* listener) { closeButton.addListener(listener); }
@@ -94,6 +106,8 @@ private:
             Component* parent = getParentComponent();
             parent->mouseDrag(e.getEventRelativeTo(parent));
         }
+        
+        void select(bool shouldBeSelected) { selected = shouldBeSelected; }
     private:
         class CustomLabel : public Label {
         public:
@@ -103,6 +117,7 @@ private:
             }
         };
         
+        bool selected;
         TextButton expandButton;
         CustomLabel sceneObjectNameLabel;
         int height = 20;

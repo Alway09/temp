@@ -12,12 +12,12 @@ ScenesView::ScenesView(StatefulObject& parent, SceneComponent::Listener* listene
 }
 
 void ScenesView::timerCallback() {
-    if(isVisible()) {
+    if(isVisible()) {  // context initialized
         if(hasChildren()) {
             auto statesArray = getChildrenStates();
             
             for(auto state : statesArray) {
-                Scene* scene = new Scene(*this, state);
+                Scene* scene = new Scene(*this, state, scenesRender->getContext());
                 //createObject(scene, SceneObjectRealisation::Background);
                 //createObject(scene, SceneObjectRealisation::Waveform);
                 //scene->createObject(SceneObjectRealisation::Background);
@@ -59,12 +59,11 @@ void ScenesView::sceneDeleteButtonClicked(SceneComponent* sceneComponent) {
 }
 
 void ScenesView::createScene(SceneComponent::Listener* parent) {
-    Scene* scene = new Scene(*this);
-    scene->createObject(SceneObjectRealisation::Background);
-    scene->createObject(SceneObjectRealisation::Background);
+    Scene* scene = new Scene(*this, scenesRender->getContext());
+    for(int i = 0; i < 30; ++i) {
+        scene->createObject(SceneObjectRealisation::Background);
+    }
     scene->createObject(SceneObjectRealisation::Waveform);
-    //createObject(scene, SceneObjectRealisation::Background);
-    //createObject(scene, SceneObjectRealisation::Waveform);
     scenes.add(scene);
     SceneComponent* sceneComponent = new SceneComponent(scene);
     sceneComponents.add(sceneComponent);

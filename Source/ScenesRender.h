@@ -19,6 +19,8 @@ public:
     
     void addScene(Scene* scene);
     void removeScene(Scene* scene);
+    
+    OpenGLContext& getContext() { return context; }
 private:
     void bringToFront(Scene* scene);
     

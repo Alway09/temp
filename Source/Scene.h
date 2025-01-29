@@ -8,8 +8,8 @@ using namespace juce;
 class Scene : public StatefulObject
 {
 public:
-    Scene(StatefulObject& parent);
-    Scene(StatefulObject& parent, ObjectState objectState);
+    Scene(StatefulObject& parent, OpenGLContext& context);
+    Scene(StatefulObject& parent, ObjectState objectState, OpenGLContext& context);
     ~Scene();
     
     void shutdown();
@@ -19,7 +19,7 @@ public:
     Matrix3D<float> getViewMatrix() const;
     
     void createShaders();
-    void createObject(SceneObjectRealisation realisation) {
+    SceneObject* createObject(SceneObjectRealisation realisation) {
         SceneObject* obj = nullptr;
         
         switch (realisation) {
@@ -36,9 +36,13 @@ public:
         }
         
         if(shader.get() != nullptr)
-            obj->reset(*shader);
+        {
+            context.executeOnGLThread([this, obj](OpenGLContext&){ obj->reset(*shader); } , true);
+            //obj->reset(*shader);
+        }
 
         objects.add(obj);
+        return obj;
     }
     
     void createObject(SceneObjectRealisation realisation, ObjectState objectState) {
@@ -99,6 +103,8 @@ private:
     Rectangle<int> bounds;
     int parentHeight;
     CriticalSection mutex;
+    
+    OpenGLContext& context;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Scene)
 };

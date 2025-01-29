@@ -10,6 +10,38 @@ enum SceneObjectRealisation
     Background
 };
 
+struct SceneObjectRealisationHelper {
+    static SceneObjectRealisation fromInt(int i) {
+        if(i == 0) {
+            return Waveform;
+        }
+        
+        if(i == 1) {
+            return Background;
+        }
+        
+        throw std::invalid_argument("Number of SceneObjectRealisation is incorrect.");
+    }
+    
+    static Array<SceneObjectRealisation> getAll() {
+        return {Waveform, Background};
+    }
+    
+    static const String& toString(SceneObjectRealisation r) {
+        static const String waveform("Waveform");
+        static const String background("Background");
+        
+        switch (r) {
+            case Waveform:
+                return waveform;
+                break;
+            case Background:
+                return background;
+                break;
+        }
+    }
+};
+
 class SceneObject : public StatefulObject
 {
 public:
