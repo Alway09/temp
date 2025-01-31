@@ -5,12 +5,13 @@
 
 using namespace juce;
 
-class SceneObjectEditor : public Component, public Label::Listener
+class SceneObjectEditor : public Component, public Label::Listener, public Button::Listener
 {
 public:
     SceneObjectEditor(SceneObject& objectEditTo) : object(objectEditTo) {
         header.setObjectName(objectEditTo.getName());
         header.addsceneObjectNameLabelListener(this);
+        header.addExpandButtonListener(this);
         addAndMakeVisible(header);
     }
     
@@ -35,7 +36,11 @@ public:
     Rectangle<int> getBoundingRectangle(int Y) const { return Rectangle<int>{getParentWidth(), getHeight()}.withY(Y); }
     
     int getHeight() const {
-        return header.getHeight() + controls.size() * controlHeight;
+        int result = header.getHeight();
+        if(expanded) {
+            result += controls.size() * controlHeight;
+        }
+        return result;
     }
     
     const OwnedArray<PropertyComponent>& getControls() { return controls; };
@@ -45,14 +50,6 @@ public:
 protected:
     SceneObject& object;
     OwnedArray<PropertyComponent> controls;
-    /*void addControl(PropertyComponent* oldPtr, PropertyComponent* newPtr) {
-        int idx = controls.indexOf(oldPtr);
-        if(idx == -1) {
-            controls.add(newPtr);
-        } else {
-            controls.set(idx, newPtr);
-        }
-    }*/
 private:
     void labelTextChanged(Label* l) override {
         String newName = l->getText();
@@ -71,10 +68,22 @@ private:
         initControls();
     }
     
+    void buttonClicked(Button*) override {
+        expanded = !expanded;
+        
+        if(!controls.isEmpty()) {
+            for(auto c : controls) {
+                c->setVisible(expanded);
+            }
+            
+            getParentComponent()->resized();
+        }
+    }
+    
     class Header : public Component
     {
     public:
-        Header() : selected(false) {
+        Header() : expandButton("e", 0.0, Colours::orange), selected(false) {
             sceneObjectNameLabel.setEditable(false, true, true);
             
             //sceneObjectNameLabel.setInterceptsMouseClicks(false, false);
@@ -97,9 +106,8 @@ private:
         
         int getHeight() const { return height; }
         
-        //void addCloseButtonListener(Button::Listener* listener) { closeButton.addListener(listener); }
         void addsceneObjectNameLabelListener(Label::Listener* listener) { sceneObjectNameLabel.addListener(listener); }
-        
+        void addExpandButtonListener(Button::Listener* listener) { expandButton.addListener(listener); }
         void setObjectName(String name) { sceneObjectNameLabel.setText(name, NotificationType::dontSendNotification); }
         
         void mouseDrag(const MouseEvent& e) override {
@@ -116,13 +124,14 @@ private:
                 parent->mouseDrag(e.getEventRelativeTo(parent));
             }
         };
-        
-        bool selected;
-        TextButton expandButton;
+    
+        ArrowButton expandButton;
         CustomLabel sceneObjectNameLabel;
+        bool selected;
         int height = 20;
     };
     
     Header header;
     int controlHeight = 40;
+    bool expanded = false;
 };

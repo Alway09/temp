@@ -19,10 +19,20 @@ public:
     void addObjectAppendListener(ComboBox::Listener* listener) { innerComponent->addObjectAppendListener(listener); }
     void reinitControls() { innerComponent->reinitControls(); }
     
-    void componentMovedOrResized(Component& c, bool wasMoved, bool wasResized) override {
+    /*void componentMovedOrResized(Component& c, bool wasMoved, bool wasResized) override {
         Viewport::componentMovedOrResized(c, wasMoved, wasResized);
         if(wasResized) {
             setViewPositionProportionately(1.0, 1.0);
+        }
+    }*/
+    
+    void componentMovedOrResized (Component& c, bool wasMoved, bool wasResized) override {
+        if(wasResized) {
+            auto pos = getViewPosition();
+            Viewport::componentMovedOrResized(c, wasMoved, wasResized);
+            setViewPosition(pos);
+        } else {
+            Viewport::componentMovedOrResized(c, wasMoved, wasResized);
         }
     }
     
