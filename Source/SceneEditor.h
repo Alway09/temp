@@ -6,7 +6,7 @@
 
 using namespace juce;
 
-class SceneEditor : public Component, public Label::Listener, public ComboBox::Listener
+class SceneEditor : public Component, public Label::Listener, public SceneObjectEditorsHolder::Listener
 {
 public:
     SceneEditor();
@@ -35,10 +35,22 @@ private:
         editorsHolder.reinitControls();
     }
     
-    void comboBoxChanged(ComboBox* box) override {
+    /*void comboBoxChanged(ComboBox* box) override {
         SceneObjectRealisation r = SceneObjectRealisationHelper::fromInt(box->getSelectedId() - 1);
         editorsHolder.addEditor(attachedTo->createObject(r));
         box->setSelectedId(0, NotificationType::dontSendNotification);
+    }*/
+    
+    SceneObject* addObject(SceneObjectRealisation r) override {
+        return attachedTo->createObject(r);
+    }
+    
+    void deleteObject(SceneObject* obj) override {
+        attachedTo->deleteObject(obj);
+    }
+    
+    void objectsReorder(int oldIdx, int newIdx) override {
+        attachedTo->objectsReorder(oldIdx, newIdx);
     }
     
     class Header : public Component
@@ -72,7 +84,7 @@ private:
     }*/
     
     Header header;
+    SceneObjectEditorsHolderViewport viewport;
     SceneObjectEditorsHolder editorsHolder;
-    //Viewport editorsHolderViewport;
     Scene* attachedTo = nullptr;
 };

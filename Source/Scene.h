@@ -2,6 +2,7 @@
 #include <JuceHeader.h>
 #include "WaveformSceneObject.h"
 #include "BackgroundSceneObject.h"
+#include "ArrayUtil.h"
 
 using namespace juce;
 
@@ -65,6 +66,17 @@ public:
             obj->reset(*shader);
 
         objects.add(obj);
+    }
+    
+    void deleteObject(SceneObject* object) {
+        const ScopedLock lock (renderMutex);
+        objects.removeObject(object);
+    }
+    
+    void objectsReorder(int oldIdx, int newIdx) {
+        reorder(objects, oldIdx, newIdx);
+        int idx = oldIdx > newIdx ? newIdx + 1 : newIdx;
+        objects[idx]->move(idx);
     }
     
     Uuid& getUuidIdentifier() { return uuidIdentifier; }

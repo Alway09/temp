@@ -33,6 +33,7 @@ public:
     void restoreState(File& file);
     virtual void stateChanged(const Identifier &property) {}
     void rename(const String& newName) override;
+    void move(int newIdx);
     
     void setProperty(const Identifier &name, const var &newValue);
     const var& getProperty(const Identifier &name) const;

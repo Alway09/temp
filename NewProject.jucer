@@ -81,6 +81,7 @@
       <FILE id="NBhaPk" name="WaveformComponent.cpp" compile="1" resource="0"
             file="Source/WaveformComponent.cpp"/>
       <GROUP id="{0358BA39-20DC-3C3A-C2AD-8180A17FFE51}" name="Util">
+        <FILE id="zEWrlp" name="ArrayUtil.h" compile="0" resource="0" file="Source/ArrayUtil.h"/>
         <FILE id="pbrE0V" name="StatefulObject.h" compile="0" resource="0"
               file="Source/StatefulObject.h"/>
         <FILE id="edIlgv" name="StatefulObject.cpp" compile="1" resource="0"

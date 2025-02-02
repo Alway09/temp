@@ -120,6 +120,13 @@ void StatefulObject::rename(const String& newName) {
         children[i]->parentRenamed(valueTree);
     }
 }
+
+void StatefulObject::move(int newIdx) {
+    ValueTree parent = valueTree.getParent();
+    int currentIdx = parent.indexOf(valueTree);
+    parent.moveChild(currentIdx, newIdx, nullptr);
+}
+
 //---------------------------------------------------------
 void StatefulObject::setProperty(const Identifier &name, const var &newValue) {
     valueTree.setProperty(name, newValue, nullptr);

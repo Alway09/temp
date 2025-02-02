@@ -12,6 +12,7 @@ public:
         header.setObjectName(objectEditTo.getName());
         header.addsceneObjectNameLabelListener(this);
         header.addExpandButtonListener(this);
+        header.addDeleteButtonListener(this);
         addAndMakeVisible(header);
     }
     
@@ -43,10 +44,22 @@ public:
         return result;
     }
     
+    //void addDeleteButtonListener(Button::Listener* listener) { header.addDeleteButtonListener(listener); }
+    
     const OwnedArray<PropertyComponent>& getControls() { return controls; };
     virtual void initControls() = 0;
     
     void select(bool shouldBeSelected) { header.select(shouldBeSelected); }
+    
+    class Listener {
+    public:
+        virtual ~Listener() = default;
+        virtual void deleteButtonClicked(SceneObjectEditor* editor) = 0;
+    };
+    
+    void setListener(SceneObjectEditor::Listener* listener) { this->listener = listener; }
+    
+    SceneObject* getObject() { return &object; }
 protected:
     SceneObject& object;
     OwnedArray<PropertyComponent> controls;
@@ -68,15 +81,19 @@ private:
         initControls();
     }
     
-    void buttonClicked(Button*) override {
-        expanded = !expanded;
-        
-        if(!controls.isEmpty()) {
-            for(auto c : controls) {
-                c->setVisible(expanded);
-            }
+    void buttonClicked(Button* b) override {
+        if(header.isExpandButton(b)) {
+            expanded = !expanded;
             
-            getParentComponent()->resized();
+            if(!controls.isEmpty()) {
+                for(auto c : controls) {
+                    c->setVisible(expanded);
+                }
+                
+                getParentComponent()->resized();
+            }
+        } else if(header.isDeleteButton(b)) {
+            listener->deleteButtonClicked(this);
         }
     }
     
@@ -89,12 +106,14 @@ private:
             //sceneObjectNameLabel.setInterceptsMouseClicks(false, false);
             addAndMakeVisible(sceneObjectNameLabel);
             addAndMakeVisible(expandButton);
+            addAndMakeVisible(deleteButton);
         }
         
         void resized() override {
             auto localBounds = getLocalBounds().withHeight(height);
             
-            expandButton.setBounds(localBounds.removeFromLeft(50));
+            expandButton.setBounds(localBounds.removeFromLeft(30));
+            deleteButton.setBounds(localBounds.removeFromRight(30));
             sceneObjectNameLabel.setBounds(localBounds);
         }
         
@@ -108,6 +127,7 @@ private:
         
         void addsceneObjectNameLabelListener(Label::Listener* listener) { sceneObjectNameLabel.addListener(listener); }
         void addExpandButtonListener(Button::Listener* listener) { expandButton.addListener(listener); }
+        void addDeleteButtonListener(Button::Listener* listener) { deleteButton.addListener(listener); }
         void setObjectName(String name) { sceneObjectNameLabel.setText(name, NotificationType::dontSendNotification); }
         
         void mouseDrag(const MouseEvent& e) override {
@@ -116,6 +136,9 @@ private:
         }
         
         void select(bool shouldBeSelected) { selected = shouldBeSelected; }
+        
+        bool isExpandButton(Button* b) { return &expandButton == b; }
+        bool isDeleteButton(Button* b) { return &deleteButton == b; }
     private:
         class CustomLabel : public Label {
         public:
@@ -126,6 +149,7 @@ private:
         };
     
         ArrowButton expandButton;
+        TextButton deleteButton;
         CustomLabel sceneObjectNameLabel;
         bool selected;
         int height = 20;
@@ -134,4 +158,5 @@ private:
     Header header;
     int controlHeight = 40;
     bool expanded = false;
+    SceneObjectEditor::Listener* listener;
 };

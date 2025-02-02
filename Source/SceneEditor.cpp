@@ -1,17 +1,19 @@
 #include "SceneEditor.h"
 
-SceneEditor::SceneEditor()
+SceneEditor::SceneEditor() : editorsHolder(viewport)
 {
     header.addSceneNameLabelListener(this);
-    editorsHolder.addObjectAppendListener(this);
+    //editorsHolder.addObjectAppendListener(this);
+    editorsHolder.setListener(this);
+    viewport.setViewedComponent(&editorsHolder, false);
     addAndMakeVisible(header);
-    addAndMakeVisible(editorsHolder);
+    addAndMakeVisible(viewport);
 }
 
 void SceneEditor::resized() {
     auto localBounds = getLocalBounds();
     header.setBounds(localBounds.removeFromTop(50));
-    editorsHolder.setBounds(localBounds);
+    viewport.setBounds(localBounds);
 }
 
 void SceneEditor::attach(Scene* scene) {
