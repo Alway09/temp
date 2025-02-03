@@ -109,6 +109,7 @@ void SceneObjectEditorsHolder::itemDropped (const SourceDetails &dragSourceDetai
     auto targetEditor = underline.getUnderlined();
     
     if(targetEditor == nullptr) {
+        underline.selectInitiator(false);
         return;
     }
     
@@ -116,6 +117,7 @@ void SceneObjectEditorsHolder::itemDropped (const SourceDetails &dragSourceDetai
     int targetIdx = editors.indexOf(targetEditor);
     
     if(targetIdx == draggedIdx - 1) {
+        underline.selectInitiator(false);
         return;
     }
     

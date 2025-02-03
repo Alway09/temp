@@ -13,15 +13,12 @@ public:
     SceneObjectEditorsHolder(Viewport& vp);
     
     void resized() override {
-        //setBounds({300 - viewport->getScrollBarThickness(), setDefaultBounds() + 30});
         setBounds({300 - 10, setDefaultBounds() + 30});
-        //setBounds({500, 500});
     }
     
     void addEditor(SceneObject* object);
     void reinitControls();
     void clear() { editors.clear(); }
-    //void addObjectAppendListener(ComboBox::Listener* listener) { addObjectBox.addListener(listener); }
     
     bool isInterestedInDragSource (const SourceDetails &dragSourceDetails) override { return true; }
     void mouseDrag(const MouseEvent& e) override;

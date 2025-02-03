@@ -8,17 +8,13 @@ using namespace juce;
 class SceneObjectEditor : public Component, public Label::Listener, public Button::Listener
 {
 public:
-    SceneObjectEditor(SceneObject& objectEditTo) : object(objectEditTo) {
-        header.setObjectName(objectEditTo.getName());
-        header.addsceneObjectNameLabelListener(this);
-        header.addExpandButtonListener(this);
-        header.addDeleteButtonListener(this);
-        addAndMakeVisible(header);
-    }
+    SceneObjectEditor(SceneObject& objectEditTo);
     
-    ~SceneObjectEditor() {
-        //controls.clear();
-    }
+    Rectangle<int> getBoundingRectangle(int Y) const { return Rectangle<int>{getParentWidth(), getHeight()}.withY(Y); }
+    int getHeight() const { return header.getHeight() + (expanded ? controls.size() * controlHeight : 0); }
+    void select(bool shouldBeSelected) { header.select(shouldBeSelected); }
+    const OwnedArray<PropertyComponent>& getControls() { return controls; };
+    virtual void initControls() = 0;
     
     void resized() override {
         auto bounds = getBoundingRectangle(0);
@@ -33,23 +29,6 @@ public:
         Component* parent = getParentComponent();
         parent->mouseDrag(e.getEventRelativeTo(parent));
     }
-    
-    Rectangle<int> getBoundingRectangle(int Y) const { return Rectangle<int>{getParentWidth(), getHeight()}.withY(Y); }
-    
-    int getHeight() const {
-        int result = header.getHeight();
-        if(expanded) {
-            result += controls.size() * controlHeight;
-        }
-        return result;
-    }
-    
-    //void addDeleteButtonListener(Button::Listener* listener) { header.addDeleteButtonListener(listener); }
-    
-    const OwnedArray<PropertyComponent>& getControls() { return controls; };
-    virtual void initControls() = 0;
-    
-    void select(bool shouldBeSelected) { header.select(shouldBeSelected); }
     
     class Listener {
     public:
@@ -85,6 +64,8 @@ private:
         if(header.isExpandButton(b)) {
             expanded = !expanded;
             
+            header.changeState(expanded);
+            
             if(!controls.isEmpty()) {
                 for(auto c : controls) {
                     c->setVisible(expanded);
@@ -100,10 +81,22 @@ private:
     class Header : public Component
     {
     public:
-        Header() : expandButton("e", 0.0, Colours::orange), selected(false) {
+        Header() : expandButton("e", Colours::orange, Colours::orange, Colours::orange), selected(false) {
             sceneObjectNameLabel.setEditable(false, true, true);
             
-            //sceneObjectNameLabel.setInterceptsMouseClicks(false, false);
+            expandButton.shouldUseOnColours(false);
+            
+            nonExpandedPath.startNewSubPath(-1, 1);
+            nonExpandedPath.lineTo(1, 0);
+            nonExpandedPath.lineTo(-1, -1);
+            setExpandButtonPath(nonExpandedPath);
+            
+            expandedPath.startNewSubPath(-1, -1);
+            expandedPath.lineTo(0, 1);
+            expandedPath.lineTo(1, -1);
+            
+            expandButton.setBorderSize(BorderSize<int>(3));
+            
             addAndMakeVisible(sceneObjectNameLabel);
             addAndMakeVisible(expandButton);
             addAndMakeVisible(deleteButton);
@@ -135,7 +128,13 @@ private:
             parent->mouseDrag(e.getEventRelativeTo(parent));
         }
         
-        void select(bool shouldBeSelected) { selected = shouldBeSelected; }
+        void select(bool shouldBeSelected) {
+            selected = shouldBeSelected;
+        }
+        
+        void changeState(bool expanded) {
+            setExpandButtonPath(expanded ? expandedPath : nonExpandedPath);
+        }
         
         bool isExpandButton(Button* b) { return &expandButton == b; }
         bool isDeleteButton(Button* b) { return &deleteButton == b; }
@@ -147,9 +146,15 @@ private:
                 parent->mouseDrag(e.getEventRelativeTo(parent));
             }
         };
+        
+        void setExpandButtonPath(Path& path) {
+            expandButton.setShape(path, false, true, false);
+        }
     
-        ArrowButton expandButton;
-        TextButton deleteButton;
+        ShapeButton expandButton;
+        Path expandedPath;
+        Path nonExpandedPath;
+        TextButton deleteButton{"X"};
         CustomLabel sceneObjectNameLabel;
         bool selected;
         int height = 20;

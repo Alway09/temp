@@ -23,14 +23,23 @@ struct SceneObjectRealisationHelper {
         throw std::invalid_argument("Number of SceneObjectRealisation is incorrect.");
     }
     
+    static SceneObjectRealisation fromString(String str) {
+        if(waveform == str) {
+            return Waveform;
+        }
+        
+        if(background == str) {
+            return Background;
+        }
+        
+        throw std::invalid_argument("String name of SceneObjectRealisation is incorrect.");
+    }
+    
     static Array<SceneObjectRealisation> getAll() {
         return {Waveform, Background};
     }
     
     static const String& toString(SceneObjectRealisation r) {
-        static const String waveform("Waveform");
-        static const String background("Background");
-        
         switch (r) {
             case Waveform:
                 return waveform;
@@ -40,6 +49,10 @@ struct SceneObjectRealisationHelper {
                 break;
         }
     }
+    
+private:
+    inline static const String waveform{"Waveform"};
+    inline static const String background{"Background"};
 };
 
 class SceneObject : public StatefulObject
@@ -53,7 +66,7 @@ public:
     virtual SceneObjectRealisation getRealisation() = 0;
     
     void reset(OpenGLShaderProgram& shaderProgram);
-    static Identifier getTypeID() { return objectTypeID; }
+    //static Identifier getTypeID() { return objectTypeID; }
 protected:
     
     struct Vertex

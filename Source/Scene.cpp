@@ -11,12 +11,7 @@ Scene::Scene(StatefulObject& parent, ObjectState objectState, OpenGLContext& con
     if(hasChildren()) {
         auto statesArray = getChildrenStates();
         for(auto state : statesArray) {
-            int type = state.getTree().getProperty("Type");
-            if(type == 0) {
-                createObject(SceneObjectRealisation::Waveform, state);
-            } else if (type == 1) {
-                createObject(SceneObjectRealisation::Background, state);
-            }
+            createObject(SceneObjectRealisationHelper::fromString(state.getTree().getProperty("Type")), state);
         }
     }
 }
