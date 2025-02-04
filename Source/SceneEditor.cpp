@@ -3,9 +3,9 @@
 SceneEditor::SceneEditor() : editorsHolder(viewport)
 {
     header.addSceneNameLabelListener(this);
-    //editorsHolder.addObjectAppendListener(this);
     editorsHolder.setListener(this);
     viewport.setViewedComponent(&editorsHolder, false);
+    
     addAndMakeVisible(header);
     addAndMakeVisible(viewport);
 }
@@ -16,16 +16,46 @@ void SceneEditor::resized() {
     viewport.setBounds(localBounds);
 }
 
+void SceneEditor::labelTextChanged(Label* sceneNameLabel) {
+    String newName = sceneNameLabel->getText();
+    
+    try {
+        attachedTo->rename(newName);
+    } catch (const NamedObject::NameException& e) {
+        if(e.hasMessage()) {
+            AlertWindow::showAsync(MessageBoxOptions::makeOptionsOk(MessageBoxIconType::WarningIcon, "Warning", e.getMessage()), nullptr);
+        }
+    } catch (const StatefulObject::StateException& e) {
+        AlertWindow::showAsync(MessageBoxOptions::makeOptionsOk(MessageBoxIconType::WarningIcon, "Warning", e.getMessage()), nullptr);
+    }
+    
+    header.setSceneName(attachedTo->getName());
+    editorsHolder.reinitControls();
+}
+
 void SceneEditor::attach(Scene* scene) {
     if(!isAttachedTo(scene)) {
         attachedTo = scene;
         editorsHolder.clear();
         header.setSceneName(scene->getName());
         
-        for(int i = 0; i < scene->getObjects().size(); ++i) {
-            SceneObject* object = scene->getObjects()[i];
-            editorsHolder.addEditor(object);
+        for(SceneObject* obj : scene->getObjects()) {
+            editorsHolder.addEditor(obj, false);
         }
+        editorsHolder.resized();
     }
+}
+//--------------------------------------
+SceneEditor::Header::Header() {
+    sceneNameLabel.setEditable(false, true, true);
     
+    addAndMakeVisible(sceneNameLabel);
+    addAndMakeVisible(closeButton);
+}
+
+void SceneEditor::Header::resized() {
+    auto localBounds = getLocalBounds();
+    
+    closeButton.setBounds(localBounds.removeFromLeft(50));
+    sceneNameLabel.setBounds(localBounds);
 }

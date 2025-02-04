@@ -12,60 +12,58 @@ class SceneObjectEditorsHolder : public Component, public DragAndDropContainer, 
 public:
     SceneObjectEditorsHolder(Viewport& vp);
     
-    void resized() override {
-        setBounds({300 - 10, setDefaultBounds() + 30});
-    }
-    
-    void addEditor(SceneObject* object);
+    void addEditor(SceneObject* object, bool execResize = true);
     void reinitControls();
     void clear() { editors.clear(); }
     
-    bool isInterestedInDragSource (const SourceDetails &dragSourceDetails) override { return true; }
-    void mouseDrag(const MouseEvent& e) override;
-    void itemDropped(const SourceDetails &dragSourceDetails) override;
-    void itemDragMove(const SourceDetails &dragSourceDetails) override;
-    void itemDragExit(const SourceDetails &dragSourceDetails) override;
-    void itemDragEnter(const SourceDetails &dragSourceDetails) override { underline.selectInitiator(true); }
-    
-    void deleteButtonClicked(SceneObjectEditor* editor) override;
-    
+    void resized() override {setSize(viewport.getWidth()-viewport.getScrollBarThickness(), setDefaultBounds());}
+
+    class Listener
+    {
+    public:
+        virtual ~Listener() = default;
+        virtual void deleteObject(SceneObject* obj) = 0;
+        virtual SceneObject* addObject(SceneObjectRealisation r) = 0;
+        virtual void objectsReorder(int oldIdx, int newIdx) = 0;
+    };
+    void setListener(Listener* listener) { this->listener = listener; }
+private:
     void comboBoxChanged(ComboBox*) override {
         SceneObjectRealisation r = SceneObjectRealisationHelper::fromInt(addObjectBox.getSelectedId() - 1);
         addEditor(listener->addObject(r));
         addObjectBox.setSelectedId(0, NotificationType::dontSendNotification);
     }
     
-    class Listener
-    {
-    public:
-        virtual ~Listener() = default;
-        
-        virtual void deleteObject(SceneObject* obj) {}
-        virtual SceneObject* addObject(SceneObjectRealisation r) { return nullptr; }
-        virtual void objectsReorder(int oldIdx, int newIdx) {}
-    };
+    void deleteButtonClicked(SceneObjectEditor* editor) override;
     
-    void setListener(Listener* listener) { this->listener = listener; }
+    bool isInterestedInDragSource (const SourceDetails &dragSourceDetails) override { return true; }
+    void mouseDrag(const MouseEvent& e) override;
+    void itemDropped(const SourceDetails &dragSourceDetails) override;
+    void itemDragMove(const SourceDetails &dragSourceDetails) override;
+    void itemDragExit(const SourceDetails &dragSourceDetails) override { underline.dragExit(); underlineReposition(); }
+    void itemDragEnter(const SourceDetails &dragSourceDetails) override { underline.selectInitiator(true); }
     
-private:
     class DragAndDropUnderline : public Component
     {
     public:
         void paint(Graphics& g) override;
         
+        void endDrag() { dragExit(); initiator = nullptr; }
+        void dragExit() { underlined = nullptr; selectInitiator(false); }
+        void beginDrag(SceneObjectEditor* init, SceneObjectEditor* initUp) {
+            initiator = init;
+            initiatorUpper = initUp;
+            setUnderlined(nullptr);
+        }
+        
+        bool hasMember() const { return underlined != nullptr; }
+        SceneObjectEditor* const getUnderlined() { return underlined; }
         void setUnderlined(SceneObjectEditor* component) { underlined = component; }
-        bool hasMember() { return underlined != nullptr; }
         bool isUnderlined(SceneObjectEditor* component) const { return component == underlined; }
-        SceneObjectEditor* getUnderlined() { return underlined; }
         
-        void setInitiatorUpperObject(SceneObjectEditor* component) { initiatorUpper = component; }
-        bool isInitiatorUpperObject(SceneObjectEditor* component) { return initiatorUpper == component; }
-        
-        void setInitiator(SceneObjectEditor* component);
-        bool isInitiator(SceneObjectEditor* component) { return initiator == component; }
         void selectInitiator(bool shouldBeSelected) { if(initiator != nullptr) initiator->select(shouldBeSelected); }
-        
-        int getHeight() const { return 20; }
+        bool isInitiator(SceneObjectEditor* component) const { return initiator == component; }
+        bool isInitiatorUpperObject(SceneObjectEditor* component) const { return initiatorUpper == component; }
     private:
         SceneObjectEditor* underlined = nullptr;
         SceneObjectEditor* initiatorUpper = nullptr;
@@ -81,13 +79,15 @@ private:
     ComboBox addObjectBox;
     Viewport& viewport;
     Listener* listener;
+    
+    const int underlineHeight = 20;
+    const int addObjectBoxHeight = 30;
 };
 
 class SceneObjectEditorsHolderViewport : public Viewport
 {
 public:
     SceneObjectEditorsHolderViewport() {
-        //setViewedComponent(component);
     }
     
     void componentMovedOrResized(Component& c, bool wasMoved, bool wasResized) override {

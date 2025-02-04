@@ -96,6 +96,11 @@ void StatefulObject::restoreState(File& file) {
 
 void StatefulObject::rename(const String& newName) {
     String nameToRollback = getName();
+    
+    if(newName == nameToRollback) {
+        return;
+    }
+    
     NamedObject::rename(newName);
     
     Identifier newIdentifier;
