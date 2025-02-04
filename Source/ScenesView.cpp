@@ -60,9 +60,7 @@ void ScenesView::sceneDeleteButtonClicked(SceneComponent* sceneComponent) {
 
 void ScenesView::createScene(SceneComponent::Listener* parent) {
     Scene* scene = new Scene(*this, scenesRender->getContext());
-    for(int i = 0; i < 30; ++i) {
-        scene->createObject(SceneObjectRealisation::Background);
-    }
+    scene->createObject(SceneObjectRealisation::Background);
     scene->createObject(SceneObjectRealisation::Waveform);
     scenes.add(scene);
     SceneComponent* sceneComponent = new SceneComponent(scene);

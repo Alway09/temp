@@ -142,11 +142,10 @@ void SceneObjectEditorsHolder::itemDragMove (const SourceDetails &dragSourceDeta
     viewport.autoScroll(pos.getX(), pos.getY() - viewport.getViewPositionY(), 60, 3);
 }
 
-void SceneObjectEditorsHolder::deleteButtonClicked(SceneObjectEditor* editor) {
-    SceneObject* obj = editor->getObject();
+void SceneObjectEditorsHolder::deleteButtonClicked(SceneObjectEditor* editor, SceneObject* object) {
     editors.removeObject(editor);
     resized();
-    listener->deleteObject(obj);
+    listener->deleteObject(object);
 }
 //---------------------------------------------------------
 void SceneObjectEditorsHolder::DragAndDropUnderline::paint(Graphics& g) {

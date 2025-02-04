@@ -7,9 +7,6 @@ WaveformSceneObjectEditor::WaveformSceneObjectEditor(SceneObject& objectEditTo) 
 
 void WaveformSceneObjectEditor::initControls() {
     controls.clear();
-    //removeChildComponent(gainSlider);
-    //removeChildComponent(secondsToShowSlider);
-    //removeAllChildren();
     
     gainSlider = new SliderPropertyComponent(object.getPropertyAsValue(WaveformSceneObject::IDs::gain), "Gain", 1.0, 15.0, 0.1);
     controls.add(gainSlider);

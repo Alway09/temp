@@ -34,7 +34,7 @@ private:
         addObjectBox.setSelectedId(0, NotificationType::dontSendNotification);
     }
     
-    void deleteButtonClicked(SceneObjectEditor* editor) override;
+    void deleteButtonClicked(SceneObjectEditor* editor, SceneObject* object) override;
     
     bool isInterestedInDragSource (const SourceDetails &dragSourceDetails) override { return true; }
     void mouseDrag(const MouseEvent& e) override;
