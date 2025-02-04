@@ -2,14 +2,15 @@
 #include <JuceHeader.h>
 #include "WaveformSceneObject.h"
 #include "BackgroundSceneObject.h"
+#include "ArrayUtil.h"
 
 using namespace juce;
 
 class Scene : public StatefulObject
 {
 public:
-    Scene(StatefulObject& parent);
-    Scene(ObjectState objectState);
+    Scene(StatefulObject& parent, OpenGLContext& context);
+    Scene(StatefulObject& parent, ObjectState objectState, OpenGLContext& context);
     ~Scene();
     
     void shutdown();
@@ -19,7 +20,7 @@ public:
     Matrix3D<float> getViewMatrix() const;
     
     void createShaders();
-    void createObject(SceneObjectRealisation realisation) {
+    SceneObject* createObject(SceneObjectRealisation realisation) {
         SceneObject* obj = nullptr;
         
         switch (realisation) {
@@ -36,9 +37,13 @@ public:
         }
         
         if(shader.get() != nullptr)
-            obj->reset(*shader);
+        {
+            context.executeOnGLThread([this, obj](OpenGLContext&){ obj->reset(*shader); } , true);
+            //obj->reset(*shader);
+        }
 
         objects.add(obj);
+        return obj;
     }
     
     void createObject(SceneObjectRealisation realisation, ObjectState objectState) {
@@ -47,12 +52,12 @@ public:
         switch (realisation) {
             case SceneObjectRealisation::Waveform:
             {
-                obj = new WaveformSceneObject(objectState);
+                obj = new WaveformSceneObject(*this, objectState);
                 break;
             }
             case SceneObjectRealisation::Background:
             {
-                obj = new BackgroundSceneObject(objectState);
+                obj = new BackgroundSceneObject(*this, objectState);
                 break;
             }
         }
@@ -61,6 +66,17 @@ public:
             obj->reset(*shader);
 
         objects.add(obj);
+    }
+    
+    void deleteObject(SceneObject* object) {
+        const ScopedLock lock (renderMutex);
+        objects.removeObject(object);
+    }
+    
+    void objectsReorder(int oldIdx, int newIdx) {
+        reorder(objects, oldIdx, newIdx);
+        int idx = oldIdx > newIdx ? newIdx + 1 : newIdx;
+        objects[idx]->move(idx);
     }
     
     Uuid& getUuidIdentifier() { return uuidIdentifier; }
@@ -99,6 +115,8 @@ private:
     Rectangle<int> bounds;
     int parentHeight;
     CriticalSection mutex;
+    
+    OpenGLContext& context;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Scene)
 };

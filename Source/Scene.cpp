@@ -1,22 +1,17 @@
 #include "Scene.h"
 
-Scene::Scene(StatefulObject& parent) : StatefulObject(parent, parent.getName(), "Scene")
+Scene::Scene(StatefulObject& parent, OpenGLContext& context) : StatefulObject(parent, parent.getName(), String("Scene")), context(context)
 {
     uuidIdentifier = Uuid();
 }
 
-Scene::Scene(ObjectState objectState) : StatefulObject(objectState) {
+Scene::Scene(StatefulObject& parent, ObjectState objectState, OpenGLContext& context) : StatefulObject(parent, objectState), context(context) {
     uuidIdentifier = Uuid();
     
     if(hasChildren()) {
         auto statesArray = getChildrenStates();
         for(auto state : statesArray) {
-            int type = state.getTree().getProperty("Type");
-            if(type == 0) {
-                createObject(SceneObjectRealisation::Waveform, state);
-            } else if (type == 1) {
-                createObject(SceneObjectRealisation::Background, state);
-            }
+            createObject(SceneObjectRealisationHelper::fromString(state.getTree().getProperty("Type")), state);
         }
     }
 }

@@ -76,6 +76,10 @@ void NamedObject::reserveName(const Name& name) {
 }
 
 void NamedObject::rename(const String& newName) {
+    if(newName == getName()) {
+        return;
+    }
+    
     Name name = validateAndCreateCustomName(this->name, newName);
     deleteName(this);
     setCustomName(this, name);

@@ -9,6 +9,7 @@ public:
     WaveformSceneObjectEditor(SceneObject& objectEditTo);
     ~WaveformSceneObjectEditor();
     
+    void initControls() override;
 private:
     SliderPropertyComponent* gainSlider;
     SliderPropertyComponent* secondsToShowSlider;

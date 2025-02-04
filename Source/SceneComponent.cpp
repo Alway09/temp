@@ -63,3 +63,19 @@ void SceneComponent::SceneOverlayComponent::resized()
     auto localBounds = getLocalBounds();
     deleteButton.setBounds(localBounds.getWidth() - 20, 0, 20, 20);
 }
+
+void SceneComponent::SceneOverlayComponent::mouseEnter(const MouseEvent& e) { 
+    /*for(auto c : getAllComponents()) {
+        c->setVisible(true);
+    }*/
+    
+    parent->mouseEnter(e);
+}
+
+void SceneComponent::SceneOverlayComponent::mouseExit(const MouseEvent& e) { 
+    /*for(auto c : getAllComponents()) {
+        c->setVisible(false);
+    }*/
+    
+    parent->mouseExit(e);
+}

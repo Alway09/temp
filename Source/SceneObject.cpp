@@ -3,10 +3,10 @@
 //==============================================================================
 SceneObject::SceneObject(StatefulObject& parent, String namePrefix, SceneObjectRealisation realisation) : StatefulObject(parent, parent.getName(), namePrefix)
 {
-    setProperty(objectTypeID, realisation);
+    setProperty(objectTypeID, SceneObjectRealisationHelper::toString(realisation));
 }
 
-SceneObject::SceneObject(ObjectState objectState) : StatefulObject(objectState)
+SceneObject::SceneObject(StatefulObject& parent, ObjectState objectState) : StatefulObject(parent, objectState)
 {
     
 }

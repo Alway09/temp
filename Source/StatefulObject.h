@@ -21,7 +21,7 @@ public:
         const Name name;
     };
     
-    StatefulObject(const ObjectState& state);
+    StatefulObject(StatefulObject& parent, const ObjectState& state, bool deleteStateWhenDestroyed = true);
     
     virtual ~StatefulObject();
     
@@ -33,6 +33,7 @@ public:
     void restoreState(File& file);
     virtual void stateChanged(const Identifier &property) {}
     void rename(const String& newName) override;
+    void move(int newIdx);
     
     void setProperty(const Identifier &name, const var &newValue);
     const var& getProperty(const Identifier &name) const;
@@ -52,6 +53,16 @@ public:
     };
     
 private:
+    void addChild(StatefulObject* child) { children.add(child); }
+    
+    void parentRenamed(ValueTree& currentParentTree) {
+        valueTree = currentParentTree.getOrCreateChildWithName(valueTree.getType(), nullptr);
+        
+        for(int i = 0; i < children.size(); ++i) {
+            children[i]->parentRenamed(valueTree);
+        }
+    }
+    
     void valueTreePropertyChanged(ValueTree &treeWhosePropertyHasChanged, const Identifier &property) override {
         stateChanged(property);
     }
@@ -64,4 +75,6 @@ private:
 
     ValueTree valueTree;
     const bool deleteStateWhenDestroyed;
+    
+    SortedSet<StatefulObject*> children;
 };

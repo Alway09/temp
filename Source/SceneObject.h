@@ -10,18 +10,63 @@ enum SceneObjectRealisation
     Background
 };
 
+struct SceneObjectRealisationHelper {
+    static SceneObjectRealisation fromInt(int i) {
+        if(i == 0) {
+            return Waveform;
+        }
+        
+        if(i == 1) {
+            return Background;
+        }
+        
+        throw std::invalid_argument("Number of SceneObjectRealisation is incorrect.");
+    }
+    
+    static SceneObjectRealisation fromString(String str) {
+        if(waveform == str) {
+            return Waveform;
+        }
+        
+        if(background == str) {
+            return Background;
+        }
+        
+        throw std::invalid_argument("String name of SceneObjectRealisation is incorrect.");
+    }
+    
+    static Array<SceneObjectRealisation> getAll() {
+        return {Waveform, Background};
+    }
+    
+    static const String& toString(SceneObjectRealisation r) {
+        switch (r) {
+            case Waveform:
+                return waveform;
+                break;
+            case Background:
+                return background;
+                break;
+        }
+    }
+    
+private:
+    inline static const String waveform{"Waveform"};
+    inline static const String background{"Background"};
+};
+
 class SceneObject : public StatefulObject
 {
 public:
     SceneObject(StatefulObject& parent, String namePrefix, SceneObjectRealisation realisation);
-    SceneObject(ObjectState objectState);
+    SceneObject(StatefulObject& parent, ObjectState objectState);
     virtual ~SceneObject();
     void draw();
     
     virtual SceneObjectRealisation getRealisation() = 0;
     
     void reset(OpenGLShaderProgram& shaderProgram);
-    static Identifier getTypeID() { return objectTypeID; }
+    //static Identifier getTypeID() { return objectTypeID; }
 protected:
     
     struct Vertex

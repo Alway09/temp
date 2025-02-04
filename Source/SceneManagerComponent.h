@@ -35,5 +35,6 @@ private:
     TextButton button{"+"};
     
     int scenesBoundPadding = 0;
+    //const int sceneEditorWidth = 300;
     Rectangle<int> scenesBound;
 };
