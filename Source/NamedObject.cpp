@@ -90,7 +90,9 @@ NamedObject::Name NamedObject::validateAndCreateCustomName(Name& objectName, con
     // try to split on word(s) and number in the end (autogen like)
     String efficientNumberStr = name.fromLastOccurrenceOf(" ", false, true);
     int efficientNumber = efficientNumberStr.getIntValue();
-    if(efficientNumber == 0 || name.startsWith(String(efficientNumber))) { // means without number after word
+    if(efficientNumber < 0 || efficientNumber > std::numeric_limits<uint16>::max()) {
+        throw NameException("Please, in names use numbers in range (0," + String(std::numeric_limits<uint16>::max()) + ").");
+    } else if(efficientNumber == 0 || name.startsWith(String(efficientNumber))) { // means without number after word
         // (efficientNumberStr is not a number or 0) or (whole name is one word starts with number (atoi("123SSS") -> 123))
             
         if(scopeMap->contains(name.hash()) && scopeMap->getReference(name.hash()).contains(0)) {
@@ -98,11 +100,14 @@ NamedObject::Name NamedObject::validateAndCreateCustomName(Name& objectName, con
         }
             
         return Name(objectName.getScopeString(), name, 0);
-    } else if(efficientNumber < 0 || efficientNumber > std::numeric_limits<uint16>::max() - 1) {
-        throw NameException("Please, in names use numbers in range (0," + String(std::numeric_limits<uint16>::max() - 1) + ").");
     }
             
     String efficientPrefix = name.upToLastOccurrenceOf(" ", false, false);
+    if(efficientPrefix.startsWith("0") && efficientPrefix.endsWith(String(efficientNumber))) {
+        efficientPrefix = String(efficientNumber);
+        efficientNumber = 0;
+    }
+    
     if(scopeMap->contains(efficientPrefix.hash())) {
         SortedSet<uint16>& prefix = scopeMap->getReference(efficientPrefix.hash());
         if(prefix.contains(efficientNumber)) {

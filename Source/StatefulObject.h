@@ -77,4 +77,6 @@ private:
     const bool deleteStateWhenDestroyed;
     
     SortedSet<StatefulObject*> children;
+    
+    inline static const String terminator{"_--_"};
 };

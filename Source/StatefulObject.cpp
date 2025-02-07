@@ -101,6 +101,10 @@ void StatefulObject::rename(const String& newName) {
         return;
     }
     
+    if(newName.contains(terminator)) {
+        throw StateException("Please, do not use string \"" + terminator + "\" in names. It uses internally.");
+    }
+    
     NamedObject::rename(newName);
     
     Identifier newIdentifier;
@@ -165,9 +169,9 @@ bool StatefulObject::hasChild(const Identifier &identifier) const {
 }
 //---------------------------------------------------------
 Identifier StatefulObject::createID() {
-    String possibleID = getName().replace(" ", "_");
+    String possibleID = getName().replace(" ", terminator);
     if(!XmlElement::isValidXmlName(possibleID)) {
-        possibleID = "_" + possibleID;
+        possibleID = terminator + possibleID;
         if(!XmlElement::isValidXmlName(possibleID)) {
             throw StateException("Name \"" + getName() + "\" is not valid!");
         }
@@ -176,7 +180,7 @@ Identifier StatefulObject::createID() {
 }
 
 NamedObject::Name StatefulObject::createName(const String& scope, const Identifier& identifier) {
-    String possibleNameStr = identifier.toString().replace("_", " ").trim();
+    String possibleNameStr = identifier.toString().replace(terminator, " ").trim();
     Name tmpName(scope, Uuid().toString());
     return validateAndCreateCustomName(tmpName, possibleNameStr);
 }
