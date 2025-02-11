@@ -30,6 +30,7 @@ void StatefulObject::initTreeFromParent(StatefulObject &parent) {
     children.minimiseStorageOverheads();
     parent.addChild(this);
     valueTree = parent.valueTree.getOrCreateChildWithName(createID(), nullptr);
+    this->parent = &parent;
     valueTree.addListener(this);
 }
 
@@ -43,6 +44,9 @@ StatefulObject::StatefulObject(StatefulObject& parent, const ObjectState& state,
 StatefulObject::~StatefulObject() {
     if(deleteStateWhenDestroyed) {
         valueTree.getParent().removeChild(valueTree, nullptr);
+    }
+    if(parent != nullptr) {
+        parent->deleteChild(this);
     }
 }
 //---------------------------------------------------------

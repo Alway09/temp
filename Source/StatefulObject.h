@@ -54,6 +54,7 @@ public:
     
 private:
     void addChild(StatefulObject* child) { children.add(child); }
+    void deleteChild(StatefulObject* child) { children.removeValue(child); }
     
     void parentRenamed(ValueTree& currentParentTree) {
         valueTree = currentParentTree.getOrCreateChildWithName(valueTree.getType(), nullptr);
@@ -77,6 +78,7 @@ private:
     const bool deleteStateWhenDestroyed;
     
     SortedSet<StatefulObject*> children;
+    StatefulObject* parent = nullptr;
     
     inline static const String terminator{"_--_"};
 };

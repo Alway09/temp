@@ -2,7 +2,7 @@
 
 #include "SamplesHolder.h"
 
-class SamplesHolderHolder // FIX NAMING!!!
+class SamplesHolderHolderDel // FIX NAMING!!!
 {
 public:
     inline static const int secondsToHold = 60;

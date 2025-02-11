@@ -11,6 +11,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "SamplesHolder.h"
+#include "CustomAudioBuffer.h"
 
 using namespace juce;
 
@@ -20,6 +21,33 @@ public:
     SamplesHolderUnitTest(const String &name, const String &category=String()) : UnitTest(name, category) {};
     
     void runTest() override {
+        CustomAudioBuffer buffer(2, 10);
+        logMessage(buffer.toString());
+        //===============================
+        AudioBuffer<float> bufToAppend{2, 8};
+        for(int ch = 0; ch < bufToAppend.getNumChannels(); ++ch) {
+            for(int s = 0; s < bufToAppend.getNumSamples(); ++s) {
+                bufToAppend.setSample(ch, s, s);
+            }
+        }
+        for(int i = 1 ; i <= 2; ++i) {
+            logMessage(String(i) + "------");
+            buffer.append(bufToAppend);
+            logMessage(buffer.toString());
+        }
+        logMessage("-------");
+        //=============================
+        buffer.setReadPoint();
+        auto readbuf = buffer.get(7);
+        float val = -1;
+        while(readbuf->getNext(0, val)) {
+            logMessage(String(val));
+        }
+    }
+    
+private:
+    
+    void test_old() {
         bool sectionPassed = false;
         //===================================================
         beginTest("Prepare");
@@ -119,7 +147,6 @@ public:
         holder.prepare(2); // minus 1 channel
         logMessage(holder.toString());
     }
-private:
 };
 
 static SamplesHolderUnitTest samplesHolderUnitTest("Samples Holder Unit Test", "Samples Holder");

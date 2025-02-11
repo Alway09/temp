@@ -1,6 +1,7 @@
 #pragma once
 #include "SceneObject.h"
-#include "SamplesHolderHolder.h"
+//#include "SamplesHolderHolder.h"
+#include "CustomAudioBuffer.h"
 
 class WaveformSceneObject : public SceneObject
 {

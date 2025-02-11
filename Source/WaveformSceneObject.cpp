@@ -30,10 +30,11 @@ void WaveformSceneObject::init() {
 void WaveformSceneObject::fillBuffers() {
     float step = 2.f/samplesToShow;
     vertices.clearQuick();
-    auto iter = SamplesHolderHolder::getInstance()->get(0, samplesToShow);
+    auto iter = CustomAudioBuffer::getInst()->get(samplesToShow);
     float counter = 0.f;
-    while(iter.hasNext()) {
-        vertices.add({{-1.f + counter * step, iter.getNext() * gain,  0.f},
+    float val = 0;
+    while(iter->getNext(0, val)) {
+        vertices.add({{-1.f + counter * step, val * gain,  0.f},
             {0.5f, 0.5f, 0.5f},
             {0.95f, 0.57f, 0.03f, 0.7f},
             {2.f, 2.f}});
@@ -49,7 +50,7 @@ void WaveformSceneObject::stateChanged(const Identifier& property) {
     if(property == IDs::secondsToShow) {
         needToUpdateBuffer = false;
         float secondsToShow = getProperty(property);
-        samplesToShow = SamplesHolderHolder::sampleRate * secondsToShow;
+        samplesToShow = CustomAudioBuffer::getInst()->getSampleRate() * secondsToShow;
         vertices.clearQuick();
         vertices.resize(samplesToShow);
         needToUpdateBuffer = true;

@@ -25,7 +25,7 @@ MainComponent::~MainComponent()
 {
     shutdownAudio();
     CommandManagerHolder::destruct();
-    SamplesHolderHolder::destruct();
+    CustomAudioBuffer::destruct();
 }
 //==============================================================================
 void MainComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
@@ -34,7 +34,7 @@ void MainComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate
     BigInteger activeInputChannels  = device->getActiveInputChannels();
     int maxInputChannels  = activeInputChannels.getHighestBit() + 1;
     
-    SamplesHolderHolder::getInstance()->prepare(maxInputChannels);
+    CustomAudioBuffer::init(maxInputChannels);
 }
 
 void MainComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
@@ -42,12 +42,10 @@ void MainComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& buffer
     AudioIODevice* device = deviceManager.getCurrentAudioDevice();
     BigInteger activeInputChannels  = device->getActiveInputChannels();
     int maxInputChannels  = activeInputChannels.getHighestBit() + 1;
-
-    for (auto channel = 0; channel < maxInputChannels; ++channel)
-    {
-        auto* inBuffer = bufferToFill.buffer->getReadPointer(channel, bufferToFill.startSample);
-        SamplesHolderHolder::getInstance()->add(inBuffer, bufferToFill.numSamples, channel);
-    }
+    
+    float * const * writeBuffer = bufferToFill.buffer->getArrayOfWritePointers();
+    AudioBuffer<float> b{writeBuffer, maxInputChannels, bufferToFill.startSample, bufferToFill.numSamples};
+    CustomAudioBuffer::getInst()->append(b);
 }
 //==============================================================================
 void MainComponent::getAllCommands(Array<CommandID> &commands) {

@@ -2,6 +2,7 @@
 
 #include <JuceHeader.h>
 #include "SceneComponent.h"
+#include "CustomAudioBuffer.h"
 
 using namespace juce;
 
