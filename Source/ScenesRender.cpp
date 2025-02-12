@@ -6,6 +6,8 @@ ScenesRender::ScenesRender(Component& componentAttachTo)
     //context.setComponentPaintingEnabled(false);
     context.attachTo (componentAttachTo);
     context.setContinuousRepainting (true);
+    
+    startTimer(1000);
 }
 
 ScenesRender::~ScenesRender() {
@@ -29,6 +31,7 @@ void ScenesRender::renderOpenGL() {
     for(auto sc : scenes) {
         sc->render();
     }
+    framesCounter++;
 }
 
 void ScenesRender::sceneMouseDown(Scene* scene) {

@@ -6,7 +6,7 @@
 
 using namespace juce;
 
-class ScenesRender : public OpenGLRenderer, public SceneComponent::Listener
+class ScenesRender : public OpenGLRenderer, public SceneComponent::Listener, public Timer
 {
 public:
     ScenesRender(Component& componentAttachTo);
@@ -22,6 +22,11 @@ public:
     void removeScene(Scene* scene);
     
     OpenGLContext& getContext() { return context; }
+
+    void timerCallback() override {
+        DBG("FPS: " + String(framesCounter - prevFramesCount));
+        prevFramesCount = framesCounter;
+    }
 private:
     void bringToFront(Scene* scene);
     
@@ -29,4 +34,7 @@ private:
     OwnedArray<Scene> scenes;
     
     Colour clearColour{0.f, 0.f, 0.f, 0.f};
+    
+    uint64_t framesCounter = 0;
+    uint64_t prevFramesCount = 0;
 };

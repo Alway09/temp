@@ -18,10 +18,6 @@ void ScenesView::timerCallback() {
             
             for(auto state : statesArray) {
                 Scene* scene = new Scene(*this, state, scenesRender->getContext());
-                //createObject(scene, SceneObjectRealisation::Background);
-                //createObject(scene, SceneObjectRealisation::Waveform);
-                //scene->createObject(SceneObjectRealisation::Background);
-                //scene->createObject(SceneObjectRealisation::Waveform);
                 scenes.add(scene);
                 SceneComponent* sceneComponent = new SceneComponent(scene);
                 sceneComponents.add(sceneComponent);
