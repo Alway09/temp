@@ -37,6 +37,18 @@ public:
     
 private:
     void init();
+    
+    void updateBuffer() {
+        vertices.resize(samplesToShow);
+        float step = 2.f/samplesToShow;
+        for(int i = 0; i < vertices.size(); ++i) {
+            vertices.setUnchecked(i, {{-1.f + i * step, 0.f,  0.f},
+                {0.5f, 0.5f, 0.5f},
+                {0.95f, 0.57f, 0.03f, 0.7f},
+                {2.f, 2.f}});
+        }
+    }
+    
     Array<Vertex> vertices;
     int samplesToShow = 44100;
     float gain = 10.f;

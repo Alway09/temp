@@ -28,17 +28,12 @@ void WaveformSceneObject::init() {
 }
 
 void WaveformSceneObject::fillBuffers() {
-    float step = 2.f/samplesToShow;
-    vertices.clearQuick();
     auto iter = CustomAudioBuffer::getInst()->get(samplesToShow);
-    float counter = 0.f;
-    float val = 0;
+    float val = 0.f;
+    int counter = 0;
     while(iter->getNext(0, val)) {
-        vertices.add({{-1.f + counter * step, val * gain,  0.f},
-            {0.5f, 0.5f, 0.5f},
-            {0.95f, 0.57f, 0.03f, 0.7f},
-            {2.f, 2.f}});
-        counter += 1;
+        vertices.getReference(counter).position[1] = val * gain;
+        ++counter;
     }
     putVertices(vertices);
 }
@@ -51,8 +46,7 @@ void WaveformSceneObject::stateChanged(const Identifier& property) {
         needToUpdateBuffer = false;
         float secondsToShow = getProperty(property);
         samplesToShow = CustomAudioBuffer::getInst()->getSampleRate() * secondsToShow;
-        vertices.clearQuick();
-        vertices.resize(samplesToShow);
+        updateBuffer();
         needToUpdateBuffer = true;
     }
     // hide when loud or hide when quiet
