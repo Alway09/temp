@@ -34,7 +34,7 @@ void MainComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate
     BigInteger activeInputChannels  = device->getActiveInputChannels();
     int maxInputChannels  = activeInputChannels.getHighestBit() + 1;
     
-    CustomAudioBuffer::init(maxInputChannels);
+    CustomAudioBuffer::init(maxInputChannels, 60, sampleRate);
 }
 
 void MainComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)

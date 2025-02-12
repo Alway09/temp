@@ -1,6 +1,6 @@
 #include "CustomAudioBuffer.h"
 
-CustomAudioBuffer::CustomAudioBuffer(int numChannels, int numSamples) : AudioBuffer<float>(numChannels, numSamples) {}
+CustomAudioBuffer::CustomAudioBuffer(int numChannels,int secondsToHold, float sampleRate) : AudioBuffer<float>(numChannels, secondsToHold * sampleRate), secondsToHold(secondsToHold), sampleRate(sampleRate) {}
 
 void CustomAudioBuffer::append(const AudioBuffer& source) {
     if(source.getNumChannels() > getNumChannels()) {
@@ -10,6 +10,8 @@ void CustomAudioBuffer::append(const AudioBuffer& source) {
     if(source.getNumSamples() > getNumSamples()) {
         throw std::invalid_argument("Num samples");
     }
+    
+    const ScopedLock l{appendLock};
     
     int sum = writeIdx + source.getNumSamples();
     if(sum > getNumSamples()) {
@@ -31,8 +33,13 @@ void CustomAudioBuffer::append(const AudioBuffer& source) {
 CustomAudioBuffer::ReadBuffer::Ptr CustomAudioBuffer::get(int numSamples) const {
     int delta = readIdx - numSamples;
     int startIdx = delta < 0 ? getNumSamples() + delta : delta;
-    return new ReadBuffer(getArrayOfReadPointers(), startIdx, numSamples, getNumSamples());
+    return new ReadBuffer(getArrayOfReadPointers(), startIdx, numSamples, getNumSamples(), readLock);
 }
+
+/*CustomAudioBuffer::ReadBuffer::Ptr CustomAudioBuffer::get(float seconds) const {
+    int numSamples = seconds * sampleRate;
+    return get(numSamples);
+}*/
 
 String CustomAudioBuffer::toString() const {
     String str = "";
@@ -44,12 +51,29 @@ String CustomAudioBuffer::toString() const {
     }
     return str;
 }
+
+void CustomAudioBuffer::resize(int numChannels, int secondsToHold, float sampleRate) {
+    const ScopedLock l{appendLock};
+    readLock.enterWrite();
+    
+    int newNumSamples = secondsToHold * sampleRate;
+    
+    if(newNumSamples < getNumSamples()) {
+        writeIdx = newNumSamples - 1;
+    }
+    setSize(numChannels, newNumSamples, false, true, true);
+    
+    this->sampleRate = sampleRate;
+    this->secondsToHold = secondsToHold;
+    
+    readLock.exitWrite();
+}
 // ---------
-void CustomAudioBuffer::init(int numChannels/*, int numSamples*/) {
+void CustomAudioBuffer::init(int numChannels, int secondsToHold, float sampleRate) {
     if(instance == nullptr) {
-        instance = new CustomAudioBuffer(numChannels, 60 * 44100);
+        instance = new CustomAudioBuffer(numChannels, secondsToHold, sampleRate);
     } else {
-        instance->setSize(numChannels, 60 * 44100, true, true, true);
+        instance->resize(numChannels, secondsToHold, sampleRate);
     }
 }
 
@@ -67,10 +91,19 @@ CustomAudioBuffer * const CustomAudioBuffer::getInst() {
     throw std::bad_exception();
 }
 //======================================
-CustomAudioBuffer::ReadBuffer::ReadBuffer(const float * const * samples, int rangeStartIdx, int numSamples, int allNumSamples) : samples(samples), numSamples(numSamples), allNumSamples(allNumSamples), cursor(rangeStartIdx) {}
+CustomAudioBuffer::ReadBuffer::ReadBuffer(const float * const * samples, int rangeStartIdx, int numSamples, int allNumSamples, const ReadWriteLock& lock) : samples(samples), numSamples(numSamples), allNumSamples(allNumSamples), cursor(rangeStartIdx), lock(lock) 
+{
+    if(!lock.tryEnterRead()) {
+        counter = numSamples;
+    }
+}
 
 bool CustomAudioBuffer::ReadBuffer::getNext(int channel, float& valuePlaceTo) {
-    if(counter == numSamples) return false;
+    if(counter == numSamples) {
+        lock.exitRead();
+        return false;
+    }
+        
     if(cursor == allNumSamples) cursor = 0;
 
     valuePlaceTo = samples[channel][cursor];

@@ -7,7 +7,7 @@ using namespace juce;
 class CustomAudioBuffer : public AudioBuffer<float>
 {
 public:
-    CustomAudioBuffer(int numChannels, int numSamples);
+    CustomAudioBuffer(int numChannels, int secondsToHold, float sampleRate);
     
     void append(const AudioBuffer& source);
     void setSecondsToHold(int secondsToHold) { this->secondsToHold = secondsToHold; }
@@ -15,12 +15,13 @@ public:
     float getSampleRate() const { return sampleRate; }
     void setReadPoint() { readIdx = writeIdx; }
     String toString() const;
+    void resize(int numChannels, int secondsToHold, float sampleRate);
     
     class ReadBuffer : public ReferenceCountedObject { // SingleThreadedReferenceCountedObject
     public:
         using Ptr = ReferenceCountedObjectPtr<ReadBuffer>;
         
-        ReadBuffer(const float * const * samples, int rangeStartIdx, int numSamples, int allNumSamples);
+        ReadBuffer(const float * const * samples, int rangeStartIdx, int numSamples, int allNumSamples, const ReadWriteLock& lock);
         bool getNext(int channel, float& valuePlaceTo);
     private:
         const float * const * samples;
@@ -28,11 +29,13 @@ public:
         int allNumSamples = 0;
         int cursor = 0;
         int counter = 0;
+        const ReadWriteLock& lock;
     };
     
     ReadBuffer::Ptr get(int numSamples) const;
+    //ReadBuffer::Ptr get(float seconds) const;
     
-    static void init(int numChannels/*, int numSamples*/);
+    static void init(int numChannels, int secondsToHold, float sampleRate);
     static void destruct();
     static CustomAudioBuffer * const getInst();
 private:
@@ -43,4 +46,7 @@ private:
     
     int secondsToHold = 60;
     float sampleRate = 44100.f;
+    
+    const CriticalSection appendLock;
+    const ReadWriteLock readLock;
 };

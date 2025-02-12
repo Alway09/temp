@@ -36,8 +36,6 @@ public:
     };
     
 private:
-    
-    
     void init();
     Array<Vertex> vertices;
     int samplesToShow = 44100;

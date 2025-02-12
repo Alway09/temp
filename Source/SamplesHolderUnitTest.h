@@ -1,13 +1,3 @@
-/*
-  ==============================================================================
-
-    SamplesHolderUnitTest.h
-    Created: 5 Nov 2024 1:05:55pm
-    Author:  Валентин Чекулаев
-
-  ==============================================================================
-*/
-
 #pragma once
 #include <JuceHeader.h>
 #include "SamplesHolder.h"
@@ -21,7 +11,7 @@ public:
     SamplesHolderUnitTest(const String &name, const String &category=String()) : UnitTest(name, category) {};
     
     void runTest() override {
-        CustomAudioBuffer buffer(2, 10);
+        CustomAudioBuffer buffer(2, 1, 10);
         logMessage(buffer.toString());
         //===============================
         AudioBuffer<float> bufToAppend{2, 8};
