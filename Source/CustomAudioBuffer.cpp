@@ -93,14 +93,16 @@ CustomAudioBuffer * const CustomAudioBuffer::getInst() {
 //======================================
 CustomAudioBuffer::ReadBuffer::ReadBuffer(const float * const * samples, int rangeStartIdx, int numSamples, int allNumSamples, const ReadWriteLock& lock) : samples(samples), numSamples(numSamples), allNumSamples(allNumSamples), cursor(rangeStartIdx), lock(lock) 
 {
-    if(!lock.tryEnterRead()) {
+    if(lock.tryEnterRead()) {
+        locked = true;
+    } else {
         counter = numSamples;
     }
 }
 
 bool CustomAudioBuffer::ReadBuffer::getNext(int channel, float& valuePlaceTo) {
     if(counter == numSamples) {
-        lock.exitRead();
+        if(locked) lock.exitRead();
         return false;
     }
         

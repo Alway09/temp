@@ -30,6 +30,7 @@ public:
         int cursor = 0;
         int counter = 0;
         const ReadWriteLock& lock;
+        float locked = false;
     };
     
     ReadBuffer::Ptr get(int numSamples) const;
