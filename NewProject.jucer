@@ -76,10 +76,6 @@
                 file="Source/SceneManagerComponent.cpp"/>
         </GROUP>
       </GROUP>
-      <FILE id="VV3ySw" name="WaveformComponent.h" compile="0" resource="0"
-            file="Source/WaveformComponent.h"/>
-      <FILE id="NBhaPk" name="WaveformComponent.cpp" compile="1" resource="0"
-            file="Source/WaveformComponent.cpp"/>
       <GROUP id="{0358BA39-20DC-3C3A-C2AD-8180A17FFE51}" name="Util">
         <FILE id="abMT82" name="CustomAudioBuffer.h" compile="0" resource="0"
               file="Source/CustomAudioBuffer.h"/>
@@ -92,12 +88,8 @@
               file="Source/StatefulObject.cpp"/>
         <FILE id="aYVkBo" name="NamedObject.h" compile="0" resource="0" file="Source/NamedObject.h"/>
         <FILE id="odyAFL" name="NamedObject.cpp" compile="1" resource="0" file="Source/NamedObject.cpp"/>
-        <FILE id="VU2fGq" name="SamplesHolderHolder.h" compile="0" resource="0"
-              file="Source/SamplesHolderHolder.h"/>
         <FILE id="rkddvu" name="CommandManagerHolder.h" compile="0" resource="0"
               file="Source/CommandManagerHolder.h"/>
-        <FILE id="fzmqAt" name="SamplesHolder.h" compile="0" resource="0" file="Source/SamplesHolder.h"/>
-        <FILE id="on6WAe" name="CircularArray.h" compile="0" resource="0" file="Source/CircularArray.h"/>
       </GROUP>
       <GROUP id="{E8B4D8A2-1EDA-962C-8EBE-4A1F8B1F8920}" name="Test">
         <FILE id="NoNN27" name="SamplesHolderUnitTest.h" compile="0" resource="0"

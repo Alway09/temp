@@ -34,13 +34,19 @@ void ScenesRender::renderOpenGL() {
     framesCounter++;
 }
 
-void ScenesRender::sceneMouseDown(Scene* scene) {
+/*void ScenesRender::sceneMouseDown(Scene* scene) {
     bringToFront(scene);
-}
+}*/
 
-void ScenesRender::addScene(Scene* scene) {
+void ScenesRender::addScene(Scene* scene, bool tmp) {
+    if(tmp) {
+        context.executeOnGLThread([&scene](OpenGLContext&){ scene->createShaders(); }, true);
+    } else {
+        context.executeOnGLThread([scene](OpenGLContext&){
+            scene->createShaders();
+        }, false);
+    }
     
-    context.executeOnGLThread([&scene](OpenGLContext&){ scene->createShaders(); }, true);
     scenes.add(scene);
 }
 
@@ -51,6 +57,9 @@ void ScenesRender::removeScene(Scene* scene) {
 
 void ScenesRender::bringToFront(Scene* scene) {
     int currentScenePos = scenes.indexOf(scene);
+    if(currentScenePos == -1) {
+        return;
+    }
     Scene* tmp = scenes[currentScenePos];
     
     for(int i = currentScenePos; i < scenes.size() - 1; ++i) {

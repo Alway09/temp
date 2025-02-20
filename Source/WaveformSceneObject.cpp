@@ -22,8 +22,6 @@ void WaveformSceneObject::init() {
     config.primitiveType = SceneObject::Config::DrawPrimitiveType::Lines;
     config.drawBufferUsage = SceneObject::Config::DrawBufferUsage::Stream;
     
-    //vertices.resize(samplesToShow);
-    
     needToUpdateBuffer = true;
 }
 

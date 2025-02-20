@@ -2,10 +2,11 @@
 
 #include <JuceHeader.h>
 #include "Scene.h"
+#include "ScenesRender.h"
 
 using namespace juce;
 
-class SceneComponent : public ResizableWindow, public Button::Listener
+class SceneComponent : public ResizableWindow
 {
 public:
     SceneComponent(Scene* scene);
@@ -18,7 +19,8 @@ public:
     void mouseDown(const MouseEvent& e) override;
     void mouseUp(const MouseEvent& e) override;
     
-    void buttonClicked(Button* button) override;
+    void deleteButtonClicked();
+    void detachButtonClicked(bool detach);
     
     void shutdown() { scene->shutdown(); }
     void render() { scene->render(); }
@@ -30,6 +32,7 @@ public:
         virtual void sceneMouseDown(Scene* scene){};
         virtual void sceneMouseUp(Scene* scene){};
         virtual void sceneMouseClicked(Scene* scene){};
+        virtual void sceneDetachButtonClicked(SceneComponent* component, bool detach){};
         virtual void sceneDeleteButtonClicked(SceneComponent* sceneComponent){};
     };
     
@@ -53,10 +56,11 @@ private:
         void mouseUp(const MouseEvent& e) override { parent->mouseUp(e); }
         
     private:
-        Array<Component*> getAllComponents() { return {&deleteButton}; }
+        Array<Component*> getAllComponents() { return {&deleteButton, &detachButton}; }
         
         SceneComponent* parent;
-        TextButton deleteButton{"d"};
+        TextButton deleteButton{"X"};
+        TextButton detachButton{"d"};
     };
     
     Scene* scene;
@@ -66,4 +70,6 @@ private:
     
     Array<Listener*> listeners;
     Listener* deleteListener;
+    
+    std::unique_ptr<ScenesRender> ownRender;
 };

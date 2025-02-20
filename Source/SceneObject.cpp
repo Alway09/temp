@@ -15,7 +15,7 @@ SceneObject::~SceneObject() {
     attributes.reset();
 }
 
-void SceneObject::reset(OpenGLShaderProgram& shaderProgram) {
+void SceneObject::reset(std::unique_ptr<OpenGLShaderProgram>& shaderProgram) {
     attributes.reset(new Attributes(shaderProgram));
 }
 
@@ -114,7 +114,7 @@ void SceneObject::VertexBuffer::bind()
 }
 
 //==============================================================================
-SceneObject::Attributes::Attributes(OpenGLShaderProgram& shaderProgram)
+SceneObject::Attributes::Attributes(std::unique_ptr<OpenGLShaderProgram>& shaderProgram)
 {
     position      .reset (createAttribute (shaderProgram, "position"));
     normal        .reset (createAttribute (shaderProgram, "normal"));
@@ -161,12 +161,12 @@ void SceneObject::Attributes::disable()
     if (textureCoordIn != nullptr) glDisableVertexAttribArray (textureCoordIn->attributeID);
 }
 
-OpenGLShaderProgram::Attribute* SceneObject::Attributes::createAttribute(OpenGLShaderProgram& shader, const char* attributeName)
+OpenGLShaderProgram::Attribute* SceneObject::Attributes::createAttribute(std::unique_ptr<OpenGLShaderProgram>& shader, const char* attributeName)
 {
     using namespace ::juce::gl;
 
-    if (glGetAttribLocation (shader.getProgramID(), attributeName) < 0)
+    if (glGetAttribLocation (shader->getProgramID(), attributeName) < 0)
         return nullptr;
 
-    return new OpenGLShaderProgram::Attribute (shader, attributeName);
+    return new OpenGLShaderProgram::Attribute (*shader.get(), attributeName);
 }

@@ -38,7 +38,7 @@ public:
         
         if(shader.get() != nullptr)
         {
-            context.executeOnGLThread([this, obj](OpenGLContext&){ obj->reset(*shader); } , true);
+            context->executeOnGLThread([this, obj](OpenGLContext&){ obj->reset(shader); } , true);
             //obj->reset(*shader);
         }
 
@@ -63,7 +63,7 @@ public:
         }
         
         if(shader.get() != nullptr)
-            obj->reset(*shader);
+            obj->reset(shader);
 
         objects.add(obj);
     }
@@ -87,6 +87,16 @@ public:
         parentHeight = height;
     }
     
+    void replaceContext(OpenGLContext& newContext) {
+        /*const ScopedLock lock(renderMutex);
+        newContext.executeOnGLThread([this](OpenGLContext&){
+            createShaders();
+        }, true);*/
+        context = &newContext;
+        //uniforms.reset();
+        //shader.release();
+    }
+    
     OwnedArray<SceneObject>& getObjects() { return objects; }
     
     CriticalSection renderMutex;
@@ -108,15 +118,15 @@ private:
     
     Uuid uuidIdentifier;
     
-    const char* vertexShader;
-    const char* fragmentShader;
+    //const char* vertexShader;
+    //const char* fragmentShader;
     String newVertexShader, newFragmentShader;
     
     Rectangle<int> bounds;
     int parentHeight;
     CriticalSection mutex;
     
-    OpenGLContext& context;
+    OpenGLContext* context;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Scene)
 };

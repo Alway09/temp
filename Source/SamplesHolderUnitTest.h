@@ -1,6 +1,5 @@
 #pragma once
 #include <JuceHeader.h>
-#include "SamplesHolder.h"
 #include "CustomAudioBuffer.h"
 
 using namespace juce;
@@ -37,7 +36,7 @@ public:
     
 private:
     
-    void test_old() {
+    /*void test_old() {
         bool sectionPassed = false;
         //===================================================
         beginTest("Prepare");
@@ -136,7 +135,7 @@ private:
         
         holder.prepare(2); // minus 1 channel
         logMessage(holder.toString());
-    }
+    }*/
 };
 
 static SamplesHolderUnitTest samplesHolderUnitTest("Samples Holder Unit Test", "Samples Holder");

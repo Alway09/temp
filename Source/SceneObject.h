@@ -20,7 +20,7 @@ public:
     
     virtual SceneObjectRealisation getRealisation() = 0;
     
-    void reset(OpenGLShaderProgram& shaderProgram);
+    void reset(std::unique_ptr<OpenGLShaderProgram>& shaderProgram);
     //static Identifier getTypeID() { return objectTypeID; }
 protected:
     
@@ -60,13 +60,13 @@ private:
     class Attributes
     {
     public:
-        explicit Attributes(OpenGLShaderProgram& shaderProgram);
+        explicit Attributes(std::unique_ptr<OpenGLShaderProgram>& shaderProgram);
         void enable();
         void disable();
 
         std::unique_ptr<OpenGLShaderProgram::Attribute> position, normal, sourceColour, textureCoordIn;
     private:
-        static OpenGLShaderProgram::Attribute* createAttribute (OpenGLShaderProgram& shader, const char* attributeName);
+        static OpenGLShaderProgram::Attribute* createAttribute (std::unique_ptr<OpenGLShaderProgram>& shader, const char* attributeName);
     };
     //==============================================================================
     struct VertexBuffer

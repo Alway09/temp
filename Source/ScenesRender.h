@@ -1,12 +1,13 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "SceneComponent.h"
+//#include "SceneComponent.h"
+#include "Scene.h"
 #include "CustomAudioBuffer.h"
 
 using namespace juce;
 
-class ScenesRender : public OpenGLRenderer, public SceneComponent::Listener, public Timer
+class ScenesRender : public OpenGLRenderer,/* public SceneComponent::Listener,*/ public Timer
 {
 public:
     ScenesRender(Component& componentAttachTo);
@@ -16,9 +17,9 @@ public:
     void openGLContextClosing() override;
     void renderOpenGL() override;
     
-    void sceneMouseDown(Scene* scene) override;
+    /*void sceneMouseDown(Scene* scene) override;*/
     
-    void addScene(Scene* scene);
+    void addScene(Scene* scene, bool tmp);
     void removeScene(Scene* scene);
     
     OpenGLContext& getContext() { return context; }
@@ -27,9 +28,9 @@ public:
         DBG("FPS: " + String(framesCounter - prevFramesCount));
         prevFramesCount = framesCounter;
     }
-private:
-    void bringToFront(Scene* scene);
     
+    void bringToFront(Scene* scene);
+private:
     OpenGLContext context;
     OwnedArray<Scene> scenes;
     

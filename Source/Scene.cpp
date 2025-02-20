@@ -1,11 +1,11 @@
 #include "Scene.h"
 
-Scene::Scene(StatefulObject& parent, OpenGLContext& context) : StatefulObject(parent, parent.getName(), String("Scene")), context(context)
+Scene::Scene(StatefulObject& parent, OpenGLContext& context) : StatefulObject(parent, parent.getName(), String("Scene")), context(&context)
 {
     uuidIdentifier = Uuid();
 }
 
-Scene::Scene(StatefulObject& parent, ObjectState objectState, OpenGLContext& context) : StatefulObject(parent, objectState), context(context) {
+Scene::Scene(StatefulObject& parent, ObjectState objectState, OpenGLContext& context) : StatefulObject(parent, objectState), context(&context) {
     uuidIdentifier = Uuid();
     
     if(hasChildren()) {
@@ -85,7 +85,8 @@ Matrix3D<float> Scene::getViewMatrix() const
 
 void Scene::createShaders()
 {
-    vertexShader =
+    const ScopedLock lock (renderMutex);
+    String vertexShader =
         "attribute vec4 position;\n"
         "attribute vec4 sourceColour;\n"
         "attribute vec2 textureCoordIn;\n"
@@ -102,8 +103,7 @@ void Scene::createShaders()
         "    textureCoordOut = textureCoordIn;\n"
         "    gl_Position = position;\n"
         "}\n";
-
-    fragmentShader =
+    String fragmentShader =
        #if JUCE_OPENGL_ES
         "varying lowp vec4 destinationColour;\n"
         "varying lowp vec2 textureCoordOut;\n"
@@ -123,18 +123,20 @@ void Scene::createShaders()
         "}\n";
 
     OpenGLContext* currentContext = OpenGLContext::getCurrentContext();
-    std::unique_ptr<OpenGLShaderProgram> newShader (new OpenGLShaderProgram (*currentContext));
+    //std::unique_ptr<OpenGLShaderProgram> newShader (new OpenGLShaderProgram (*currentContext));
+    OpenGLShaderProgram* newShader = new OpenGLShaderProgram (*currentContext);
     String statusText;
 
     if (newShader->addVertexShader (OpenGLHelpers::translateVertexShaderToV3 (vertexShader))
           && newShader->addFragmentShader (OpenGLHelpers::translateFragmentShaderToV3 (fragmentShader))
           && newShader->link())
     {
-        shader = std::move (newShader);
+        //shader = std::move (newShader);
+        shader.reset(newShader);
         shader->use();
         
         for(auto obj : objects) {
-            obj->reset(*shader);
+            obj->reset(shader);
         }
         uniforms  .reset (new Uniforms (*shader));
 
@@ -142,6 +144,7 @@ void Scene::createShaders()
     }
     else
     {
+        delete newShader;
         statusText = newShader->getLastError();
     }
 }
