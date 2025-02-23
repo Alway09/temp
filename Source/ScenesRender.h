@@ -19,13 +19,13 @@ public:
     
     /*void sceneMouseDown(Scene* scene) override;*/
     
-    void addScene(Scene* scene, bool tmp);
+    void addScene(Scene* scene);
     void removeScene(Scene* scene);
     
     OpenGLContext& getContext() { return context; }
 
     void timerCallback() override {
-        DBG("FPS: " + String(framesCounter - prevFramesCount));
+        //DBG("FPS: " + String(framesCounter - prevFramesCount));
         prevFramesCount = framesCounter;
     }
     

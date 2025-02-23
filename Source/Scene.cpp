@@ -1,6 +1,47 @@
 #include "Scene.h"
 
-Scene::Scene(StatefulObject& parent, OpenGLContext& context) : StatefulObject(parent, parent.getName(), String("Scene")), context(&context)
+const StringArray Scene::vertexShaders{
+    "attribute vec4 position;\n"
+    "attribute vec4 sourceColour;\n"
+    "attribute vec2 textureCoordIn;\n"
+    "\n"
+    "uniform mat4 projectionMatrix;\n"
+    "uniform mat4 viewMatrix;\n"
+    "\n"
+    "varying vec4 destinationColour;\n"
+    "varying vec2 textureCoordOut;\n"
+    "\n"
+    "void main()\n"
+    "{\n"
+    "    destinationColour = sourceColour;\n"
+    "    textureCoordOut = textureCoordIn;\n"
+    "    gl_Position = position;\n"
+    "}\n"
+};
+
+const StringArray Scene::fragmentShaders{
+    #if JUCE_OPENGL_ES
+     "varying lowp vec4 destinationColour;\n"
+     "varying lowp vec2 textureCoordOut;\n"
+    #else
+     "varying vec4 destinationColour;\n"
+     "varying vec2 textureCoordOut;\n"
+    #endif
+     "\n"
+     "void main()\n"
+     "{\n"
+    #if JUCE_OPENGL_ES
+     "    lowp vec4 colour = vec4(0.95, 0.57, 0.03, 0.7);\n"
+    #else
+     "    vec4 colour = vec4(0.95, 0.57, 0.03, 0.7);\n"
+    #endif
+     "    gl_FragColor = destinationColour;\n"
+     "}\n"
+};
+
+const String Scene::defaultPrefixName{"Scene"};
+
+/*Scene::Scene(StatefulObject& parent, OpenGLContext& context) : StatefulObject(parent, parent.getName(), String("Scene")), context(&context)
 {
     uuidIdentifier = Uuid();
 }
@@ -11,7 +52,7 @@ Scene::Scene(StatefulObject& parent, ObjectState objectState, OpenGLContext& con
     if(hasChildren()) {
         auto statesArray = getChildrenStates();
         for(auto state : statesArray) {
-            createObject(SceneObjectRealisationHelper::fromString(state.getTree().getProperty("Type")), state);
+            createObject(SceneObjectRealisationHelper::fromState(state), state);
         }
     }
 }
@@ -34,7 +75,7 @@ void Scene::render()
     
     jassert (OpenGLHelpers::isContextActive());
     
-    const ScopedLock lock (renderMutex);
+    //const ScopedLock lock (renderMutex);
 
     OpenGLContext* currentContext = OpenGLContext::getCurrentContext();
     auto desktopScale = (float) currentContext->getRenderingScale();
@@ -77,7 +118,7 @@ Matrix3D<float> Scene::getProjectionMatrix() const
 Matrix3D<float> Scene::getViewMatrix() const
 {
     auto viewMatrix = Matrix3D<float>::fromTranslation ({ 0.0f, 0.0f, -10.0f });
-    /*auto rotationMatrix = viewMatrix.rotation ({ -0.3f, 5.0f * std::sin ((float) getFrameCounter() * 0.01f), 0.0f });*/
+    //auto rotationMatrix = viewMatrix.rotation ({ -0.3f, 5.0f * std::sin ((float) getFrameCounter() * 0.01f), 0.0f });
     auto rotationMatrix = viewMatrix.rotation ({ -0.3f, 5.0f * std::sin ((float) 1 * 0.01f), 0.0f });
 
     return viewMatrix * rotationMatrix;
@@ -85,7 +126,7 @@ Matrix3D<float> Scene::getViewMatrix() const
 
 void Scene::createShaders()
 {
-    const ScopedLock lock (renderMutex);
+    //const ScopedLock lock (renderMutex);
     String vertexShader =
         "attribute vec4 position;\n"
         "attribute vec4 sourceColour;\n"
@@ -123,6 +164,7 @@ void Scene::createShaders()
         "}\n";
 
     OpenGLContext* currentContext = OpenGLContext::getCurrentContext();
+    bool tmp = context->isActive();
     //std::unique_ptr<OpenGLShaderProgram> newShader (new OpenGLShaderProgram (*currentContext));
     OpenGLShaderProgram* newShader = new OpenGLShaderProgram (*currentContext);
     String statusText;
@@ -164,5 +206,5 @@ OpenGLShaderProgram::Uniform* Scene::Uniforms::createUniform(OpenGLShaderProgram
         return nullptr;
 
     return new OpenGLShaderProgram::Uniform (shaderProgram, uniformName);
-}
+}*/
 //==============================================================================

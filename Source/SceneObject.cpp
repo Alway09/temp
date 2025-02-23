@@ -3,7 +3,7 @@
 //==============================================================================
 SceneObject::SceneObject(StatefulObject& parent, String namePrefix, SceneObjectRealisation realisation) : StatefulObject(parent, parent.getName(), namePrefix)
 {
-    setProperty(objectTypeID, SceneObjectRealisationHelper::toString(realisation));
+    setProperty(objectTypeID, (int) realisation);
 }
 
 SceneObject::SceneObject(StatefulObject& parent, ObjectState objectState) : StatefulObject(parent, objectState)
@@ -17,6 +17,8 @@ SceneObject::~SceneObject() {
 
 void SceneObject::reset(std::unique_ptr<OpenGLShaderProgram>& shaderProgram) {
     attributes.reset(new Attributes(shaderProgram));
+    //vertexBuffer.initialize();
+    needToUpdateBuffer = true;
 }
 
 void SceneObject::draw()
@@ -59,10 +61,20 @@ SceneObject::VertexBuffer::VertexBuffer()
 
 void SceneObject::VertexBuffer::initialize() {
     using namespace ::juce::gl;
-    glGenBuffers (1, &vertexBuffer);
-    glGenBuffers (1, &indexBuffer);
     
-    initialized = true;
+    if(initialized) {
+        glDeleteBuffers (1, &vertexBuffer);
+        glDeleteBuffers (1, &indexBuffer);
+        glGenBuffers (1, &vertexBuffer);
+        glGenBuffers (1, &indexBuffer);
+    } else {
+        glGenBuffers (1, &vertexBuffer);
+        glGenBuffers (1, &indexBuffer);
+        
+        initialized = true;
+    }
+    
+    
 }
 
 SceneObject::VertexBuffer::~VertexBuffer()
@@ -165,8 +177,19 @@ OpenGLShaderProgram::Attribute* SceneObject::Attributes::createAttribute(std::un
 {
     using namespace ::juce::gl;
 
-    if (glGetAttribLocation (shader->getProgramID(), attributeName) < 0)
+    if (glGetAttribLocation (shader->getProgramID(), attributeName) < 0){
+        GLenum err = glGetError();
+        if(err != 0) {
+            /*DBG("Attribute");
+            GLboolean isProg = glIsProgram(shader->getProgramID());
+            DBG(String(isProg));
+            DBG(String(attributeName));
+            DBG(String(err));*/
+        }
+        
         return nullptr;
+    }
+        
 
     return new OpenGLShaderProgram::Attribute (*shader.get(), attributeName);
 }

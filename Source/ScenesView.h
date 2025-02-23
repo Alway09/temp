@@ -10,7 +10,7 @@ class ScenesView : public Component, public StatefulObject, public SceneComponen
 {
 public:
     ScenesView(StatefulObject& parent, SceneComponent::Listener* listener);
-    ~ScenesView() { scenesRender.reset(); }
+    ~ScenesView() { detachedSceneComponents.clearQuick(false); scenesRender.reset(); }
     
     void resized() override { scenesFlex.performLayout(getLocalBounds()); }
     
@@ -24,11 +24,12 @@ public:
     
 private:
     void addFlexItem(Component* itemToControl);
-    void refillFlex(SceneComponent* except);
+    void refillFlex();
     
     FlexBox scenesFlex;
     OwnedArray<Scene> scenes;
     std::unique_ptr<ScenesRender> scenesRender;
     OwnedArray<SceneComponent> sceneComponents;
+    OwnedArray<SceneComponent> detachedSceneComponents;
     SceneComponent::Listener* listener;
 };

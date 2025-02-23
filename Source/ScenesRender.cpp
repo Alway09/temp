@@ -17,9 +17,7 @@ ScenesRender::~ScenesRender() {
 }
 
 void ScenesRender::openGLContextClosing() {
-    for(auto sc : scenes) {
-        sc->shutdown();
-    }
+    //DBG("context closing");
 }
 
 void ScenesRender::renderOpenGL() {
@@ -38,20 +36,22 @@ void ScenesRender::renderOpenGL() {
     bringToFront(scene);
 }*/
 
-void ScenesRender::addScene(Scene* scene, bool tmp) {
-    if(tmp) {
+void ScenesRender::addScene(Scene* scene) {
+   /* if(tmp) {
         context.executeOnGLThread([&scene](OpenGLContext&){ scene->createShaders(); }, true);
+        //scene->createShaders();
     } else {
         context.executeOnGLThread([scene](OpenGLContext&){
             scene->createShaders();
         }, false);
-    }
+    }*/
+    //scene->createShaders();
     
     scenes.add(scene);
 }
 
 void ScenesRender::removeScene(Scene* scene) {
-    const ScopedLock lock (scene->renderMutex);
+    //const ScopedLock lock (scene->renderMutex);
     scenes.removeObject(scene, false);
 }
 

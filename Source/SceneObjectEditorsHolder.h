@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 #include "WaveformSceneObjectEditor.h"
 #include "BackgroundSceneObjectEditor.h"
+#include "SceneObjectRealisationHelper.h"
 #include "ArrayUtil.h"
 
 using namespace juce;

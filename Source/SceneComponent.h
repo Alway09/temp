@@ -10,7 +10,7 @@ class SceneComponent : public ResizableWindow
 {
 public:
     SceneComponent(Scene* scene);
-    ~SceneComponent() { shutdown(); }
+    ~SceneComponent() { /*shutdown();*/ }
     
     void resized() override;
     void moved() override;
@@ -22,7 +22,7 @@ public:
     void deleteButtonClicked();
     void detachButtonClicked(bool detach);
     
-    void shutdown() { scene->shutdown(); }
+    // void shutdown() { scene->shutdown(); }
     void render() { scene->render(); }
     Scene* getScene() { return scene; }
     
@@ -61,6 +61,7 @@ private:
         SceneComponent* parent;
         TextButton deleteButton{"X"};
         TextButton detachButton{"d"};
+        TextButton pinButton{"p"};
     };
     
     Scene* scene;

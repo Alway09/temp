@@ -10,14 +10,14 @@ void SceneComponent::resized() {
     ResizableWindow::resized();
     boundsInParent = getBoundsInParent();
     parentHeight = getParentHeight();
-    scene->changeBounds(boundsInParent, parentHeight);
+    scene->changeBounds(boundsInParent, parentHeight, ownRender != nullptr);
 }
 
 void SceneComponent::moved() {
     ResizableWindow::moved();
     boundsInParent = getBoundsInParent();
     parentHeight = getParentHeight();
-    scene->changeBounds(boundsInParent, parentHeight);
+    scene->changeBounds(boundsInParent, parentHeight, ownRender != nullptr);
 }
 
 void SceneComponent::mouseDown(const MouseEvent& e) {
@@ -53,25 +53,35 @@ void SceneComponent::deleteButtonClicked() {
 }
 
 void SceneComponent::detachButtonClicked(bool detach) {
-    for(auto listener : listeners) {
-        listener->sceneDetachButtonClicked(this, detach);
-    }
-    
     if(detach) {
+        for(auto listener : listeners) {
+            listener->sceneDetachButtonClicked(this, detach);
+        }
+        
         addToDesktop();
+        setAlwaysOnTop(true);
         ownRender.reset(new ScenesRender(*this));
         scene->replaceContext(ownRender.get()->getContext());
-        ownRender->addScene(scene, false);
-        //addToDesktop();
+        ownRender->addScene(scene);
     } else {
+        setAlwaysOnTop(false);
         ownRender.reset();
+        
+        for(auto listener : listeners) {
+            listener->sceneDetachButtonClicked(this, detach);
+        }
     }
 }
 //=================================================================
 SceneComponent::SceneOverlayComponent::SceneOverlayComponent(SceneComponent* parent) : parent(parent)
 {
+    detachButton.setToggleable(true);
+    detachButton.setClickingTogglesState(true);
+    detachButton.setToggleState(false, NotificationType::dontSendNotification);
+    detachButton.onClick = [this](){this->parent->detachButtonClicked(detachButton.getToggleState());};
+    
     deleteButton.onClick = [this](){this->parent->deleteButtonClicked();};
-    detachButton.onClick = [this](){this->parent->detachButtonClicked(true);};
+    
     addAndMakeVisible(deleteButton);
     addAndMakeVisible(detachButton);
 }

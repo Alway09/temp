@@ -24,6 +24,10 @@
       <GROUP id="{D6DD7CEF-2611-8F31-B38B-CD9A33E0AD3A}" name="Scene">
         <GROUP id="{88BA990E-12FE-C03E-11CA-4E1CCC0FF735}" name="Data">
           <GROUP id="{2776FDA7-0309-2B4F-1FB1-01C8E1453026}" name="SceneObjectRealisation">
+            <FILE id="jAZXON" name="SceneObjectRealisationHelper.h" compile="0"
+                  resource="0" file="Source/SceneObjectRealisationHelper.h"/>
+            <FILE id="xwZjW2" name="SceneObjectRealisationHelper.cpp" compile="1"
+                  resource="0" file="Source/SceneObjectRealisationHelper.cpp"/>
             <FILE id="JKAFDZ" name="BackgroundSceneObject.h" compile="0" resource="0"
                   file="Source/BackgroundSceneObject.h"/>
             <FILE id="xHnySC" name="BackgroundSceneObject.cpp" compile="1" resource="0"
