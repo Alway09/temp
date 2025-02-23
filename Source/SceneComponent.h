@@ -21,6 +21,7 @@ public:
     
     void deleteButtonClicked();
     void detachButtonClicked(bool detach);
+    void pinButtonClicked(bool state);
     
     // void shutdown() { scene->shutdown(); }
     void render() { scene->render(); }
@@ -55,6 +56,11 @@ private:
         void mouseDown(const MouseEvent& e) override { parent->mouseDown(e); }
         void mouseUp(const MouseEvent& e) override { parent->mouseUp(e); }
         
+        void setPinButtonEnabled(bool shouldBeEnabled) { 
+            pinButton.setToggleState(!shouldBeEnabled, NotificationType::dontSendNotification);
+            pinButton.setEnabled(shouldBeEnabled);
+        }
+        
     private:
         Array<Component*> getAllComponents() { return {&deleteButton, &detachButton}; }
         
@@ -65,6 +71,7 @@ private:
     };
     
     Scene* scene;
+    SceneOverlayComponent* overlay = nullptr;
     
     Rectangle<int> boundsInParent;
     int parentHeight;

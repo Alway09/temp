@@ -2,7 +2,8 @@
 
 SceneComponent::SceneComponent(Scene* scene) : ResizableWindow("Scene", false), scene(scene)
 {
-    setContentOwned(new SceneOverlayComponent(this), false);
+    overlay = new SceneOverlayComponent(this);
+    setContentOwned(overlay, false);
     //setOpaque(false);
 }
 
@@ -52,6 +53,10 @@ void SceneComponent::deleteButtonClicked() {
     deleteListener->sceneDeleteButtonClicked(this);
 }
 
+void SceneComponent::pinButtonClicked(bool state) {
+    getPeer()->setAlwaysOnTop(state);
+}
+
 void SceneComponent::detachButtonClicked(bool detach) {
     if(detach) {
         for(auto listener : listeners) {
@@ -59,12 +64,14 @@ void SceneComponent::detachButtonClicked(bool detach) {
         }
         
         addToDesktop();
-        setAlwaysOnTop(true);
+        overlay->setPinButtonEnabled(true);
+        pinButtonClicked(false);
         ownRender.reset(new ScenesRender(*this));
         scene->replaceContext(ownRender.get()->getContext());
         ownRender->addScene(scene);
     } else {
-        setAlwaysOnTop(false);
+        overlay->setPinButtonEnabled(false);
+        pinButtonClicked(false);
         ownRender.reset();
         
         for(auto listener : listeners) {
@@ -80,10 +87,17 @@ SceneComponent::SceneOverlayComponent::SceneOverlayComponent(SceneComponent* par
     detachButton.setToggleState(false, NotificationType::dontSendNotification);
     detachButton.onClick = [this](){this->parent->detachButtonClicked(detachButton.getToggleState());};
     
+    pinButton.setToggleable(true);
+    pinButton.setClickingTogglesState(true);
+    pinButton.setToggleState(false, NotificationType::dontSendNotification);
+    pinButton.onClick = [this](){this->parent->pinButtonClicked(pinButton.getToggleState());};
+    pinButton.setEnabled(false);
+    
     deleteButton.onClick = [this](){this->parent->deleteButtonClicked();};
     
     addAndMakeVisible(deleteButton);
     addAndMakeVisible(detachButton);
+    addAndMakeVisible(pinButton);
 }
 
 void SceneComponent::SceneOverlayComponent::resized()
@@ -91,6 +105,7 @@ void SceneComponent::SceneOverlayComponent::resized()
     auto localBounds = getLocalBounds();
     deleteButton.setBounds(localBounds.getWidth() - 20, 0, 20, 20);
     detachButton.setBounds(localBounds.getWidth() - 40, 0, 20, 20);
+    pinButton.setBounds(localBounds.getWidth() - 60, 0, 20, 20);
 }
 
 void SceneComponent::SceneOverlayComponent::mouseEnter(const MouseEvent& e) { 
