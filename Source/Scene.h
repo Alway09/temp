@@ -5,131 +5,6 @@
 
 using namespace juce;
 
-/*class Scene : public StatefulObject
-{
-public:
-    Scene(StatefulObject& parent, OpenGLContext& context);
-    Scene(StatefulObject& parent, ObjectState objectState, OpenGLContext& context);
-    ~Scene();
-    
-    void shutdown();
-    void render();
-    
-    Matrix3D<float> getProjectionMatrix() const;
-    Matrix3D<float> getViewMatrix() const;
-    
-    void createShaders();
-    SceneObject* createObject(SceneObjectRealisation realisation) {
-        SceneObject* obj = nullptr;
-        
-        switch (realisation) {
-            case SceneObjectRealisation::Waveform:
-            {
-                obj = new WaveformSceneObject(*this);
-                break;
-            }
-            case SceneObjectRealisation::Background:
-            {
-                obj = new BackgroundSceneObject(*this);
-                break;
-            }
-        }
-        
-        if(shader.get() != nullptr)
-        {
-            context->executeOnGLThread([this, obj](OpenGLContext&){ obj->reset(shader); } , true);
-            //obj->reset(*shader);
-        }
-
-        objects.add(obj);
-        return obj;
-    }
-    
-    void createObject(SceneObjectRealisation realisation, ObjectState objectState) {
-        SceneObject* obj = nullptr;
-        
-        switch (realisation) {
-            case SceneObjectRealisation::Waveform:
-            {
-                obj = new WaveformSceneObject(*this, objectState);
-                break;
-            }
-            case SceneObjectRealisation::Background:
-            {
-                obj = new BackgroundSceneObject(*this, objectState);
-                break;
-            }
-        }
-        
-        if(shader.get() != nullptr)
-            obj->reset(shader);
-
-        objects.add(obj);
-    }
-    
-    void deleteObject(SceneObject* object) {
-        //const ScopedLock lock (renderMutex);
-        objects.removeObject(object);
-    }
-    
-    void objectsReorder(int oldIdx, int newIdx) {
-        reorder(objects, oldIdx, newIdx);
-        int idx = oldIdx > newIdx ? newIdx + 1 : newIdx;
-        objects[idx]->move(idx);
-    }
-    
-    //Uuid& getUuidIdentifier() { return uuidIdentifier; }
-    
-    void changeBounds(Rectangle<int>& bounds, int height) {
-        const ScopedLock lock (mutex);
-        this->bounds = bounds;
-        parentHeight = height;
-    }
-    
-    void replaceContext(OpenGLContext& newContext) {
-        \\const ScopedLock lock(renderMutex);
-        \\newContext.executeOnGLThread([this](OpenGLContext&){
-        \\    createShaders();
-        \\}, true);
-        context = &newContext;
-        //uniforms.reset();
-        //shader.release();
-    }
-    
-    OwnedArray<SceneObject>& getObjects() { return objects; }
-    
-    //CriticalSection renderMutex;
-private:
-    //==============================================================================
-    struct Uniforms
-    {
-        explicit Uniforms (OpenGLShaderProgram& shaderProgram);
-
-        std::unique_ptr<OpenGLShaderProgram::Uniform> projectionMatrix, viewMatrix;
-    private:
-        static OpenGLShaderProgram::Uniform* createUniform (OpenGLShaderProgram& shaderProgram, const char* uniformName);
-    };
-    //==============================================================================
-    
-    std::unique_ptr<OpenGLShaderProgram> shader;
-    std::unique_ptr<Uniforms> uniforms;
-    OwnedArray<SceneObject> objects;
-    
-    Uuid uuidIdentifier;
-    
-    //const char* vertexShader;
-    //const char* fragmentShader;
-    String newVertexShader, newFragmentShader;
-    
-    Rectangle<int> bounds;
-    int parentHeight;
-    CriticalSection mutex;
-    
-    OpenGLContext* context;
-    
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Scene)
-};*/
-
 class Scene : public StatefulObject
 {
 public:
@@ -159,7 +34,6 @@ public:
     // always calls from message thread
     void createShaders(bool block = true) {
         assertIfGlThread();
-        //std::unique_ptr<OpenGLShaderProgram> newShader(new OpenGLShaderProgram (getContext()));
         const ScopedLock lock(mutex); // block on message thread for gl thread cannot call render()
         shaderInitialized.set(false);
             getContext().executeOnGLThread([this](OpenGLContext&)
@@ -167,15 +41,9 @@ public:
                 if(!getContext().isActive()) jassertfalse;
                 
                 std::unique_ptr<OpenGLShaderProgram> newShader(new OpenGLShaderProgram (getContext()));
-                //checkError("Before compile");
                 if(compileShader(newShader)) {
-                    //checkError("After compile before move");
                     shader = std::move(newShader);
-                    //checkError("After compile after move", true); // always 1281 but ok, why??
-                    /*DBG("ProgID");
-                    DBG(String(shader->getProgramID()));*/
                     shader->use();
-                    //checkError("After use");
                     uniforms.reset (new Uniforms (*shader));
                     for(auto obj : objects) obj->reset(shader);
                     shaderInitialized.set(true);
@@ -194,15 +62,6 @@ public:
         if(!shaderInitialized.get()) return;
         
         if(!getContext().isActive()) jassertfalse;
-        
-        //float desktopScale = getContext().getRenderingScale();
-        
-        /*int* viewMassive = new int[4] {
-            roundToInt(desktopScale * bounds.getX()),
-            roundToInt(desktopScale * (parentHeight - bounds.getHeight() - bounds.getY())),
-            roundToInt(roundToInt(desktopScale * bounds.getWidth())),
-            roundToInt(roundToInt(desktopScale * bounds.getHeight()))
-        };*/
         
         {
             const ScopedLock lock(mutex);
@@ -223,8 +82,6 @@ public:
             glBindBuffer (GL_ARRAY_BUFFER, 0);
             glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, 0);
         }
-        
-        //delete[] viewMassive;
     }
     
     void deleteObject(SceneObject* object) {
@@ -235,7 +92,6 @@ public:
     void changeBounds(Rectangle<int>& bounds, int parentHeight, bool inOwnWindow) {
         const ScopedLock lock(mutex);
         this->bounds = bounds;
-        //parentHeight = height;
         
         float desktopScale = getContext().getRenderingScale();
         
@@ -246,7 +102,6 @@ public:
         if(inOwnWindow) desktopScale = 0.f;
         viewportBounds.setUnchecked(0, roundToInt(desktopScale * bounds.getX()));
         viewportBounds.setUnchecked(1, roundToInt(desktopScale * (parentHeight - bounds.getHeight() - bounds.getY())));
-
     }
     
     void objectsReorder(int oldIdx, int newIdx) {
@@ -258,7 +113,6 @@ public:
     OwnedArray<SceneObject>& getObjects() { return objects; }
     
     void replaceContext(OpenGLContext& newContext) {
-        //const ScopedLock lock(mutex);
         freeResouces();
         context = &newContext;
         createShaders(false);
@@ -266,7 +120,6 @@ public:
     
     void freeResouces() {
         shaderInitialized.set(false);
-        //shader->release();
         shader.reset();
         uniforms.reset();
     }
@@ -297,13 +150,9 @@ private:
     }
     
     bool compileShader(std::unique_ptr<OpenGLShaderProgram>& shader) {
-        bool vertex = shader->addVertexShader(OpenGLHelpers::translateVertexShaderToV3(vertexShaders[currentVertexShaderIndex]));
-        //checkError("After compile vertex");
-        bool fragment = shader->addFragmentShader(OpenGLHelpers::translateFragmentShaderToV3(fragmentShaders[currentFragmentShaderIndex]));
-        //checkError("After compile fragment");
-        bool link = shader->link();
-        //checkError("After compile link");
-        return vertex && fragment && link;
+        return shader->addVertexShader(OpenGLHelpers::translateVertexShaderToV3(vertexShaders[currentVertexShaderIndex]))
+        && shader->addFragmentShader(OpenGLHelpers::translateFragmentShaderToV3(fragmentShaders[currentFragmentShaderIndex]))
+        && shader->link();
     }
     
     void assertIfGlThread() {
@@ -337,7 +186,6 @@ private:
     OwnedArray<SceneObject> objects;
     
     Rectangle<int> bounds;
-    //int parentHeight;
     Array<int> viewportBounds{0,0,0,0};
     
     CriticalSection mutex;

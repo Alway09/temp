@@ -22,6 +22,7 @@ void ScenesRender::openGLContextClosing() {
 
 void ScenesRender::renderOpenGL() {
     using namespace ::juce::gl;
+    
     OpenGLHelpers::clear (clearColour);
     glEnable (GL_BLEND);
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
