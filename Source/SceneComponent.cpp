@@ -12,6 +12,7 @@ void SceneComponent::resized() {
     boundsInParent = getBoundsInParent();
     parentHeight = getParentHeight();
     scene->changeBounds(boundsInParent, parentHeight, ownRender != nullptr);
+    overlay->setFullscreenState(isFullScreen()); // case when window exit fullscreen with window button
 }
 
 void SceneComponent::moved() {
@@ -57,6 +58,10 @@ void SceneComponent::pinButtonClicked(bool state) {
     getPeer()->setAlwaysOnTop(state);
 }
 
+void SceneComponent::fullscreenButtonClicked(bool state) {
+    setFullScreen(state);
+}
+
 void SceneComponent::detachButtonClicked(bool detach) {
     if(detach) {
         for(auto listener : listeners) {
@@ -64,14 +69,16 @@ void SceneComponent::detachButtonClicked(bool detach) {
         }
         
         addToDesktop();
-        overlay->setPinButtonEnabled(true);
+        overlay->setEmbeddedButtonsEnabled(true);
         pinButtonClicked(false);
+        setFullScreen(false);
         ownRender.reset(new ScenesRender(*this));
         scene->replaceContext(ownRender.get()->getContext());
         ownRender->addScene(scene);
     } else {
-        overlay->setPinButtonEnabled(false);
+        overlay->setEmbeddedButtonsEnabled(false);
         pinButtonClicked(false);
+        setFullScreen(false);
         ownRender.reset();
         
         for(auto listener : listeners) {
@@ -93,11 +100,18 @@ SceneComponent::SceneOverlayComponent::SceneOverlayComponent(SceneComponent* par
     pinButton.onClick = [this](){this->parent->pinButtonClicked(pinButton.getToggleState());};
     pinButton.setEnabled(false);
     
+    fullscreenButton.setToggleable(true);
+    fullscreenButton.setClickingTogglesState(true);
+    fullscreenButton.setToggleState(false, NotificationType::dontSendNotification);
+    fullscreenButton.onClick = [this](){this->parent->fullscreenButtonClicked(fullscreenButton.getToggleState());};
+    fullscreenButton.setEnabled(false);
+    
     deleteButton.onClick = [this](){this->parent->deleteButtonClicked();};
     
     addAndMakeVisible(deleteButton);
     addAndMakeVisible(detachButton);
     addAndMakeVisible(pinButton);
+    addAndMakeVisible(fullscreenButton);
 }
 
 void SceneComponent::SceneOverlayComponent::resized()
@@ -106,6 +120,7 @@ void SceneComponent::SceneOverlayComponent::resized()
     deleteButton.setBounds(localBounds.getWidth() - 20, 0, 20, 20);
     detachButton.setBounds(localBounds.getWidth() - 40, 0, 20, 20);
     pinButton.setBounds(localBounds.getWidth() - 60, 0, 20, 20);
+    fullscreenButton.setBounds(localBounds.getWidth() - 80, 0, 20, 20);
 }
 
 void SceneComponent::SceneOverlayComponent::mouseEnter(const MouseEvent& e) { 

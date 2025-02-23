@@ -22,6 +22,7 @@ public:
     void deleteButtonClicked();
     void detachButtonClicked(bool detach);
     void pinButtonClicked(bool state);
+    void fullscreenButtonClicked(bool state);
     
     // void shutdown() { scene->shutdown(); }
     void render() { scene->render(); }
@@ -56,18 +57,26 @@ private:
         void mouseDown(const MouseEvent& e) override { parent->mouseDown(e); }
         void mouseUp(const MouseEvent& e) override { parent->mouseUp(e); }
         
-        void setPinButtonEnabled(bool shouldBeEnabled) { 
+        void setEmbeddedButtonsEnabled(bool shouldBeEnabled) {
             pinButton.setToggleState(!shouldBeEnabled, NotificationType::dontSendNotification);
             pinButton.setEnabled(shouldBeEnabled);
+            
+            setFullscreenState(!shouldBeEnabled);
+            fullscreenButton.setEnabled(shouldBeEnabled);
+        }
+        
+        void setFullscreenState(bool state) {
+            fullscreenButton.setToggleState(state, NotificationType::dontSendNotification);
         }
         
     private:
-        Array<Component*> getAllComponents() { return {&deleteButton, &detachButton}; }
+        Array<Component*> getAllComponents() { return {&deleteButton, &detachButton, &pinButton, &fullscreenButton}; }
         
         SceneComponent* parent;
         TextButton deleteButton{"X"};
         TextButton detachButton{"d"};
         TextButton pinButton{"p"};
+        TextButton fullscreenButton{"f"};
     };
     
     Scene* scene;
