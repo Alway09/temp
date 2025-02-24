@@ -91,6 +91,7 @@ void SceneComponent::detachButtonClicked(bool detach) {
         topButtonClicked(false);
         setFullScreen(false);
         pinButtonClicked(false);
+        overlay->setPinState(false);
         ownRender.reset();
         
         for(auto listener : listeners) {
@@ -99,7 +100,7 @@ void SceneComponent::detachButtonClicked(bool detach) {
     }
 }
 //=================================================================
-SceneComponent::SceneOverlayComponent::SceneOverlayComponent(SceneComponent* parent) : parent(parent)
+SceneComponent::SceneOverlayComponent::SceneOverlayComponent(SceneComponent* parent) : parent(parent), inactivityDetector(*this)
 {
     detachButton.setToggleable(true);
     detachButton.setClickingTogglesState(true);
@@ -138,6 +139,10 @@ SceneComponent::SceneOverlayComponent::SceneOverlayComponent(SceneComponent* par
     addAndMakeVisible(fullscreenButton);
     addAndMakeVisible(pinButton);
     addAndMakeVisible(nameLabel);
+    
+    inactivityDetector.setDelay(inactivityDelay);
+    inactivityDetector.setMouseMoveTolerance(0);
+    inactivityDetector.addListener(this);
 }
 
 void SceneComponent::SceneOverlayComponent::resized()
@@ -148,7 +153,7 @@ void SceneComponent::SceneOverlayComponent::resized()
     topButton.setBounds(localBounds.getWidth() - 60, 0, 20, 20);
     fullscreenButton.setBounds(localBounds.getWidth() - 80, 0, 20, 20);
     pinButton.setBounds(localBounds.getWidth() - 100, 0, 20, 20);
-    nameLabel.setBounds(0, 0, localBounds.getWidth() - 10, 20);
+    nameLabel.setBounds(0, 0, localBounds.getWidth() - 120, 20);
 }
 
 void SceneComponent::SceneOverlayComponent::mouseEnter(const MouseEvent& e) {

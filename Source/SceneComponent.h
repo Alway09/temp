@@ -45,7 +45,7 @@ public:
     
     
 private:
-    class SceneOverlayComponent : public Component
+    class SceneOverlayComponent : public Component, public MouseInactivityDetector::Listener
     {
     public:
         SceneOverlayComponent(SceneComponent* parent);
@@ -55,8 +55,14 @@ private:
         void mouseEnter(const MouseEvent& e) override;
         void mouseExit(const MouseEvent& e) override;
         void mouseDoubleClick(const MouseEvent& e) override { parent->mouseDoubleClick(e); }
-        void mouseDrag(const MouseEvent& e) override {if(!pinButton.getToggleState()) parent->mouseDrag(e); }
-        void mouseMove(const MouseEvent& e) override {setControlsVisible(isMouseOver()); parent->mouseMove(e); }
+        void mouseDrag(const MouseEvent& e) override {if(!pinButton.getToggleState()) parent->mouseDrag(e);}
+        void mouseMove(const MouseEvent& e) override {
+            if(isMouseActive) {
+                setControlsVisible(isMouseOver());
+                parent->mouseMove(e);
+            }
+             
+        }
         void mouseDown(const MouseEvent& e) override { parent->mouseDown(e); }
         void mouseUp(const MouseEvent& e) override { parent->mouseUp(e); }
         
@@ -71,8 +77,26 @@ private:
             pinButton.setEnabled(shouldBeEnabled);
         }
         
+        void mouseBecameActive() override {
+            isMouseActive = true;
+            setMouseCursor(MouseCursor(MouseCursor::StandardCursorType::NormalCursor));
+            setControlsVisible(true);
+        }
+        
+        void mouseBecameInactive() override {
+            if(!isMouseOnControl()) {
+                isMouseActive = false;
+                setMouseCursor(MouseCursor(MouseCursor::StandardCursorType::NoCursor));
+                setControlsVisible(false);
+            }
+        }
+        
         void setFullscreenState(bool state) {
             fullscreenButton.setToggleState(state, NotificationType::dontSendNotification);
+        }
+        
+        void setPinState(bool state) {
+            pinButton.setToggleState(state, NotificationType::dontSendNotification);
         }
         
         void setSceneName(const String& name) {
@@ -86,6 +110,15 @@ private:
                 c->setVisible(shouldBeVisible);
             }
             isVisible = shouldBeVisible;
+        }
+        
+        bool isMouseOnControl() {
+            for (auto c : getAllComponents()) {
+                if(c->isMouseOver()) {
+                    return true;
+                }
+            }
+            return false;
         }
         
     private:
@@ -103,6 +136,7 @@ private:
         };
         
         bool isVisible = false;
+        bool isMouseActive = true;
         
         SceneComponent* parent;
         DelegatingLabel nameLabel;
@@ -111,6 +145,9 @@ private:
         DelegatingButton topButton{"t"};
         DelegatingButton fullscreenButton{"f"};
         DelegatingButton pinButton{"p"};
+        
+        MouseInactivityDetector inactivityDetector;
+        const int inactivityDelay = 3000; // ms
     };
     
     Scene* scene;
@@ -123,4 +160,6 @@ private:
     Listener* deleteListener;
     
     std::unique_ptr<ScenesRender> ownRender;
+    
+    
 };
