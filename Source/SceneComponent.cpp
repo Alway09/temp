@@ -1,8 +1,9 @@
 #include "SceneComponent.h"
 
-SceneComponent::SceneComponent(Scene* scene) : ResizableWindow("Scene", false), scene(scene)
+SceneComponent::SceneComponent(Scene* scene) : ResizableWindow(scene->getName(), false), scene(scene)
 {
     overlay = new SceneOverlayComponent(this);
+    overlay->setSceneName(scene->getName());
     setContentOwned(overlay, false);
 }
 
@@ -11,8 +12,7 @@ void SceneComponent::resized() {
     boundsInParent = getBoundsInParent();
     parentHeight = getParentHeight();
     scene->changeBounds(boundsInParent, parentHeight, ownRender != nullptr);
-    if(overlay)
-        overlay->setFullscreenState(isFullScreen()); // case when window exit fullscreen with window button
+    overlay->setFullscreenState(isFullScreen()); // case when window exit fullscreen with window button
 }
 
 void SceneComponent::moved() {
@@ -128,12 +128,16 @@ SceneComponent::SceneOverlayComponent::SceneOverlayComponent(SceneComponent* par
     pinButton.setEnabled(false);
     
     deleteButton.onClick = [this](){this->parent->deleteButtonClicked();};
+    //deleteButton.addMouseListener(parent, true);
+    
+    nameLabel.setJustificationType(Justification::left);
     
     addAndMakeVisible(deleteButton);
     addAndMakeVisible(detachButton);
     addAndMakeVisible(topButton);
     addAndMakeVisible(fullscreenButton);
     addAndMakeVisible(pinButton);
+    addAndMakeVisible(nameLabel);
 }
 
 void SceneComponent::SceneOverlayComponent::resized()
@@ -144,20 +148,16 @@ void SceneComponent::SceneOverlayComponent::resized()
     topButton.setBounds(localBounds.getWidth() - 60, 0, 20, 20);
     fullscreenButton.setBounds(localBounds.getWidth() - 80, 0, 20, 20);
     pinButton.setBounds(localBounds.getWidth() - 100, 0, 20, 20);
+    nameLabel.setBounds(0, 0, localBounds.getWidth() - 10, 20);
 }
 
-void SceneComponent::SceneOverlayComponent::mouseEnter(const MouseEvent& e) { 
-    /*for(auto c : getAllComponents()) {
-        c->setVisible(true);
-    }*/
-    
+void SceneComponent::SceneOverlayComponent::mouseEnter(const MouseEvent& e) {
     parent->mouseEnter(e);
 }
 
-void SceneComponent::SceneOverlayComponent::mouseExit(const MouseEvent& e) { 
-    /*for(auto c : getAllComponents()) {
-        c->setVisible(false);
-    }*/
-    
+void SceneComponent::SceneOverlayComponent::mouseExit(const MouseEvent& e) {
     parent->mouseExit(e);
+    
+    if(!isMouseOver(true))
+        setControlsVisible(false);
 }

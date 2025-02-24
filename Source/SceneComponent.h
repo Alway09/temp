@@ -42,6 +42,8 @@ public:
     void addSceneListener(Listener* l) { listeners.add(l); }
     void setDeleterListener(Listener* l) { deleteListener = l; }
     
+    
+    
 private:
     class SceneOverlayComponent : public Component
     {
@@ -54,7 +56,7 @@ private:
         void mouseExit(const MouseEvent& e) override;
         void mouseDoubleClick(const MouseEvent& e) override { parent->mouseDoubleClick(e); }
         void mouseDrag(const MouseEvent& e) override {if(!pinButton.getToggleState()) parent->mouseDrag(e); }
-        void mouseMove(const MouseEvent& e) override { parent->mouseMove(e); }
+        void mouseMove(const MouseEvent& e) override {setControlsVisible(isMouseOver()); parent->mouseMove(e); }
         void mouseDown(const MouseEvent& e) override { parent->mouseDown(e); }
         void mouseUp(const MouseEvent& e) override { parent->mouseUp(e); }
         
@@ -73,15 +75,42 @@ private:
             fullscreenButton.setToggleState(state, NotificationType::dontSendNotification);
         }
         
+        void setSceneName(const String& name) {
+            nameLabel.setText(name, NotificationType::dontSendNotification);
+        }
+        
+        void setControlsVisible(bool shouldBeVisible) {
+            if(isVisible == shouldBeVisible) return;
+            
+            for(auto c : getAllComponents()) {
+                c->setVisible(shouldBeVisible);
+            }
+            isVisible = shouldBeVisible;
+        }
+        
     private:
-        Array<Component*> getAllComponents() { return {&deleteButton, &detachButton, &topButton, &fullscreenButton, &pinButton}; }
+        Array<Component*> getAllComponents() { return {&deleteButton, &detachButton, &topButton, &fullscreenButton, &pinButton, &nameLabel}; }
+        
+        struct DelegatingButton : public TextButton
+        {
+            DelegatingButton(const String& n) : TextButton(n) {}
+            void mouseExit(const MouseEvent& e) override {TextButton::mouseExit(e); getParentComponent()->mouseExit(e); }
+        };
+        
+        struct DelegatingLabel : public Label
+        {
+            void mouseExit(const MouseEvent& e) override {Label::mouseExit(e); getParentComponent()->mouseExit(e); }
+        };
+        
+        bool isVisible = false;
         
         SceneComponent* parent;
-        TextButton deleteButton{"X"};
-        TextButton detachButton{"d"};
-        TextButton topButton{"t"};
-        TextButton fullscreenButton{"f"};
-        TextButton pinButton{"p"};
+        DelegatingLabel nameLabel;
+        DelegatingButton deleteButton{"X"};
+        DelegatingButton detachButton{"d"};
+        DelegatingButton topButton{"t"};
+        DelegatingButton fullscreenButton{"f"};
+        DelegatingButton pinButton{"p"};
     };
     
     Scene* scene;
@@ -94,7 +123,4 @@ private:
     Listener* deleteListener;
     
     std::unique_ptr<ScenesRender> ownRender;
-    
-    std::unique_ptr<ComponentBoundsConstrainer> fixedConstrainer;
-    std::unique_ptr<ComponentBoundsConstrainer> defaultConstrainer;
 };
