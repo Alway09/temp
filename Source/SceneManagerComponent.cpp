@@ -31,18 +31,18 @@ void SceneManagerComponent::buttonClicked (Button*) {
     resized();
 }
 
-void SceneManagerComponent::sceneMouseClicked(Scene* sc) {
+void SceneManagerComponent::sceneMouseClicked(Scene& sc) {
     if(!sceneEditor.isVisible()) {
         sceneEditor.setVisible(true);
         scenesBoundPadding = 300;
         resized();
     }
     
-    sceneEditor.attach(sc);
+    sceneEditor.attach(&sc);
 }
 
-void SceneManagerComponent::sceneDeleteButtonClicked(SceneComponent* sceneComponent) {
-    if(sceneEditor.isAttachedTo(sceneComponent->getScene())) {
+void SceneManagerComponent::sceneDeleting(SceneComponent& sceneComponent) {
+    if(sceneEditor.isAttachedTo(&sceneComponent.getScene())) {
         buttonClicked(nullptr);
     }
 }

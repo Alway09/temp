@@ -89,19 +89,21 @@ public:
         objects.removeObject(object);
     }
     
-    void changeBounds(Rectangle<int>& bounds, int parentHeight, bool inOwnWindow) {
+    // true - moved, false - resized
+    void changeBounds(const Rectangle<int>& bounds, bool movedOrResized, int parentHeight, bool inOwnWindow) {
         const ScopedLock lock(mutex);
         this->bounds = bounds;
         
         float desktopScale = getContext().getRenderingScale();
         
-        
-        viewportBounds.setUnchecked(2, roundToInt(roundToInt(desktopScale * bounds.getWidth())));
-        viewportBounds.setUnchecked(3, roundToInt(roundToInt(desktopScale * bounds.getHeight())));
-        
-        if(inOwnWindow) desktopScale = 0.f;
-        viewportBounds.setUnchecked(0, roundToInt(desktopScale * bounds.getX()));
-        viewportBounds.setUnchecked(1, roundToInt(desktopScale * (parentHeight - bounds.getHeight() - bounds.getY())));
+        if(movedOrResized) {
+            if(inOwnWindow) desktopScale = 0.f;
+            viewportBounds.setUnchecked(0, roundToInt(desktopScale * bounds.getX()));
+            viewportBounds.setUnchecked(1, roundToInt(desktopScale * (parentHeight - bounds.getHeight() - bounds.getY())));
+        } else {
+            viewportBounds.setUnchecked(2, roundToInt(roundToInt(desktopScale * bounds.getWidth())));
+            viewportBounds.setUnchecked(3, roundToInt(roundToInt(desktopScale * bounds.getHeight())));
+        }
     }
     
     void objectsReorder(int oldIdx, int newIdx) {

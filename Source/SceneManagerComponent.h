@@ -17,8 +17,8 @@ public:
     
     void buttonClicked (Button*) override;
     
-    void sceneMouseClicked(Scene* sc) override;
-    void sceneDeleteButtonClicked(SceneComponent* sceneComponent) override;
+    void sceneMouseClicked(Scene& sc) override;
+    void sceneDeleting(SceneComponent& sceneComponent) override;
     
     ApplicationCommandTarget* getNextCommandTarget() override { return findFirstTargetParentComponent(); }
     void getAllCommands (Array<CommandID> &commands) override { commands.add(Commands::addScene); }

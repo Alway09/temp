@@ -1,102 +1,78 @@
 #include "SceneComponent.h"
 
-SceneComponent::SceneComponent(Scene* scene) : ResizableWindow(scene->getName(), false), scene(scene)
+SceneComponent::SceneComponent(Scene& scene) : ResizableWindow(scene.getName(), false), scene(scene)
 {
     overlay = new SceneOverlayComponent(this);
-    overlay->setSceneName(scene->getName());
+    overlay->setSceneName(scene.getName());
     setContentOwned(overlay, false);
 }
 
 void SceneComponent::resized() {
     ResizableWindow::resized();
-    boundsInParent = getBoundsInParent();
-    parentHeight = getParentHeight();
-    scene->changeBounds(boundsInParent, parentHeight, ownRender != nullptr);
-    overlay->setFullscreenState(isFullScreen()); // case when window exit fullscreen with window button
+    movedOrResized(false);
+    //overlay->setFullscreenState(isFullScreen()); // case when window exit fullscreen with window button
 }
 
 void SceneComponent::moved() {
     ResizableWindow::moved();
-    boundsInParent = getBoundsInParent();
-    parentHeight = getParentHeight();
-    scene->changeBounds(boundsInParent, parentHeight, ownRender != nullptr);
+    movedOrResized(true);
+}
+
+void SceneComponent::movedOrResized(bool moved) {
+    scene.changeBounds(getBoundsInParent(), moved, getParentHeight(), ownRender != nullptr);
 }
 
 void SceneComponent::mouseDown(const MouseEvent& e) {
     ResizableWindow::mouseDown(e);
-    
-    for(auto listener : listeners) {
-        listener->sceneMouseDown(scene);
-    }
+    for(auto listener : listeners) listener->sceneMouseDown(scene);
 }
 
 void SceneComponent::mouseUp(const MouseEvent& e){
     ResizableWindow::mouseUp(e);
-    
     if(e.mouseWasClicked()) {
-        for(auto listener : listeners) {
-            listener->sceneMouseClicked(scene);
-        }
+        for(auto listener : listeners) listener->sceneMouseClicked(scene);
     } else {
-        for(auto listener : listeners) {
-            listener->sceneMouseUp(scene);
-        }
+        for(auto listener : listeners) listener->sceneMouseUp(scene);
     }
 }
 
-void SceneComponent::deleteButtonClicked() {
+void SceneComponent::deleteScene() {
     for(auto listener : listeners) {
-        if(listener == deleteListener) {
-            continue;
-        }
-        listener->sceneDeleteButtonClicked(this);
+        if(listener == deleter) continue;
+        listener->sceneDeleting(*this);
     }
-    deleteListener->sceneDeleteButtonClicked(this);
+    deleter->sceneDeleting(*this);
 }
 
-void SceneComponent::topButtonClicked(bool state) {
-    getPeer()->setAlwaysOnTop(state);
+void SceneComponent::setAlwaysOnTop(bool mustBeAlwaysOnTop) {
+    getPeer()->setAlwaysOnTop(mustBeAlwaysOnTop);
 }
 
-void SceneComponent::fullscreenButtonClicked(bool state) {
-    setFullScreen(state);
+void SceneComponent::setFullscreen(bool mustBeFullscreen) {
+    setFullScreen(mustBeFullscreen);
 }
 
-void SceneComponent::pinButtonClicked(bool state) {
-    if(state) {
-        int w = getWidth();
-        int h = getHeight();
-        setResizeLimits(w, h, w, h);
+void SceneComponent::setPinState(bool shouldBePinned) {
+    // move enabling/disabling made in overlay by control mouse move event
+    if(shouldBePinned) {
+        setResizeLimits(getWidth(), getHeight(), getWidth(), getHeight());
     } else {
         setResizeLimits(1, 1, 0x3fffffff, 0x3fffffff);
     }
-    
 }
 
-void SceneComponent::detachButtonClicked(bool detach) {
-    if(detach) {
-        for(auto listener : listeners) {
-            listener->sceneDetachButtonClicked(this, detach);
-        }
+void SceneComponent::detachScene(bool mustBeDetached) {
+    if(mustBeDetached) {
+        for(auto listener : listeners) listener->sceneDetached(*this, mustBeDetached);
         
         addToDesktop();
-        overlay->setEmbeddedButtonsEnabled(true);
-        //topButtonClicked(false);
-        //setFullScreen(false);
         ownRender.reset(new ScenesRender(*this));
-        scene->replaceContext(ownRender.get()->getContext());
-        ownRender->addScene(scene);
+        scene.replaceContext(ownRender.get()->getContext());
+        ownRender->addScene(&scene);
     } else {
-        overlay->setEmbeddedButtonsEnabled(false);
-        topButtonClicked(false);
-        setFullScreen(false);
-        pinButtonClicked(false);
-        overlay->setPinState(false);
         ownRender.reset();
         
-        for(auto listener : listeners) {
-            listener->sceneDetachButtonClicked(this, detach);
-        }
+        for(auto listener : listeners) listener->sceneDetached(*this, mustBeDetached);
     }
 }
 //=================================================================
@@ -105,31 +81,34 @@ SceneComponent::SceneOverlayComponent::SceneOverlayComponent(SceneComponent* par
     detachButton.setToggleable(true);
     detachButton.setClickingTogglesState(true);
     detachButton.setToggleState(false, NotificationType::dontSendNotification);
-    detachButton.onClick = [this](){this->parent->detachButtonClicked(detachButton.getToggleState());};
+    detachButton.onClick = [this](){
+        this->parent->detachScene(detachButton.getToggleState());
+        setDetachedMode(detachButton.getToggleState());
+    };
     
     topButton.setToggleable(true);
     topButton.setClickingTogglesState(true);
     topButton.setToggleState(false, NotificationType::dontSendNotification);
-    topButton.onClick = [this](){this->parent->topButtonClicked(topButton.getToggleState());};
+    topButton.onClick = [this](){this->parent->setAlwaysOnTop(topButton.getToggleState());};
     topButton.setEnabled(false);
     
     fullscreenButton.setToggleable(true);
     fullscreenButton.setClickingTogglesState(true);
     fullscreenButton.setToggleState(false, NotificationType::dontSendNotification);
-    fullscreenButton.onClick = [this](){
-        this->parent->fullscreenButtonClicked(fullscreenButton.getToggleState());
-        this->pinButton.setEnabled(!fullscreenButton.getToggleState());
+    fullscreenButton.onClick = [this]() {
+        this->parent->setFullscreen(fullscreenButton.getToggleState());
+        pinButton.setEnabled(!fullscreenButton.getToggleState());
+        topButton.setEnabled(!fullscreenButton.getToggleState());
     };
     fullscreenButton.setEnabled(false);
     
     pinButton.setToggleable(true);
     pinButton.setClickingTogglesState(true);
     pinButton.setToggleState(false, NotificationType::dontSendNotification);
-    pinButton.onClick = [this](){this->parent->pinButtonClicked(pinButton.getToggleState());};
+    pinButton.onClick = [this](){this->parent->setPinState(pinButton.getToggleState());};
     pinButton.setEnabled(false);
     
-    deleteButton.onClick = [this](){this->parent->deleteButtonClicked();};
-    //deleteButton.addMouseListener(parent, true);
+    deleteButton.onClick = [this](){this->parent->deleteScene();};
     
     nameLabel.setJustificationType(Justification::left);
     
@@ -156,13 +135,52 @@ void SceneComponent::SceneOverlayComponent::resized()
     nameLabel.setBounds(0, 0, localBounds.getWidth() - 120, 20);
 }
 
-void SceneComponent::SceneOverlayComponent::mouseEnter(const MouseEvent& e) {
-    parent->mouseEnter(e);
-}
-
 void SceneComponent::SceneOverlayComponent::mouseExit(const MouseEvent& e) {
     parent->mouseExit(e);
+    if(!isMouseOver(true)) setControlsVisible(false);
+}
+
+void SceneComponent::SceneOverlayComponent::mouseMove(const MouseEvent& e) {
+    if(isMouseActive) {
+        setControlsVisible(isMouseOver());
+        parent->mouseMove(e);
+    }
+}
+
+void SceneComponent::SceneOverlayComponent::setDetachedMode(bool shouldBeOn) {
+    topButton.setToggleState(false, NotificationType::sendNotification);
+    topButton.setEnabled(shouldBeOn);
     
-    if(!isMouseOver(true))
+    fullscreenButton.setToggleState(false, NotificationType::sendNotification);
+    fullscreenButton.setEnabled(shouldBeOn);
+    
+    pinButton.setToggleState(false, NotificationType::sendNotification);
+    pinButton.setEnabled(shouldBeOn);
+}
+
+void SceneComponent::SceneOverlayComponent::setControlsVisible(bool shouldBeVisible) {
+    if(isVisible == shouldBeVisible) return;
+    for(auto c : getAllComponents()) c->setVisible(shouldBeVisible);
+    isVisible = shouldBeVisible;
+}
+
+bool SceneComponent::SceneOverlayComponent::isMouseOnControl() {
+    for (auto c : getAllComponents()) {
+        if(c->isMouseOver()) return true;
+    }
+    return false;
+}
+
+void SceneComponent::SceneOverlayComponent::mouseBecameActive() {
+    isMouseActive = true;
+    setMouseCursor(MouseCursor(MouseCursor::StandardCursorType::NormalCursor));
+    setControlsVisible(true);
+}
+
+void SceneComponent::SceneOverlayComponent::mouseBecameInactive() {
+    if(!isMouseOnControl()) {
+        isMouseActive = false;
+        setMouseCursor(MouseCursor(MouseCursor::StandardCursorType::NoCursor));
         setControlsVisible(false);
+    }
 }
