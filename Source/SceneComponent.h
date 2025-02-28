@@ -6,7 +6,7 @@
 
 using namespace juce;
 
-class SceneComponent : public ResizableWindow
+class SceneComponent : public ResizableWindow, public StatefulObject::Sucker
 {
 public:
     SceneComponent(Scene& scene);

@@ -52,6 +52,14 @@ public:
         const String message;
     };
     
+    struct Sucker {
+        Sucker(StatefulObject& obj) : obj(obj) {}
+        void setProperty(const Identifier &name, const var &newValue) {obj.setProperty(name, newValue);}
+        const var& getProperty(const Identifier &name) const {return obj.getProperty(name);}
+    private:
+        StatefulObject& obj;
+    };
+    
 private:
     void addChild(StatefulObject* child) { children.add(child); }
     void deleteChild(StatefulObject* child) { children.removeValue(child); }

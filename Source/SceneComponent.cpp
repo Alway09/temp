@@ -1,6 +1,6 @@
 #include "SceneComponent.h"
 
-SceneComponent::SceneComponent(Scene& scene) : ResizableWindow(scene.getName(), false), scene(scene)
+SceneComponent::SceneComponent(Scene& scene) : ResizableWindow(scene.getName(), false), StatefulObject::Sucker(scene), scene(scene)
 {
     overlay = new SceneOverlayComponent(this);
     overlay->setSceneName(scene.getName());
@@ -19,7 +19,12 @@ void SceneComponent::moved() {
 }
 
 void SceneComponent::movedOrResized(bool moved) {
-    scene.changeBounds(getBoundsInParent(), moved, getParentHeight(), ownRender != nullptr);
+    auto bounds = getBoundsInParent();
+    scene.changeBounds(bounds, moved, getParentHeight(), ownRender != nullptr);
+    setProperty("posX", bounds.getX());
+    setProperty("posY", bounds.getY());
+    setProperty("width", bounds.getWidth());
+    setProperty("height", bounds.getHeight());
 }
 
 void SceneComponent::mouseDown(const MouseEvent& e) {
