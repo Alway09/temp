@@ -20,6 +20,8 @@ public:
     
     virtual SceneObjectRealisation getRealisation() = 0;
     
+    void setNeedToRender(bool needToRender) {this->needToRender.set(needToRender);}
+    
     void reset(std::unique_ptr<OpenGLShaderProgram>& shaderProgram);
     //static Identifier getTypeID() { return objectTypeID; }
 protected:
@@ -91,6 +93,8 @@ private:
     
     VertexBuffer vertexBuffer;
     std::unique_ptr<Attributes> attributes;
+    
+    Atomic<bool> needToRender{true};
     
     inline static Identifier objectTypeID{"Type"};
 };

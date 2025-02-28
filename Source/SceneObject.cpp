@@ -25,6 +25,8 @@ void SceneObject::draw()
 {
     using namespace ::juce::gl;
     
+    if(!needToRender.get()) return;
+    
     if(!vertexBuffer.initialized) {
         vertexBuffer.initialize();
     }

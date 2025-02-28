@@ -32,11 +32,14 @@ private:
     void mouseDrag(const MouseEvent& e) override;
     void labelTextChanged(Label* l) override;
     void buttonClicked(Button* b) override;
+    void setRenderState(bool state) {
+        object.setNeedToRender(state);
+    }
     
     class Header : public Component
     {
     public:
-        Header();
+        Header(SceneObjectEditor& parent);
 
         int getHeight() const { return height; }
         
@@ -67,11 +70,14 @@ private:
         Path expandedPath;
         Path nonExpandedPath;
         TextButton deleteButton{"X"};
+        TextButton visibilityButton{"O"};
         CustomLabel sceneObjectNameLabel;
+        SceneObjectEditor& parent;
         bool selected = false;
-        const int height = 20;
-        const int expandButtonWidth = 30;
-        const int deleteButtonWidth = 30;
+        static const int height = 20;
+        static const int expandButtonWidth = 30;
+        static const int deleteButtonWidth = 30;
+        static const int visibilityButtonWidth = 30;
     };
     
     Header header;

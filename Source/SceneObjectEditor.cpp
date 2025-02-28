@@ -1,6 +1,6 @@
 #include "SceneObjectEditor.h"
 
-SceneObjectEditor::SceneObjectEditor(SceneObject& objectEditTo) : object(objectEditTo) {
+SceneObjectEditor::SceneObjectEditor(SceneObject& objectEditTo) : object(objectEditTo), header(*this) {
     header.setObjectName(objectEditTo.getName());
     header.addSceneObjectNameLabelListener(this);
     header.addExpandButtonListener(this);
@@ -56,7 +56,7 @@ void SceneObjectEditor::buttonClicked(Button* b) {
     }
 }
 //------------------------------------
-SceneObjectEditor::Header::Header() {
+SceneObjectEditor::Header::Header(SceneObjectEditor& parent) : parent(parent) {
     sceneObjectNameLabel.setEditable(false, true, true);
     
     expandButton.shouldUseOnColours(false);
@@ -71,9 +71,18 @@ SceneObjectEditor::Header::Header() {
     expandedPath.lineTo(0, 1);
     expandedPath.lineTo(1, -1);
     
+    visibilityButton.setToggleable(true);
+    visibilityButton.setClickingTogglesState(true);
+    visibilityButton.setToggleState(true, NotificationType::dontSendNotification);
+    visibilityButton.onClick = [this](){
+        visibilityButton.setButtonText(visibilityButton.getToggleState() ? "O" : "-");
+        this->parent.setRenderState(visibilityButton.getToggleState());
+    };
+    
     addAndMakeVisible(sceneObjectNameLabel);
     addAndMakeVisible(expandButton);
     addAndMakeVisible(deleteButton);
+    addAndMakeVisible(visibilityButton);
 }
 
 void SceneObjectEditor::Header::mouseDrag(const MouseEvent& e) {
@@ -86,5 +95,6 @@ void SceneObjectEditor::Header::resized() {
     
     expandButton.setBounds(localBounds.removeFromLeft(expandButtonWidth));
     deleteButton.setBounds(localBounds.removeFromRight(deleteButtonWidth));
+    visibilityButton.setBounds(localBounds.removeFromRight(visibilityButtonWidth));
     sceneObjectNameLabel.setBounds(localBounds);
 }
