@@ -18,27 +18,31 @@ void ScenesView::timerCallback() {
             
             for(auto state : statesArray) {
                 //Scene* scene = new Scene(*this, state, scenesRender->getContext());
-                Scene* scene = new Scene(scenesRender->getContext(), *this, state);
+                
+                //bool isDetached = state.getTree().getProperty("isDetached");
+                
+                Scene* scene = new Scene(*this, state);
                 scenes.add(scene);
                 SceneComponent* sceneComponent = new SceneComponent(*scene);
                 sceneComponents.add(sceneComponent);
                 sceneComponent->addSceneListener(listener);
-                
-                sceneComponent->setResizable(true, true);
-                
-                scenesRender->addScene(scene);
-                //sceneComponent->addSceneListener(scenesRender.get());
                 sceneComponent->addSceneListener(this);
                 sceneComponent->setDeleter(this);
-                addAndMakeVisible(sceneComponent);
                 
-                addFlexItem(sceneComponent);
+                if(!sceneComponent->isDetached()) {
+                    scene->replaceContext(scenesRender->getContext(), false);
+                    scenesRender->addScene(scene);
+                    addFlexItem(sceneComponent);
+                } else {
+                    detachedSceneComponents.add(sceneComponent);
+                }
+                
+                addAndMakeVisible(sceneComponent);
             }
             
             resized();
+            stopTimer();
         }
-        
-        stopTimer();
     }
 }
 
@@ -64,12 +68,13 @@ void ScenesView::refillFlex() {
 void ScenesView::sceneDetached(SceneComponent& component, bool detach) {
     if(detach) {
         scenesRender->removeScene(&component.getScene());
-        detachedSceneComponents.add(&component);
+        if(!detachedSceneComponents.contains(&component))
+            detachedSceneComponents.add(&component);
         refillFlex();
     } else {
         addAndMakeVisible(component);
         detachedSceneComponents.removeObject(&component, false);
-        component.getScene().replaceContext(scenesRender->getContext());
+        component.getScene().replaceContext(scenesRender->getContext(), false);
         scenesRender->addScene(&component.getScene());
         refillFlex();
     }
@@ -87,8 +92,9 @@ void ScenesView::createScene(SceneComponent::Listener* parent) {
         sceneComponents.add(sceneComponent);
         sceneComponent->addSceneListener(parent);
         
-        sceneComponent->setResizable(true, true);
+        //sceneComponent->setResizable(true, true);
         
+        //if(!sceneComponent->isDetached())
         scenesRender->addScene(scene);
         //sceneComponent->addSceneListener(scenesRender.get());
         sceneComponent->addSceneListener(this);

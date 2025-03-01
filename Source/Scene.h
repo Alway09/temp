@@ -10,23 +10,24 @@ class Scene : public StatefulObject
 public:
     Scene(OpenGLContext& context, StatefulObject& parent) : StatefulObject(parent, parent.getName(), defaultPrefixName), context(&context){ createShaders(); }
     
-    Scene(OpenGLContext& context, StatefulObject& parent, ObjectState objectState) : StatefulObject(parent, objectState), context(&context)
+    Scene(StatefulObject& parent, ObjectState objectState) : StatefulObject(parent, objectState)
     {
-        createShaders();
+        //createShaders();
         if(hasChildren()) {
             auto statesArray = getChildrenStates();
             for(auto state : statesArray) {
-                createObject(SceneObjectRealisationHelper::fromState(state), &state);
+                createObject(SceneObjectRealisationHelper::fromState(state), false, &state);
             }
         }
     }
     ~Scene(){ ScopedLock lock(mutex); } // when obects delete need for render is not running
     
     // always calls from message thread
-    SceneObject* const createObject(SceneObjectRealisation realisation, ObjectState* objectState = nullptr) {
-        assertIfGlThread();
+    SceneObject* const createObject(SceneObjectRealisation realisation, bool resetObjects = true, ObjectState* objectState = nullptr) {
+        //assertIfGlThread();
         SceneObject* obj = SceneObjectRealisationHelper::createObject(realisation, *this, objectState);
-        getContext().executeOnGLThread([this, obj](OpenGLContext&){ obj->reset(shader); } , true);
+        if(resetObjects)
+            getContext().executeOnGLThread([this, obj](OpenGLContext&){ obj->reset(shader); } , true);
         objects.add(obj);
         return obj;
     }
@@ -66,7 +67,26 @@ public:
         {
             const ScopedLock lock(mutex);
             
-            glViewport (viewportBounds[0], viewportBounds[1], viewportBounds[2], viewportBounds[3]);
+            
+            //if(this->desktopScale != desktopScale) refreshBounds(desktopScale);
+            
+            
+            /*viewportBounds.setUnchecked(0, );
+            viewportBounds.setUnchecked(1, );
+            viewportBounds.setUnchecked(2, );
+            viewportBounds.setUnchecked(3, );*/
+            
+            float desktopScale = getContext().getRenderingScale();
+            
+            int x = 0, y = 0;
+            if(!renderingIsOnOwnWindow) {
+                x = roundToInt(desktopScale * bounds.getX());
+                y = roundToInt(desktopScale * (parentHeight - bounds.getHeight() - bounds.getY()));
+            }
+            
+            glViewport (x, y,
+                        roundToInt(desktopScale * bounds.getWidth()),
+                        roundToInt(desktopScale * bounds.getHeight()));
             
             shader->use();
             if (uniforms->projectionMatrix != nullptr) {
@@ -90,20 +110,41 @@ public:
     }
     
     // true - moved, false - resized
-    void changeBounds(const Rectangle<int>& bounds, bool movedOrResized, int parentHeight, bool inOwnWindow) {
+    void changeBounds(const Rectangle<int>& bounds, bool movedOrResized, int parentHeight) {
+        if(context == nullptr) return;
+        
         const ScopedLock lock(mutex);
         this->bounds = bounds;
+        this->parentHeight = parentHeight;
         
-        float desktopScale = getContext().getRenderingScale();
+        //auto desktopScale = getContext().getRenderingScale();
         
-        if(movedOrResized) {
+        /*if(movedOrResized) {
             if(inOwnWindow) desktopScale = 0.f;
             viewportBounds.setUnchecked(0, roundToInt(desktopScale * bounds.getX()));
             viewportBounds.setUnchecked(1, roundToInt(desktopScale * (parentHeight - bounds.getHeight() - bounds.getY())));
         } else {
             viewportBounds.setUnchecked(2, roundToInt(roundToInt(desktopScale * bounds.getWidth())));
             viewportBounds.setUnchecked(3, roundToInt(roundToInt(desktopScale * bounds.getHeight())));
+        }*/
+        //calcViewportBounds(1, movedOrResized);
+    }
+    
+    void calcViewportBounds(float desktopScale, bool movedOrResized) {
+        if(movedOrResized) {
+            if(renderingIsOnOwnWindow) desktopScale = 0.f;
+            viewportBounds.setUnchecked(0, roundToInt(desktopScale * bounds.getX()));
+            viewportBounds.setUnchecked(1, roundToInt(desktopScale * (parentHeight - bounds.getHeight() - bounds.getY())));
+        } else {
+            viewportBounds.setUnchecked(2, roundToInt(desktopScale * bounds.getWidth()));
+            viewportBounds.setUnchecked(3, roundToInt(desktopScale * bounds.getHeight()));
         }
+    }
+    
+    void refreshBounds(float desktopScale) {
+        calcViewportBounds(desktopScale, true);
+        calcViewportBounds(desktopScale, false);
+        //this->desktopScale = desktopScale;
     }
     
     void objectsReorder(int oldIdx, int newIdx) {
@@ -114,8 +155,9 @@ public:
     
     OwnedArray<SceneObject>& getObjects() { return objects; }
     
-    void replaceContext(OpenGLContext& newContext) {
+    void replaceContext(OpenGLContext& newContext, bool isOwnWindow) {
         freeResouces();
+        renderingIsOnOwnWindow = isOwnWindow;
         context = &newContext;
         createShaders(false);
     }
@@ -181,13 +223,14 @@ private:
         return viewMatrix * rotationMatrix;
     }
     
-    OpenGLContext* context;
+    OpenGLContext* context = nullptr;
     std::unique_ptr<OpenGLShaderProgram> shader;
     Atomic<bool> shaderInitialized{false};
     std::unique_ptr<Uniforms> uniforms;
     OwnedArray<SceneObject> objects;
     
     Rectangle<int> bounds;
+    
     Array<int> viewportBounds{0,0,0,0};
     
     CriticalSection mutex;
@@ -210,6 +253,10 @@ private:
         }
         return err != 0;
     }
+    
+    int parentHeight = 0; // DO NOT MOVE!!!
+    //float desktopScale = 1.f;
+    bool renderingIsOnOwnWindow = false;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Scene)
 };

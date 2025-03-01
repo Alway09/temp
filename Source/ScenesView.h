@@ -12,7 +12,7 @@ public:
     ScenesView(StatefulObject& parent, SceneComponent::Listener* listener);
     ~ScenesView() { detachedSceneComponents.clearQuick(false); scenesRender.reset(); }
     
-    void resized() override { scenesFlex.performLayout(getLocalBounds()); for(auto c : sceneComponents) { c->resized();} }
+    void resized() override {scenesFlex.performLayout(getLocalBounds()); }
     
     void sceneMouseDown(Scene& scene) override {scenesRender->bringToFront(&scene);}
     void sceneMouseUp(Scene&) override { resized(); }

@@ -6,15 +6,17 @@
 
 using namespace juce;
 
-class SceneComponent : public ResizableWindow, public StatefulObject::Sucker
+class SceneComponent : public ResizableWindow, public StatefulObject::Sucker, public Timer
 {
 public:
     SceneComponent(Scene& scene);
     ~SceneComponent() {}
     
     void resized() override;
+    void timerCallback() override;
     
     Scene& getScene() { return scene; }
+    bool isDetached() { return overlay->getDetachState(); }
     
     class Listener {
     public:
@@ -30,6 +32,17 @@ public:
     void setDeleter(Listener* l) { deleter = l; }
     
 private:
+    struct IDs {
+        inline static const Identifier posX{"posX"};
+        inline static const Identifier posY{"posY"};
+        inline static const Identifier width{"width"};
+        inline static const Identifier height{"height"};
+        inline static const Identifier isDetached{"isDetached"};
+        inline static const Identifier isAlwaysOnTop{"isOnTop"};
+        inline static const Identifier isPinned{"isPinned"};
+        inline static const Identifier isFullscreen{"isFullscreen"};
+    };
+    
     void moved() override;
     void paint(Graphics&) override {};
     
@@ -42,12 +55,20 @@ private:
     void setAlwaysOnTop(bool mustBeAlwaysOnTop);
     void setFullscreen(bool mustBeFullscreen);
     void setPinState(bool shouldBePinned);
+    void setBoundsFromState();
     
     class SceneOverlayComponent : public Component, public MouseInactivityDetector::Listener
     {
     public:
         SceneOverlayComponent(SceneComponent* parent);
+        bool getDetachState() { return detachButton.getToggleState(); }
+        void setDetachState(bool state) { detachButton.setToggleState(state, NotificationType::dontSendNotification); }
+        void setAlwaysOnTopState(bool state) {topButton.setToggleState(state, NotificationType::dontSendNotification);}
+        void setPinnedState(bool state) {pinButton.setToggleState(state, NotificationType::dontSendNotification);}
+        void setFullscreenState(bool state) {fullscreenButton.setToggleState(state, NotificationType::dontSendNotification);}
+        bool getFullscreenState() const {return fullscreenButton.getToggleState();}
         void setSceneName(const String& name) {nameLabel.setText(name, NotificationType::dontSendNotification);}
+        void setDetachedMode(bool shouldBeOn);
     private:
         void mouseEnter(const MouseEvent& e) override {parent->mouseEnter(e);}
         void mouseDown(const MouseEvent& e) override { parent->mouseDown(e); }
@@ -61,7 +82,7 @@ private:
         void mouseBecameInactive() override;
         void resized() override;
         
-        void setDetachedMode(bool shouldBeOn);
+        
         void setControlsVisible(bool shouldBeVisible);
         bool isMouseOnControl();
         
@@ -95,5 +116,6 @@ private:
     Array<Listener*> listeners;
     Listener* deleter;
     
+    bool tmp = false;
     std::unique_ptr<ScenesRender> ownRender;
 };
