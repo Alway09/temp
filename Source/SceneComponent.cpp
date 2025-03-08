@@ -2,13 +2,15 @@
 
 SceneComponent::SceneComponent(Scene& scene) : ResizableWindow(scene.getName(), false), StatefulObject::Sucker(scene), scene(scene)
 {
-    setBoundsFromState();
-    setResizable(true, true);
     overlay = new SceneOverlayComponent(this);
+    bool isDetached = getProperty(IDs::isDetached);
+    if(isDetached) {
+        setBoundsFromState();
+    }
+    setResizable(true, true);
     overlay->setSceneName(scene.getName());
     setContentOwned(overlay, false);
     
-    bool isDetached = getProperty(IDs::isDetached);
     if(isDetached) {
         overlay->setDetachState(true);
         startTimer(100);
@@ -21,21 +23,20 @@ void SceneComponent::timerCallback() {
         overlay->setDetachedMode(true);
         setBoundsFromState();
         
-        bool isAlwaysOnTop = getProperty(IDs::isAlwaysOnTop);
-        if(isAlwaysOnTop) {
+        bool prop = getProperty(IDs::isAlwaysOnTop);
+        if(prop) {
             overlay->setAlwaysOnTopState(true);
             setAlwaysOnTop(true);
         }
         
-        bool isPinned = getProperty(IDs::isPinned);
-        if(isPinned) {
+        prop = getProperty(IDs::isPinned);
+        if(prop) {
             overlay->setPinnedState(true);
             setPinState(true);
         }
         
-        bool isFullscreen = getProperty(IDs::isFullscreen);
-        if(isFullscreen) {
-            // TODO save last fullscreen
+        prop = getProperty(IDs::isFullscreen);
+        if(prop) {
             overlay->setFullscreenState(true);
             setFullscreen(true);
         }
@@ -68,7 +69,7 @@ void SceneComponent::movedOrResized(bool moved) {
     auto bounds = getBoundsInParent();
     scene.changeBounds(bounds, moved, getParentHeight());
     
-    if(!overlay->getFullscreenState()) {
+    if(isDetached() && !overlay->getFullscreenState()) {
         if(moved) {
             setProperty(IDs::posX, bounds.getX());
             setProperty(IDs::posY, bounds.getY());
@@ -126,71 +127,58 @@ void SceneComponent::detachScene(bool mustBeDetached) {
         ownRender.reset(new ScenesRender(*this));
         scene.replaceContext(ownRender.get()->getContext(), true);
         ownRender->addScene(&scene);
+        if(hasProperty(IDs::posX)) setBoundsFromState();
     } else {
         ownRender.reset();
-        
         for(auto listener : listeners) listener->sceneDetached(*this, mustBeDetached);
     }
 }
 //=================================================================
 SceneComponent::SceneOverlayComponent::SceneOverlayComponent(SceneComponent* parent) : parent(parent), inactivityDetector(*this)
 {
-    detachButton.setToggleable(true);
-    detachButton.setClickingTogglesState(true);
-    detachButton.setToggleState(false, NotificationType::dontSendNotification);
-    detachButton.onClick = [this](){
+    initButton(detachButton, [this]() {
         this->parent->detachScene(detachButton.getToggleState());
         this->parent->setProperty(SceneComponent::IDs::isDetached, detachButton.getToggleState());
         setDetachedMode(detachButton.getToggleState());
-    };
+    });
     
-    topButton.setToggleable(true);
-    topButton.setClickingTogglesState(true);
-    topButton.setToggleState(false, NotificationType::dontSendNotification);
-    topButton.onClick = [this](){
+    initButton(topButton, [this]() {
         this->parent->setAlwaysOnTop(topButton.getToggleState());
         this->parent->setProperty(SceneComponent::IDs::isAlwaysOnTop, topButton.getToggleState());
-    };
-    topButton.setEnabled(false);
+    }, false);
     
-    fullscreenButton.setToggleable(true);
-    fullscreenButton.setClickingTogglesState(true);
-    fullscreenButton.setToggleState(false, NotificationType::dontSendNotification);
-    fullscreenButton.onClick = [this]() {
+    initButton(fullscreenButton, [this]() {
         this->parent->setFullscreen(fullscreenButton.getToggleState());
         this->parent->setProperty(SceneComponent::IDs::isFullscreen, fullscreenButton.getToggleState());
         pinButton.setEnabled(!fullscreenButton.getToggleState());
         topButton.setEnabled(!fullscreenButton.getToggleState());
-    };
-    fullscreenButton.setEnabled(false);
+    }, false);
     
-    pinButton.setToggleable(true);
-    pinButton.setClickingTogglesState(true);
-    pinButton.setToggleState(false, NotificationType::dontSendNotification);
-    pinButton.onClick = [this](){
+    initButton(pinButton, [this]() {
         this->parent->setPinState(pinButton.getToggleState());
         this->parent->setProperty(SceneComponent::IDs::isPinned, pinButton.getToggleState());
-    };
-    pinButton.setEnabled(false);
+    }, false);
     
     deleteButton.onClick = [this](){this->parent->deleteScene();};
     
     nameLabel.setJustificationType(Justification::left);
     
-    addAndMakeVisible(deleteButton);
-    addAndMakeVisible(detachButton);
-    addAndMakeVisible(topButton);
-    addAndMakeVisible(fullscreenButton);
-    addAndMakeVisible(pinButton);
-    addAndMakeVisible(nameLabel);
+    for(auto c : getAllComponents()) addAndMakeVisible(c);
     
     inactivityDetector.setDelay(inactivityDelay);
     inactivityDetector.setMouseMoveTolerance(0);
     inactivityDetector.addListener(this);
 }
 
-void SceneComponent::SceneOverlayComponent::resized()
-{
+void SceneComponent::SceneOverlayComponent::initButton(Button& b, std::function<void()> f, bool enabled) {
+    b.setToggleable(true);
+    b.setClickingTogglesState(true);
+    b.setToggleState(false, NotificationType::dontSendNotification);
+    b.setEnabled(enabled);
+    b.onClick = f;
+}
+
+void SceneComponent::SceneOverlayComponent::resized() {
     auto localBounds = getLocalBounds();
     deleteButton.setBounds(localBounds.getWidth() - 20, 0, 20, 20);
     detachButton.setBounds(localBounds.getWidth() - 40, 0, 20, 20);

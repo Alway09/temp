@@ -17,10 +17,6 @@ void ScenesView::timerCallback() {
             auto statesArray = getChildrenStates();
             
             for(auto state : statesArray) {
-                //Scene* scene = new Scene(*this, state, scenesRender->getContext());
-                
-                //bool isDetached = state.getTree().getProperty("isDetached");
-                
                 Scene* scene = new Scene(*this, state);
                 scenes.add(scene);
                 SceneComponent* sceneComponent = new SceneComponent(*scene);
@@ -41,8 +37,8 @@ void ScenesView::timerCallback() {
             }
             
             resized();
-            stopTimer();
         }
+        stopTimer();
     }
 }
 
@@ -91,12 +87,7 @@ void ScenesView::createScene(SceneComponent::Listener* parent) {
         SceneComponent* sceneComponent = new SceneComponent(*scene);
         sceneComponents.add(sceneComponent);
         sceneComponent->addSceneListener(parent);
-        
-        //sceneComponent->setResizable(true, true);
-        
-        //if(!sceneComponent->isDetached())
         scenesRender->addScene(scene);
-        //sceneComponent->addSceneListener(scenesRender.get());
         sceneComponent->addSceneListener(this);
         sceneComponent->setDeleter(this);
         addAndMakeVisible(sceneComponent);

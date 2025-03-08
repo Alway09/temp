@@ -37,6 +37,8 @@ public:
     
     void setProperty(const Identifier &name, const var &newValue);
     const var& getProperty(const Identifier &name) const;
+    void removeProperty(const Identifier &name);
+    bool hasProperty(const Identifier& name) const;
     void setPropertyIfNotExists(const Identifier &name, const var &newValue);
     const var& getProperty(const Identifier &name, var defaultValue);
     Value getPropertyAsValue(const Identifier &name);
@@ -56,6 +58,8 @@ public:
         Sucker(StatefulObject& obj) : obj(obj) {}
         void setProperty(const Identifier &name, const var &newValue) {obj.setProperty(name, newValue);}
         const var& getProperty(const Identifier &name) const {return obj.getProperty(name);}
+        bool hasProperty(const Identifier& name) const {return obj.getProperty(name);}
+        void removeProperty(const Identifier &name) {obj.removeProperty(name);}
     private:
         StatefulObject& obj;
     };

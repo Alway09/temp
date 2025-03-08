@@ -149,6 +149,14 @@ const var& StatefulObject::getProperty(const Identifier &name) const {
     return valueTree.getProperty(name);
 }
 
+void StatefulObject::removeProperty(const Identifier &name) {
+    valueTree.removeProperty(name, nullptr);
+}
+
+bool StatefulObject::hasProperty(const Identifier& name) const {
+    return valueTree.hasProperty(name);
+}
+
 void StatefulObject::setPropertyIfNotExists(const Identifier &name, const var &newValue) {
     if(!valueTree.hasProperty(name)) {
         setProperty(name, newValue);

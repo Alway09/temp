@@ -61,8 +61,8 @@ private:
     {
     public:
         SceneOverlayComponent(SceneComponent* parent);
-        bool getDetachState() { return detachButton.getToggleState(); }
-        void setDetachState(bool state) { detachButton.setToggleState(state, NotificationType::dontSendNotification); }
+        bool getDetachState() {return detachButton.getToggleState();}
+        void setDetachState(bool state) {detachButton.setToggleState(state, NotificationType::dontSendNotification);}
         void setAlwaysOnTopState(bool state) {topButton.setToggleState(state, NotificationType::dontSendNotification);}
         void setPinnedState(bool state) {pinButton.setToggleState(state, NotificationType::dontSendNotification);}
         void setFullscreenState(bool state) {fullscreenButton.setToggleState(state, NotificationType::dontSendNotification);}
@@ -71,9 +71,9 @@ private:
         void setDetachedMode(bool shouldBeOn);
     private:
         void mouseEnter(const MouseEvent& e) override {parent->mouseEnter(e);}
-        void mouseDown(const MouseEvent& e) override { parent->mouseDown(e); }
-        void mouseUp(const MouseEvent& e) override { parent->mouseUp(e); }
-        void mouseDoubleClick(const MouseEvent& e) override { parent->mouseDoubleClick(e); }
+        void mouseDown(const MouseEvent& e) override {parent->mouseDown(e);}
+        void mouseUp(const MouseEvent& e) override {parent->mouseUp(e);}
+        void mouseDoubleClick(const MouseEvent& e) override {parent->mouseDoubleClick(e);}
         void mouseDrag(const MouseEvent& e) override {if(!pinButton.getToggleState()) parent->mouseDrag(e);}
         void mouseExit(const MouseEvent& e) override;
         void mouseMove(const MouseEvent& e) override;
@@ -82,9 +82,9 @@ private:
         void mouseBecameInactive() override;
         void resized() override;
         
-        
         void setControlsVisible(bool shouldBeVisible);
         bool isMouseOnControl();
+        void initButton(Button& b, std::function<void()> f, bool enabled = true);
         
         Array<Component*> getAllComponents() {return {&deleteButton, &detachButton, &topButton, &fullscreenButton, &pinButton, &nameLabel};}
         
@@ -116,6 +116,5 @@ private:
     Array<Listener*> listeners;
     Listener* deleter;
     
-    bool tmp = false;
     std::unique_ptr<ScenesRender> ownRender;
 };
