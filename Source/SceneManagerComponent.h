@@ -19,6 +19,7 @@ public:
     
     void sceneMouseClicked(Scene& sc) override;
     void sceneDeleting(SceneComponent& sceneComponent) override;
+    void sceneDetached(SceneComponent& component, bool isDetached) override;
     
     ApplicationCommandTarget* getNextCommandTarget() override { return findFirstTargetParentComponent(); }
     void getAllCommands (Array<CommandID> &commands) override { commands.add(Commands::addScene); }
@@ -35,6 +36,5 @@ private:
     TextButton button{"+"};
     
     int scenesBoundPadding = 0;
-    //const int sceneEditorWidth = 300;
     Rectangle<int> scenesBound;
 };

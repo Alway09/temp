@@ -21,10 +21,20 @@ public:
     void timerCallback() override;
     
     void createScene(SceneComponent::Listener* parent);
+    //bool hasComponents() {return scenesFlex.items.size() != 0;};
+    bool makeVisible() {
+        if(!isVisible()) {
+            setVisible(true);
+            scenesRender->attach();
+        }
+        return isVisible();
+    }
     
 private:
     void addFlexItem(Component* itemToControl);
     void refillFlex();
+    
+    void hideIfNothingToRender() {if(!scenesRender->getContext().isAttached()) setVisible(false);}
     
     FlexBox scenesFlex;
     OwnedArray<Scene> scenes;

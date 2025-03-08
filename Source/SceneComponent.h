@@ -56,6 +56,9 @@ private:
     void setFullscreen(bool mustBeFullscreen);
     void setPinState(bool shouldBePinned);
     void setBoundsFromState();
+    void savePos(Rectangle<int>& bounds);
+    void saveSize(Rectangle<int>& bounds);
+    void saveCurrentBounds();
     
     class SceneOverlayComponent : public Component, public MouseInactivityDetector::Listener
     {

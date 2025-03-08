@@ -17,6 +17,12 @@ SceneComponent::SceneComponent(Scene& scene) : ResizableWindow(scene.getName(), 
     }
 }
 
+void SceneComponent::saveCurrentBounds() {
+    auto bounds = getBoundsInParent();
+    savePos(bounds);
+    saveSize(bounds);
+}
+
 void SceneComponent::timerCallback() {
     if(isVisible()) {
         detachScene(true);
@@ -71,13 +77,21 @@ void SceneComponent::movedOrResized(bool moved) {
     
     if(isDetached() && !overlay->getFullscreenState()) {
         if(moved) {
-            setProperty(IDs::posX, bounds.getX());
-            setProperty(IDs::posY, bounds.getY());
+            savePos(bounds);
         } else {
-            setProperty(IDs::width, bounds.getWidth());
-            setProperty(IDs::height, bounds.getHeight());
+            saveSize(bounds);
         }
     }
+}
+
+void SceneComponent::savePos(Rectangle<int>& bounds) {
+    setProperty(IDs::posX, bounds.getX());
+    setProperty(IDs::posY, bounds.getY());
+}
+
+void SceneComponent::saveSize(Rectangle<int>& bounds) {
+    setProperty(IDs::width, bounds.getWidth());
+    setProperty(IDs::height, bounds.getHeight());
 }
 
 void SceneComponent::mouseDown(const MouseEvent& e) {
@@ -128,7 +142,9 @@ void SceneComponent::detachScene(bool mustBeDetached) {
         scene.replaceContext(ownRender.get()->getContext(), true);
         ownRender->addScene(&scene);
         if(hasProperty(IDs::posX)) setBoundsFromState();
+        saveCurrentBounds();
     } else {
+        saveCurrentBounds();
         ownRender.reset();
         for(auto listener : listeners) listener->sceneDetached(*this, mustBeDetached);
     }

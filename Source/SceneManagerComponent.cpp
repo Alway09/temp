@@ -10,16 +10,25 @@ SceneManagerComponent::SceneManagerComponent(StatefulObject& parent) : scenesVie
     sceneEditor.addCloseButtonListener(this);
     addChildComponent(sceneEditor);
     
-    addAndMakeVisible(scenesView);
+    if(scenesView.hasChildren()) {
+        addAndMakeVisible(scenesView);
+    } else {
+        addChildComponent(scenesView);
+    }
 }
 
 void SceneManagerComponent::resized()
 {
     auto localBounds = getLocalBounds();
-    scenesBound = localBounds.withWidth((localBounds.getWidth() - scenesBoundPadding));
+    if(scenesView.isVisible()) {
+        scenesBound = localBounds.withWidth((localBounds.getWidth() - scenesBoundPadding));
+        
+        sceneEditor.setBounds(localBounds.removeFromRight(scenesBoundPadding));
+        scenesView.setBounds(scenesBound);
+    } else {
+        sceneEditor.setBounds(localBounds);
+    }
     
-    sceneEditor.setBounds(localBounds.removeFromRight(scenesBoundPadding));
-    scenesView.setBounds(scenesBound);
 }
 
 void SceneManagerComponent::buttonClicked (Button*) {
@@ -47,6 +56,20 @@ void SceneManagerComponent::sceneDeleting(SceneComponent& sceneComponent) {
     }
 }
 
+void SceneManagerComponent::sceneDetached(SceneComponent& component, bool isDetached) {
+    if(isDetached) {
+        if(!scenesView.isVisible()) {
+            sceneEditor.setVisible(true);
+            sceneEditor.setCloseButtonEnabled(false);
+            scenesBoundPadding = 300;
+        }
+    } else {
+        sceneEditor.setCloseButtonEnabled(true);
+    }
+        
+    resized();
+}
+
 void SceneManagerComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo &result) {
     if(commandID == Commands::addScene) {
         result.setInfo("Add scene", "Add scene", "Scene", 0);
@@ -56,7 +79,9 @@ void SceneManagerComponent::getCommandInfo(CommandID commandID, ApplicationComma
 
 bool SceneManagerComponent::perform(const InvocationInfo &info) {
     if(info.commandID == Commands::addScene) {
+        sceneEditor.setCloseButtonEnabled(scenesView.makeVisible());
         scenesView.createScene(this);
+        resized();
         return true;
     }
     

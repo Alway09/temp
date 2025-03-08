@@ -30,8 +30,11 @@ public:
     }
     
     void bringToFront(Scene* scene);
+    
+    void attach() { context.attachTo(attachedTo); }
 private:
     OpenGLContext context;
+    Component& attachedTo;
     OwnedArray<Scene> scenes;
     
     Colour clearColour{0.f, 0.f, 0.f, 0.f};

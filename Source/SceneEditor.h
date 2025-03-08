@@ -13,6 +13,7 @@ public:
  
     void addCloseButtonListener(Button::Listener* listener) { header.addCloseButtonListener(listener); }
     
+    void setCloseButtonEnabled(bool shouldBeEnabled) {header.setCloseButtonEnabled(shouldBeEnabled);}
     void attach(Scene* scene);
     bool isAttachedTo(Scene* scene) { return scene == attachedTo; }
 private:
@@ -33,6 +34,7 @@ private:
         void addCloseButtonListener(Button::Listener* listener) { closeButton.addListener(listener); }
         void addSceneNameLabelListener(Label::Listener* listener) { sceneNameLabel.addListener(listener); }
         void setSceneName(String name) { sceneNameLabel.setText(name, NotificationType::dontSendNotification); }
+        void setCloseButtonEnabled(bool shouldBeEnabled) {closeButton.setEnabled(shouldBeEnabled);}
     private:
         TextButton closeButton{"X"};
         Label sceneNameLabel;

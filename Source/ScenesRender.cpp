@@ -1,10 +1,10 @@
 #include "ScenesRender.h"
 
-ScenesRender::ScenesRender(Component& componentAttachTo)
+ScenesRender::ScenesRender(Component& componentAttachTo) : attachedTo(componentAttachTo)
 {
     context.setRenderer(this);
     //context.setComponentPaintingEnabled(false);
-    context.attachTo (componentAttachTo);
+    context.attachTo (attachedTo);
     context.setContinuousRepainting (true);
     
     startTimer(1000);
@@ -49,11 +49,13 @@ void ScenesRender::addScene(Scene* scene) {
     //scene->createShaders();
     
     scenes.add(scene);
+    attach();
 }
 
 void ScenesRender::removeScene(Scene* scene) {
     //const ScopedLock lock (scene->renderMutex);
     scenes.removeObject(scene, false);
+    if(scenes.size() == 0) context.detach();
 }
 
 void ScenesRender::bringToFront(Scene* scene) {

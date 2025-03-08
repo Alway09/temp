@@ -8,12 +8,12 @@ ScenesView::ScenesView(StatefulObject& parent, SceneComponent::Listener* listene
     scenesFlex.justifyContent = FlexBox::JustifyContent::center;
     scenesFlex.flexDirection = FlexBox::Direction::column;
     
-    startTimer(100);
+    if(hasChildren()) startTimer(100);
 }
 
 void ScenesView::timerCallback() {
     if(isVisible()) {  // context initialized
-        if(hasChildren()) {
+        //if(hasChildren()) {
             auto statesArray = getChildrenStates();
             
             for(auto state : statesArray) {
@@ -21,8 +21,8 @@ void ScenesView::timerCallback() {
                 scenes.add(scene);
                 SceneComponent* sceneComponent = new SceneComponent(*scene);
                 sceneComponents.add(sceneComponent);
-                sceneComponent->addSceneListener(listener);
                 sceneComponent->addSceneListener(this);
+                sceneComponent->addSceneListener(listener);
                 sceneComponent->setDeleter(this);
                 
                 if(!sceneComponent->isDetached()) {
@@ -37,7 +37,7 @@ void ScenesView::timerCallback() {
             }
             
             resized();
-        }
+        //}
         stopTimer();
     }
 }
@@ -49,6 +49,7 @@ void ScenesView::sceneDeleting(SceneComponent& sceneComponent) {
     scenes.removeObject(&scene);
     
     refillFlex();
+    hideIfNothingToRender();
 }
 
 void ScenesView::refillFlex() {
@@ -67,11 +68,13 @@ void ScenesView::sceneDetached(SceneComponent& component, bool detach) {
         if(!detachedSceneComponents.contains(&component))
             detachedSceneComponents.add(&component);
         refillFlex();
+        hideIfNothingToRender();
     } else {
+        makeVisible();
         addAndMakeVisible(component);
         detachedSceneComponents.removeObject(&component, false);
-        component.getScene().replaceContext(scenesRender->getContext(), false);
         scenesRender->addScene(&component.getScene());
+        component.getScene().replaceContext(scenesRender->getContext(), false);
         refillFlex();
     }
 }
@@ -80,15 +83,16 @@ void ScenesView::createScene(SceneComponent::Listener* parent) {
     static int amountLimit = 6;
     
     if(scenesFlex.items.size() < amountLimit) {
+        makeVisible();
         Scene* scene = new Scene(scenesRender->getContext(), *this);
         scene->createObject(SceneObjectRealisation::Background);
         scene->createObject(SceneObjectRealisation::Waveform);
         scenes.add(scene);
         SceneComponent* sceneComponent = new SceneComponent(*scene);
         sceneComponents.add(sceneComponent);
+        sceneComponent->addSceneListener(this);
         sceneComponent->addSceneListener(parent);
         scenesRender->addScene(scene);
-        sceneComponent->addSceneListener(this);
         sceneComponent->setDeleter(this);
         addAndMakeVisible(sceneComponent);
         

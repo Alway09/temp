@@ -14,6 +14,7 @@ void SceneEditor::resized() {
     auto localBounds = getLocalBounds();
     header.setBounds(localBounds.removeFromTop(50));
     viewport.setBounds(localBounds);
+    editorsHolder.resized();
 }
 
 void SceneEditor::labelTextChanged(Label* sceneNameLabel) {
@@ -49,6 +50,7 @@ void SceneEditor::attach(Scene* scene) {
 SceneEditor::Header::Header() {
     sceneNameLabel.setEditable(false, true, true);
     
+    setSceneName("<not attached>");
     addAndMakeVisible(sceneNameLabel);
     addAndMakeVisible(closeButton);
 }

@@ -88,8 +88,7 @@ private:
 class SceneObjectEditorsHolderViewport : public Viewport
 {
 public:
-    SceneObjectEditorsHolderViewport() {
-    }
+    SceneObjectEditorsHolderViewport() {}
     
     void componentMovedOrResized(Component& c, bool wasMoved, bool wasResized) override {
         if(wasResized) {

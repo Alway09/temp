@@ -27,13 +27,13 @@ public:
         //assertIfGlThread();
         SceneObject* obj = SceneObjectRealisationHelper::createObject(realisation, *this, objectState);
         if(resetObjects)
-            getContext().executeOnGLThread([this, obj](OpenGLContext&){ obj->reset(shader); } , true);
+            getContext().executeOnGLThread([this, obj](OpenGLContext&){ obj->reset(shader); } , false); // NONBLOCKING
         objects.add(obj);
         return obj;
     }
     
     // always calls from message thread
-    void createShaders(bool block = true) {
+    void createShaders() {
         assertIfGlThread();
         const ScopedLock lock(mutex); // block on message thread for gl thread cannot call render()
         shaderInitialized.set(false);
@@ -53,7 +53,7 @@ public:
                     //jassertfalse;
                 }
             } 
-            ,block);
+            ,false); // NONBLOCKING
     }
     
     // allways calls from gl thread
@@ -159,7 +159,7 @@ public:
         freeResouces();
         renderingIsOnOwnWindow = isOwnWindow;
         context = &newContext;
-        createShaders(false);
+        createShaders();
     }
     
     void freeResouces() {
