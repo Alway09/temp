@@ -73,7 +73,8 @@ SceneObjectEditor::Header::Header(SceneObjectEditor& parent) : parent(parent) {
     
     visibilityButton.setToggleable(true);
     visibilityButton.setClickingTogglesState(true);
-    visibilityButton.setToggleState(true, NotificationType::dontSendNotification);
+    visibilityButton.setToggleState(parent.getRenderState(), NotificationType::dontSendNotification);
+    visibilityButton.setButtonText(visibilityButton.getToggleState() ? "O" : "-");
     visibilityButton.onClick = [this](){
         visibilityButton.setButtonText(visibilityButton.getToggleState() ? "O" : "-");
         this->parent.setRenderState(visibilityButton.getToggleState());

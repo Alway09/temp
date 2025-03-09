@@ -21,6 +21,7 @@ public:
     virtual SceneObjectRealisation getRealisation() = 0;
     
     void setNeedToRender(bool needToRender) {this->needToRender.set(needToRender);}
+    bool getNeedToRender() const { return needToRender.get(); }
     
     void reset(std::unique_ptr<OpenGLShaderProgram>& shaderProgram);
     //static Identifier getTypeID() { return objectTypeID; }

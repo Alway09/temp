@@ -12,10 +12,16 @@ class SceneManagerComponent : public Component, public ApplicationCommandTarget,
 public:
     SceneManagerComponent(StatefulObject& parent);
     ~SceneManagerComponent() {}
+private:
+    enum Commands
+    {
+        addScene = 200
+    };
     
     void resized() override;
     
-    void buttonClicked (Button*) override;
+    void handleEditorClose();
+    void buttonClicked (Button*) override {handleEditorClose();};
     
     void sceneMouseClicked(Scene& sc) override;
     void sceneDeleting(SceneComponent& sceneComponent) override;
@@ -25,16 +31,9 @@ public:
     void getAllCommands (Array<CommandID> &commands) override { commands.add(Commands::addScene); }
     void getCommandInfo(CommandID commandID, ApplicationCommandInfo &result) override;
     bool perform (const InvocationInfo &info) override;
-private:
-    enum Commands
-    {
-        addScene = 200
-    };
     
     ScenesView scenesView;
     SceneEditor sceneEditor;
-    TextButton button{"+"};
     
-    int scenesBoundPadding = 0;
     Rectangle<int> scenesBound;
 };

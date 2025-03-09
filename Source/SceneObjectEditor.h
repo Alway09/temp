@@ -35,6 +35,7 @@ private:
     void setRenderState(bool state) {
         object.setNeedToRender(state);
     }
+    bool getRenderState() const { return object.getNeedToRender(); }
     
     class Header : public Component
     {
@@ -70,7 +71,7 @@ private:
         Path expandedPath;
         Path nonExpandedPath;
         TextButton deleteButton{"X"};
-        TextButton visibilityButton{"O"};
+        TextButton visibilityButton;
         CustomLabel sceneObjectNameLabel;
         SceneObjectEditor& parent;
         bool selected = false;

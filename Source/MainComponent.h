@@ -4,7 +4,6 @@
 #include "SceneManagerComponent.h"
 #include "GlobalOptionsComponent.h"
 #include "CommandManagerHolder.h"
-//#include "SamplesHolderHolder.h"
 #include "CustomAudioBuffer.h"
 
 #ifdef TESTS_ENABLED

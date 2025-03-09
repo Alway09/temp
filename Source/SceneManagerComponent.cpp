@@ -5,11 +5,12 @@ SceneManagerComponent::SceneManagerComponent(StatefulObject& parent) : scenesVie
     CommandManagerHolder::getInstance()->registerAllCommandsForTarget(this);
     addKeyListener(CommandManagerHolder::getInstance()->getKeyMappings());
     
-    addAndMakeVisible(button); // without it keyboard events is not working
+    setWantsKeyboardFocus(true);
     
     sceneEditor.addCloseButtonListener(this);
     addChildComponent(sceneEditor);
     
+    scenesView.setBounds(0, 0, 10, 10); // set bound to avoid context init crash
     if(scenesView.hasChildren()) {
         addAndMakeVisible(scenesView);
     } else {
@@ -21,29 +22,25 @@ void SceneManagerComponent::resized()
 {
     auto localBounds = getLocalBounds();
     if(scenesView.isVisible()) {
-        scenesBound = localBounds.withWidth((localBounds.getWidth() - scenesBoundPadding));
-        
-        sceneEditor.setBounds(localBounds.removeFromRight(scenesBoundPadding));
+        scenesBound = localBounds.withWidth((localBounds.getWidth() - sceneEditor.getCurrentWidth()));
+        sceneEditor.setBounds(localBounds.removeFromRight(sceneEditor.getCurrentWidth()));
         scenesView.setBounds(scenesBound);
     } else {
         sceneEditor.setBounds(localBounds);
     }
-    
 }
 
-void SceneManagerComponent::buttonClicked (Button*) {
+void SceneManagerComponent::handleEditorClose() {
     if(!sceneEditor.isVisible())
         return;
     
     sceneEditor.setVisible(false);
-    scenesBoundPadding = 0;
     resized();
 }
 
 void SceneManagerComponent::sceneMouseClicked(Scene& sc) {
     if(!sceneEditor.isVisible()) {
         sceneEditor.setVisible(true);
-        scenesBoundPadding = 300;
         resized();
     }
     
@@ -61,7 +58,6 @@ void SceneManagerComponent::sceneDetached(SceneComponent& component, bool isDeta
         if(!scenesView.isVisible()) {
             sceneEditor.setVisible(true);
             sceneEditor.setCloseButtonEnabled(false);
-            scenesBoundPadding = 300;
         }
     } else {
         sceneEditor.setCloseButtonEnabled(true);

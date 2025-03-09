@@ -16,6 +16,7 @@ public:
     void setCloseButtonEnabled(bool shouldBeEnabled) {header.setCloseButtonEnabled(shouldBeEnabled);}
     void attach(Scene* scene);
     bool isAttachedTo(Scene* scene) { return scene == attachedTo; }
+    int getCurrentWidth() const { return isVisible() ? normalWidth : 0;};
 private:
     void resized() override;
     void labelTextChanged(Label* sceneNameLabel) override; // rename scene
@@ -44,4 +45,5 @@ private:
     SceneObjectEditorsHolderViewport viewport;
     SceneObjectEditorsHolder editorsHolder;
     Scene* attachedTo = nullptr;
+    static const int normalWidth = 300;
 };
