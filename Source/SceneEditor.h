@@ -17,6 +17,7 @@ public:
     void attach(Scene* scene);
     bool isAttachedTo(Scene* scene) { return scene == attachedTo; }
     int getCurrentWidth() const { return isVisible() ? normalWidth : 0;};
+    
 private:
     void resized() override;
     void labelTextChanged(Label* sceneNameLabel) override; // rename scene

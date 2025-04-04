@@ -98,4 +98,6 @@ private:
     Atomic<bool> needToRender{true};
     
     inline static Identifier objectTypeID{"Type"};
+    
+    
 };

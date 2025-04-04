@@ -2,7 +2,7 @@
 
 #include <JuceHeader.h>
 #include "SceneComponent.h"
-//#include "ScenesRender.h"
+#include "ScenesMiniPanel.h"
 
 using namespace juce;
 
@@ -38,6 +38,7 @@ private:
     
     FlexBox scenesFlex;
     OwnedArray<Scene> scenes;
+    ScenesMiniPanel panel;
     std::unique_ptr<ScenesRender> scenesRender;
     OwnedArray<SceneComponent> sceneComponents;
     OwnedArray<SceneComponent> detachedSceneComponents;

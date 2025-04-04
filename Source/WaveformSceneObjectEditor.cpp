@@ -8,7 +8,7 @@ WaveformSceneObjectEditor::WaveformSceneObjectEditor(SceneObject& objectEditTo) 
 void WaveformSceneObjectEditor::initControls() {
     controls.clear();
     
-    gainSlider = new SliderPropertyComponent(object.getPropertyAsValue(WaveformSceneObject::IDs::gain), "Gain", 1.0, 15.0, 0.1);
+    gainSlider = new SliderPropertyComponent(object.getPropertyAsValue(WaveformSceneObject::IDs::gain), "Gain", 0.1, 15.0, 0.1);
     controls.add(gainSlider);
     
     double skewFactor = 1.0 / 6;

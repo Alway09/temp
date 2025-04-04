@@ -38,6 +38,7 @@ void SceneObject::draw()
     vertexBuffer.bind();
         
     attributes->enable();
+    //glLineWidth(20);
     switch (config.source) {
         case SceneObject::Config::DrawSource::Vertices:
             glDrawArrays(config.primitiveType, 0, vertexBuffer.numVertices);

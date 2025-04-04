@@ -68,6 +68,10 @@
             <FILE id="qAAEea" name="SceneEditor.h" compile="0" resource="0" file="Source/SceneEditor.h"/>
             <FILE id="MmWiNU" name="SceneEditor.cpp" compile="1" resource="0" file="Source/SceneEditor.cpp"/>
           </GROUP>
+          <FILE id="AbUXUR" name="ScenesMiniPanel.h" compile="0" resource="0"
+                file="Source/ScenesMiniPanel.h"/>
+          <FILE id="ZMVOjK" name="ScenesMiniPanel.cpp" compile="1" resource="0"
+                file="Source/ScenesMiniPanel.cpp"/>
           <FILE id="HKVZvm" name="ScenesView.h" compile="0" resource="0" file="Source/ScenesView.h"/>
           <FILE id="XZEOem" name="ScenesView.cpp" compile="1" resource="0" file="Source/ScenesView.cpp"/>
           <FILE id="hR0wGp" name="SceneComponent.h" compile="0" resource="0"
