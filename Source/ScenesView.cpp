@@ -2,8 +2,6 @@
 
 ScenesView::ScenesView(StatefulObject& parent, SceneComponent::Listener* listener) : StatefulObject(parent, "ScenesView"), listener(listener)
 {
-    
-    
     scenesRender.reset(new ScenesRender(*this));
     
     scenesFlex.flexWrap = FlexBox::Wrap::wrap;

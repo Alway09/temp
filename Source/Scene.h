@@ -22,6 +22,10 @@ public:
     }
     ~Scene(){ ScopedLock lock(mutex); } // when obects delete need for render is not running
     
+    void setNeedToRender(bool needToRender) {
+        this->needToRender.set(needToRender);
+    }
+    
     // always calls from message thread
     SceneObject* const createObject(SceneObjectRealisation realisation, bool resetObjects = true, ObjectState* objectState = nullptr) {
         //assertIfGlThread();
@@ -59,6 +63,8 @@ public:
     // allways calls from gl thread
     void render() {
         using namespace ::juce::gl;
+        
+        if(!needToRender.get()) return;
         
         if(!shaderInitialized.get()) return;
         
@@ -128,6 +134,12 @@ public:
             viewportBounds.setUnchecked(3, roundToInt(roundToInt(desktopScale * bounds.getHeight())));
         }*/
         //calcViewportBounds(1, movedOrResized);
+    }
+    
+    void changeBounds(int xOffset, int yOffset) {
+        const ScopedLock lock(mutex);
+        bounds.setX(xOffset);
+        bounds.setY(yOffset);
     }
     
     void calcViewportBounds(float desktopScale, bool movedOrResized) {
@@ -257,6 +269,8 @@ private:
     int parentHeight = 0; // DO NOT MOVE!!!
     //float desktopScale = 1.f;
     bool renderingIsOnOwnWindow = false;
+    
+    Atomic<bool> needToRender{true};
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Scene)
 };

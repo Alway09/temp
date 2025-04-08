@@ -32,12 +32,20 @@ public:
     void bringToFront(Scene* scene);
     
     void attach() { context.attachTo(attachedTo); }
+    
+    void setScissorsBox(Rectangle<int> box) {
+        scissorsBox = box;
+        scissorsBoxEnabled = true;
+    }
 private:
     OpenGLContext context;
     Component& attachedTo;
     OwnedArray<Scene> scenes;
     
-    Colour clearColour{0.f, 0.f, 0.f, 0.f};
+    Colour clearColour{47, 79, 79};
+    
+    Rectangle<int> scissorsBox{0, 0, 0, 0};
+    bool scissorsBoxEnabled = false;
     
     uint64_t framesCounter = 0;
     uint64_t prevFramesCount = 0;

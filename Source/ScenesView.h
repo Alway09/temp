@@ -38,7 +38,7 @@ private:
     
     FlexBox scenesFlex;
     OwnedArray<Scene> scenes;
-    ScenesMiniPanel panel;
+    //ScenesMiniPanel panel;
     std::unique_ptr<ScenesRender> scenesRender;
     OwnedArray<SceneComponent> sceneComponents;
     OwnedArray<SceneComponent> detachedSceneComponents;

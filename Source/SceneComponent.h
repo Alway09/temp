@@ -23,7 +23,7 @@ public:
         virtual ~Listener(){}
         virtual void sceneMouseDown(Scene& scene){};
         virtual void sceneMouseUp(Scene& scene){};
-        virtual void sceneMouseClicked(Scene& scene){};
+        virtual void sceneMouseClicked(SceneComponent& sceneComponent){};
         virtual void sceneDetached(SceneComponent& component, bool isDetached){};
         virtual void sceneDeleting(SceneComponent& sceneComponent){};
     };

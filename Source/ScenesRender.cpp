@@ -27,9 +27,17 @@ void ScenesRender::renderOpenGL() {
     glEnable (GL_BLEND);
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     CustomAudioBuffer::getInst()->setReadPoint();
+
+    if(scissorsBoxEnabled) {
+        glScissor(scissorsBox.getX(), scissorsBox.getY(), scissorsBox.getWidth() * context.getRenderingScale(), scissorsBox.getHeight() * context.getRenderingScale());
+        glEnable(GL_SCISSOR_TEST);
+    }
+    
     for(auto sc : scenes) {
         sc->render();
     }
+    
+    glDisable(GL_SCISSOR_TEST);
     framesCounter++;
 }
 

@@ -102,7 +102,7 @@ void SceneComponent::mouseDown(const MouseEvent& e) {
 void SceneComponent::mouseUp(const MouseEvent& e){
     ResizableWindow::mouseUp(e);
     if(e.mouseWasClicked()) {
-        for(auto listener : listeners) listener->sceneMouseClicked(scene);
+        for(auto listener : listeners) listener->sceneMouseClicked(*this);
     } else {
         for(auto listener : listeners) listener->sceneMouseUp(scene);
     }
