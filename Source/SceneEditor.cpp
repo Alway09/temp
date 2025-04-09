@@ -46,6 +46,13 @@ void SceneEditor::attach(Scene* scene) {
         editorsHolder.resized();
     }
 }
+
+void SceneEditor::detach() {
+    editorsHolder.clear();
+    header.setSceneName("<not attached>");
+    attachedTo = nullptr;
+    resized();
+}
 //--------------------------------------
 SceneEditor::Header::Header() {
     sceneNameLabel.setEditable(false, true, true);

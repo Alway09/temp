@@ -2,12 +2,11 @@
 #include <JuceHeader.h>
 #include "CommandManagerHolder.h"
 #include "SceneEditor.h"
-#include "SceneComponent.h"
-#include "ScenesView.h"
+#include "ScenesMiniPanel.h"
 
 using namespace juce;
 
-class SceneManagerComponent : public Component, public ApplicationCommandTarget, public Button::Listener, public SceneComponent::Listener, public ScrollBar::Listener
+class SceneManagerComponent : public Component, public ApplicationCommandTarget, public SceneComponent::Listener, public ScrollBar::Listener, public ScenesMiniPanel::Listener
 {
 public:
     SceneManagerComponent(StatefulObject& parent);
@@ -22,8 +21,10 @@ private:
     
     void handleEditorVisibility(bool mustBeVisible);
     void handleScenesPanelVisibility(bool mustBeVisible);
-    void handleEditorClose();
-    void buttonClicked (Button*) override {handleEditorClose();};
+    void returnSceneOnPanel();
+    void returnButtonClicked(SceneComponent* sc) override {
+        returnSceneOnPanel();
+    }
     
     void sceneMouseClicked(SceneComponent& sc) override;
     void sceneDeleting(SceneComponent& sceneComponent) override;
@@ -60,7 +61,7 @@ private:
             addSceneButton.setButtonText("+");
             addSceneButton.onClick = [this]() { this->parent.scenesPanel.createScene(&(this->parent)); };
             addChildComponent(addSceneButton);
-            
+
             addAndMakeVisible(expandEditorButton);
             addAndMakeVisible(expandMiniPannelButton);
         }

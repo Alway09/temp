@@ -15,6 +15,7 @@ public:
     
     void setCloseButtonEnabled(bool shouldBeEnabled) {header.setCloseButtonEnabled(shouldBeEnabled);}
     void attach(Scene* scene);
+    void detach();
     bool isAttachedTo(Scene* scene) { return scene == attachedTo; }
     int getCurrentWidth() const { return isVisible() ? normalWidth : 0;};
     

@@ -12,8 +12,7 @@ ScenesView::ScenesView(StatefulObject& parent, SceneComponent::Listener* listene
 }
 
 void ScenesView::timerCallback() {
-    if(isVisible()) {  // context initialized
-        //if(hasChildren()) {
+    /*if(isVisible()) {  // context initialized
             auto statesArray = getChildrenStates();
             
             for(auto state : statesArray) {
@@ -37,9 +36,8 @@ void ScenesView::timerCallback() {
             }
             
             resized();
-        //}
         stopTimer();
-    }
+    }*/
 }
 
 void ScenesView::sceneDeleting(SceneComponent& sceneComponent) {
@@ -83,7 +81,7 @@ void ScenesView::createScene(SceneComponent::Listener* parent) {
     static int amountLimit = 6;
     
     if(scenesFlex.items.size() < amountLimit) {
-        makeVisible();
+        /*makeVisible();
         Scene* scene = new Scene(scenesRender->getContext(), *this);
         scene->createObject(SceneObjectRealisation::Background);
         scene->createObject(SceneObjectRealisation::Waveform);
@@ -98,7 +96,7 @@ void ScenesView::createScene(SceneComponent::Listener* parent) {
         
         addFlexItem(sceneComponent);
         
-        resized();
+        resized();*/
     } else {
         DBG("Scenes limit exceeded");
     }

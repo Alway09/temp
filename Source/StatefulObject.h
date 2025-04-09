@@ -55,13 +55,14 @@ public:
     };
     
     struct Sucker {
-        Sucker(StatefulObject& obj) : obj(obj) {}
-        void setProperty(const Identifier &name, const var &newValue) {obj.setProperty(name, newValue);}
-        const var& getProperty(const Identifier &name) const {return obj.getProperty(name);}
-        bool hasProperty(const Identifier& name) const {return obj.getProperty(name);}
-        void removeProperty(const Identifier &name) {obj.removeProperty(name);}
+        Sucker(StatefulObject* obj) : obj(obj) {}
+        void setProperty(const Identifier &name, const var &newValue) {obj->setProperty(name, newValue);}
+        const var& getProperty(const Identifier &name) const {return obj->getProperty(name);}
+        bool hasProperty(const Identifier& name) const {return obj->getProperty(name);}
+        void removeProperty(const Identifier &name) {obj->removeProperty(name);}
+        void setSource(StatefulObject* obj) { this->obj = obj; }
     private:
-        StatefulObject& obj;
+        StatefulObject* obj;
     };
     
 private:

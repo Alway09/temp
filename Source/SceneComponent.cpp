@@ -1,14 +1,19 @@
 #include "SceneComponent.h"
 
-SceneComponent::SceneComponent(Scene& scene) : ResizableWindow(scene.getName(), false), StatefulObject::Sucker(scene), scene(scene)
+SceneComponent::SceneComponent(OpenGLContext& context, StatefulObject& parent) : ResizableWindow("idk", false), StatefulObject::Sucker(nullptr)
 {
+    scene = new Scene(context, parent);
+    setSource(scene);
+    scene->createObject(SceneObjectRealisation::Background);
+    scene->createObject(SceneObjectRealisation::Waveform);
+    
     overlay = new SceneOverlayComponent(this);
     bool isDetached = getProperty(IDs::isDetached);
     if(isDetached) {
         setBoundsFromState();
     }
     setResizable(true, true);
-    overlay->setSceneName(scene.getName());
+    overlay->setSceneName(scene->getName());
     setContentOwned(overlay, false);
     
     if(isDetached) {
@@ -73,7 +78,7 @@ void SceneComponent::moved() {
 
 void SceneComponent::movedOrResized(bool moved) {
     auto bounds = getBoundsInParent();
-    scene.changeBounds(bounds, moved, getParentHeight());
+    scene->changeBounds(bounds, moved, getParentHeight());
     
     if(isDetached() && !overlay->getFullscreenState()) {
         if(moved) {
@@ -96,7 +101,7 @@ void SceneComponent::saveSize(Rectangle<int>& bounds) {
 
 void SceneComponent::mouseDown(const MouseEvent& e) {
     ResizableWindow::mouseDown(e);
-    for(auto listener : listeners) listener->sceneMouseDown(scene);
+    for(auto listener : listeners) listener->sceneMouseDown(*scene);
 }
 
 void SceneComponent::mouseUp(const MouseEvent& e){
@@ -104,7 +109,7 @@ void SceneComponent::mouseUp(const MouseEvent& e){
     if(e.mouseWasClicked()) {
         for(auto listener : listeners) listener->sceneMouseClicked(*this);
     } else {
-        for(auto listener : listeners) listener->sceneMouseUp(scene);
+        for(auto listener : listeners) listener->sceneMouseUp(*scene);
     }
 }
 
@@ -139,8 +144,8 @@ void SceneComponent::detachScene(bool mustBeDetached) {
         
         addToDesktop();
         ownRender.reset(new ScenesRender(*this));
-        scene.replaceContext(ownRender.get()->getContext(), true);
-        ownRender->addScene(&scene);
+        scene->replaceContext(ownRender.get()->getContext(), true);
+        ownRender->addScene(scene);
         if(hasProperty(IDs::posX)) setBoundsFromState();
         saveCurrentBounds();
     } else {

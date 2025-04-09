@@ -51,18 +51,33 @@ public:
         resized();
     }
     
+    void sceneDeleting(SceneComponent& sceneComponent) override {
+        //DBG("deleter");
+        SceneComponentWrapper* wrap = nullptr;
+        for(SceneComponentWrapper* w : wrappers) {
+            if(w->isAssociatedWith(&sceneComponent)) {
+                wrap = w;
+                break;
+            }
+        }
+        wrappers.removeObject(wrap);
+        sceneComponents.removeObject(&sceneComponent);
+        resized();
+    }
+    
     void createScene(SceneComponent::Listener* listener) {
         //calcLocalBounds();
-        Scene* scene = new Scene(scenesRender.getContext(), *this);
-        scene->createObject(SceneObjectRealisation::Background);
-        scene->createObject(SceneObjectRealisation::Waveform);
-        SceneComponent* sceneComponent = new SceneComponent(*scene);
+        //Scene* scene = new Scene(scenesRender.getContext(), *this);
+        //scene->createObject(SceneObjectRealisation::Background);
+        //scene->createObject(SceneObjectRealisation::Waveform);
+        SceneComponent* sceneComponent = new SceneComponent(scenesRender.getContext(), *this);
         sceneComponents.add(sceneComponent);
         sceneComponent->addSceneListener(listener);
         sceneComponent->addSceneListener(this);
-        scenesRender.addScene(scene);
+        scenesRender.addScene(&sceneComponent->getScene());
         sceneComponent->setDeleter(this);
-        SceneComponentWrapper* wrapper = new SceneComponentWrapper(sceneComponent->getScene().getName());
+        SceneComponentWrapper* wrapper = new SceneComponentWrapper(sceneComponent);
+        wrapper->setListener(this->listener);
         wrappers.add(wrapper);
         addAndMakeVisible(wrapper);
         addAndMakeVisible(sceneComponent);
@@ -85,6 +100,20 @@ public:
     
     bool isShowing() const { return showing; }
     
+    class Listener {
+        public:
+        virtual ~Listener(){}
+        //virtual void deleteButtonClicked(SceneComponent* sc) {}
+        virtual void returnButtonClicked(SceneComponent* sc) {}
+    };
+    
+    void setListener(Listener* l) {
+        listener = l;
+        for(SceneComponentWrapper* w : wrappers) {
+            w->setListener(l);
+        }
+    }
+    
 private:
     void calcLocalBounds() {
         selfbounds = Rectangle<int>{0, 0, wrappers.size() * normalWidth, normalHeight};
@@ -94,10 +123,16 @@ private:
     class SceneComponentWrapper : public Component
     {
     public:
-        SceneComponentWrapper(const String& name) {
-            sceneName.setText(name, NotificationType::dontSendNotification);
+        SceneComponentWrapper(SceneComponent* associatedComponent) : associatedComponent(associatedComponent) {
+            sceneName.setText(associatedComponent->getScene().getName(), NotificationType::dontSendNotification);
             addAndMakeVisible(sceneName);
+            
+            deleteButton.onClick = [this]() { this->associatedComponent->deleteScene(); };
             addAndMakeVisible(deleteButton);
+            
+            returnButton.setButtonText("return");
+            returnButton.onClick = [this]() { listener->returnButtonClicked(this->associatedComponent); };
+            addAndMakeVisible(returnButton);
         }
         
         void resized() override {
@@ -105,15 +140,23 @@ private:
             auto hb = bounds.removeFromTop(getWidth() * 0.12f);
             deleteButton.setBounds(hb.removeFromRight(getHeight() * 0.2f));
             sceneName.setBounds(hb);
+            returnButton.setBounds(bounds);
             bodyBounds = bounds;
         }
         
         const Rectangle<int>& getBodyBounds() { return bodyBounds; }
         
+        void setListener(Listener* l) { listener = l; }
+        
+        bool isAssociatedWith(SceneComponent* sc) { return associatedComponent == sc; }
+        
     private:
         Label sceneName;
         TextButton deleteButton{"X"};
         Rectangle<int> bodyBounds{0, 0, 1, 1};
+        TextButton returnButton;
+        Listener* listener = nullptr;
+        SceneComponent* associatedComponent = nullptr;
     };
     
     ScenesRender& scenesRender;
@@ -129,4 +172,6 @@ private:
     int yOffset = 0;
     
     bool showing = false;
+    
+    Listener* listener = nullptr;
 };

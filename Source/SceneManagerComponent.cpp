@@ -11,8 +11,8 @@ SceneManagerComponent::SceneManagerComponent(StatefulObject& parent) : /*scenesV
     //addChildComponent(scenesPanel);
     addAndMakeVisible(scenesPanelViewport);
     scenesPanelViewport.setViewedComponent(&scenesPanel, false);
+    scenesPanel.setListener(this);
     
-    sceneEditor.addCloseButtonListener(this);
     addChildComponent(sceneEditor);
     
     scenesPanelViewport.getHorizontalScrollBar().addListener(this);
@@ -59,25 +59,25 @@ void SceneManagerComponent::handleScenesPanelVisibility(bool mustBeVisible) {
     resized();
 }
 
-void SceneManagerComponent::handleEditorClose() {
-    /*if(!sceneEditor.isVisible())
-        return;
-    
-    sceneEditor.setVisible(false);
-    resized();*/
-}
-
 void SceneManagerComponent::sceneMouseClicked(SceneComponent& sc) {
     /*if(!sceneEditor.isVisible()) {
         sceneEditor.setVisible(true);
         resized();
     }*/
     if(&sc != choosenScene) {
-        if(choosenScene != nullptr) scenesPanel.returnOnPannel(choosenScene);
+        returnSceneOnPanel();
         choosenScene = &sc;
         addAndMakeVisible(sc);
         sceneEditor.attach(&sc.getScene());
         resized();
+    }
+}
+
+void SceneManagerComponent::returnSceneOnPanel() {
+    if(choosenScene != nullptr) {
+        scenesPanel.returnOnPannel(choosenScene);
+        choosenScene = nullptr;
+        sceneEditor.detach();
     }
 }
 
@@ -90,6 +90,11 @@ void SceneManagerComponent::sceneDeleting(SceneComponent& sceneComponent) {
     /*if(sceneEditor.isAttachedTo(&sceneComponent.getScene())) {
         buttonClicked(nullptr);
     }*/
+    if(choosenScene == &sceneComponent) {
+        sceneEditor.detach();
+        choosenScene = nullptr;
+    }
+    scenesRender.removeScene(&sceneComponent.getScene());
 }
 
 void SceneManagerComponent::sceneDetached(SceneComponent& component, bool isDetached) {

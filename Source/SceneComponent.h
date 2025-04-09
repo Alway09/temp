@@ -9,13 +9,13 @@ using namespace juce;
 class SceneComponent : public ResizableWindow, public StatefulObject::Sucker, public Timer
 {
 public:
-    SceneComponent(Scene& scene);
-    ~SceneComponent() {}
+    SceneComponent(OpenGLContext& context, StatefulObject& parent);
+    ~SceneComponent() { delete scene; }
     
     void resized() override;
     void timerCallback() override;
     
-    Scene& getScene() { return scene; }
+    Scene& getScene() { return *scene; }
     bool isDetached() { return overlay->getDetachState(); }
     
     class Listener {
@@ -30,6 +30,7 @@ public:
     
     void addSceneListener(Listener* l) { listeners.add(l); }
     void setDeleter(Listener* l) { deleter = l; }
+    void deleteScene();
     
 private:
     struct IDs {
@@ -50,7 +51,7 @@ private:
     void mouseUp(const MouseEvent& e) override;
     
     void movedOrResized(bool moved);
-    void deleteScene();
+    
     void detachScene(bool mustBeDetached);
     void setAlwaysOnTop(bool mustBeAlwaysOnTop);
     void setFullscreen(bool mustBeFullscreen);
@@ -113,7 +114,7 @@ private:
         static const int inactivityDelay = 3000; // ms
     };
     
-    Scene& scene;
+    Scene* scene = nullptr;
     SceneOverlayComponent* overlay = nullptr;
     
     Array<Listener*> listeners;

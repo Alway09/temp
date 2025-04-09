@@ -63,7 +63,7 @@ void ScenesRender::addScene(Scene* scene) {
 void ScenesRender::removeScene(Scene* scene) {
     //const ScopedLock lock (scene->renderMutex);
     scenes.removeObject(scene, false);
-    if(scenes.size() == 0) context.detach();
+    //if(scenes.size() == 0) context.detach();
 }
 
 void ScenesRender::bringToFront(Scene* scene) {
