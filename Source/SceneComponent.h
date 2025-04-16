@@ -6,10 +6,11 @@
 
 using namespace juce;
 
-class SceneComponent : public ResizableWindow, public StatefulObject::Sucker, public Timer
+class SceneComponent : public ResizableWindow, public StatefulObject::Sucker, public Timer, public NamedObject::Listener
 {
 public:
     SceneComponent(OpenGLContext& context, StatefulObject& parent);
+    SceneComponent(StatefulObject& parent, StatefulObject::ObjectState sceneState);
     ~SceneComponent() { delete scene; }
     
     void resized() override;
@@ -31,7 +32,11 @@ public:
     void addSceneListener(Listener* l) { listeners.add(l); }
     void setDeleter(Listener* l) { deleter = l; }
     void deleteScene();
-    
+    void detachScene(bool mustBeDetached, bool internalCall = true);
+    void setOverlayVisibility(bool mustBeVisible) {
+        // implement
+        overlay->showOrHideOvelray(mustBeVisible);
+    }
 private:
     struct IDs {
         inline static const Identifier posX{"posX"};
@@ -44,6 +49,11 @@ private:
         inline static const Identifier isFullscreen{"isFullscreen"};
     };
     
+    void objectRenamed(const String& newName) override {
+        setName(newName);
+        overlay->setSceneName(newName);
+    }
+    
     void moved() override;
     void paint(Graphics&) override {};
     
@@ -52,7 +62,7 @@ private:
     
     void movedOrResized(bool moved);
     
-    void detachScene(bool mustBeDetached);
+    
     void setAlwaysOnTop(bool mustBeAlwaysOnTop);
     void setFullscreen(bool mustBeFullscreen);
     void setPinState(bool shouldBePinned);
@@ -60,6 +70,12 @@ private:
     void savePos(Rectangle<int>& bounds);
     void saveSize(Rectangle<int>& bounds);
     void saveCurrentBounds();
+    
+    void setResizable(bool state) {
+        needToSaveSize = false;
+        ResizableWindow::setResizable(state, state);
+        needToSaveSize = true;
+    }
     
     class SceneOverlayComponent : public Component, public MouseInactivityDetector::Listener
     {
@@ -73,12 +89,25 @@ private:
         bool getFullscreenState() const {return fullscreenButton.getToggleState();}
         void setSceneName(const String& name) {nameLabel.setText(name, NotificationType::dontSendNotification);}
         void setDetachedMode(bool shouldBeOn);
+        void setDragAllowed(bool shouldDrag) { isDragAllowed = shouldDrag; };
+        
+        void showOrHideOvelray(bool mustBeShown) {
+            if(mustBeShown) {
+                inactivityDetector.addListener(this);
+            } else {
+                inactivityDetector.removeListener(this);
+            }
+            isMouseMoveAllowed = mustBeShown;
+            setControlsVisible(mustBeShown);
+            setMouseCursor(MouseCursor(MouseCursor::StandardCursorType::NormalCursor));
+        }
     private:
+        void setControlsVisible(bool shouldBeVisible);
         void mouseEnter(const MouseEvent& e) override {parent->mouseEnter(e);}
         void mouseDown(const MouseEvent& e) override {parent->mouseDown(e);}
         void mouseUp(const MouseEvent& e) override {parent->mouseUp(e);}
         void mouseDoubleClick(const MouseEvent& e) override {parent->mouseDoubleClick(e);}
-        void mouseDrag(const MouseEvent& e) override {if(!pinButton.getToggleState()) parent->mouseDrag(e);}
+        void mouseDrag(const MouseEvent& e) override {if(!pinButton.getToggleState() && isDragAllowed) parent->mouseDrag(e);}
         void mouseExit(const MouseEvent& e) override;
         void mouseMove(const MouseEvent& e) override;
         
@@ -86,7 +115,6 @@ private:
         void mouseBecameInactive() override;
         void resized() override;
         
-        void setControlsVisible(bool shouldBeVisible);
         bool isMouseOnControl();
         void initButton(Button& b, std::function<void()> f, bool enabled = true);
         
@@ -101,6 +129,8 @@ private:
         
         bool isVisible = false;
         bool isMouseActive = true;
+        bool isDragAllowed = false;
+        bool isMouseMoveAllowed = false;
         
         SceneComponent* parent;
         DelegatingLabel nameLabel;
@@ -121,4 +151,5 @@ private:
     Listener* deleter;
     
     std::unique_ptr<ScenesRender> ownRender;
+    bool needToSaveSize = true;
 };

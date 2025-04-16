@@ -8,10 +8,7 @@ using namespace juce;
 class ScenesMiniPanel : public Component, public StatefulObject, public SceneComponent::Listener
 {
 public:
-    ScenesMiniPanel(StatefulObject& parent, ScenesRender& render) : StatefulObject(parent, "Panel"), scenesRender(render)
-    {
-        setBounds(selfbounds);
-    }
+    ScenesMiniPanel(StatefulObject& parent, ScenesRender& render, SceneComponent::Listener* componentListener);
     
     void resized() override {
         auto bounds = selfbounds;
@@ -19,7 +16,7 @@ public:
             auto cellBounds = bounds.removeFromLeft(normalWidth);
             wrappers[i]->setBounds(cellBounds);
             
-            if(sceneComponents[i] != choosenComponent) {
+            if(needToPositionize(sceneComponents[i])) {
                 sceneComponents[i]->setBounds(wrappers[i]->getBodyBounds().withX(cellBounds.getX()));
                 sceneComponents[i]->getScene().changeBounds(cellBounds.getX() + xOffset, yOffset);
             }
@@ -27,32 +24,44 @@ public:
     }
     
     void moved() override {
-        if(sceneComponents.size() == 0) return;
+        int width = 0;
+        for(SceneComponent* sc : sceneComponents) {
+            if(needToPositionize(sc)) {
+                width = sc->getWidth();
+                break;
+            }
+        }
         
-        int width = sceneComponents[0]->getLocalBounds().getWidth();
+        if(width == 0) return;
+        
         for(int i = 0; i < sceneComponents.size(); ++i) {
-            if(sceneComponents[i] != choosenComponent) {
+            if(needToPositionize(sceneComponents[i])) {
                 sceneComponents[i]->getScene().changeBounds(i * width + xOffset, yOffset);
             }
         }
     }
     
-    //int getCurrentHeight() { return isVisible() ? normalHeight : 0; }
+    bool needToPositionize(SceneComponent* sc) {
+        return sc != choosenComponent && !sc->isDetached();
+    }
+    
     int getNormalHeight() const { return normalHeight; }
     
     void sceneMouseClicked(SceneComponent& sc) override {
-        choosenComponent = &sc;
-        //resized();
+        if(!sc.isDetached()) {
+            setChoosen(&sc);
+        }
     }
     
     void returnOnPannel(SceneComponent* sc) {
+        if(choosenComponent == sc) {
+            setChoosen(nullptr);
+        }
         addAndMakeVisible(sc);
-        choosenComponent = nullptr;
         resized();
     }
     
     void sceneDeleting(SceneComponent& sceneComponent) override {
-        //DBG("deleter");
         SceneComponentWrapper* wrap = nullptr;
         for(SceneComponentWrapper* w : wrappers) {
             if(w->isAssociatedWith(&sceneComponent)) {
@@ -62,28 +71,24 @@ public:
         }
         wrappers.removeObject(wrap);
         sceneComponents.removeObject(&sceneComponent);
+        choosenComponent = nullptr;
         resized();
     }
     
-    void createScene(SceneComponent::Listener* listener) {
-        //calcLocalBounds();
-        //Scene* scene = new Scene(scenesRender.getContext(), *this);
-        //scene->createObject(SceneObjectRealisation::Background);
-        //scene->createObject(SceneObjectRealisation::Waveform);
-        SceneComponent* sceneComponent = new SceneComponent(scenesRender.getContext(), *this);
-        sceneComponents.add(sceneComponent);
-        sceneComponent->addSceneListener(listener);
-        sceneComponent->addSceneListener(this);
-        scenesRender.addScene(&sceneComponent->getScene());
-        sceneComponent->setDeleter(this);
-        SceneComponentWrapper* wrapper = new SceneComponentWrapper(sceneComponent);
-        wrapper->setListener(this->listener);
-        wrappers.add(wrapper);
-        addAndMakeVisible(wrapper);
-        addAndMakeVisible(sceneComponent);
-        calcLocalBounds();
-        resized();
+    void sceneDetached(SceneComponent& component, bool isDetached) override {
+        if(isDetached) {
+            setChoosen(nullptr);
+        } else {
+            if(choosenComponent == nullptr) {
+                setChoosen(&component);
+            } else {
+                addAndMakeVisible(component);
+                resized();
+            }
+        }
     }
+    
+    void createScene() {createSceneInternal();}
     
     void setXOffset(int xOffset) {this->xOffset = xOffset; moved();}
     void setYOffset(int yOffset) {this->yOffset = yOffset;}
@@ -103,24 +108,61 @@ public:
     class Listener {
         public:
         virtual ~Listener(){}
-        //virtual void deleteButtonClicked(SceneComponent* sc) {}
         virtual void returnButtonClicked(SceneComponent* sc) {}
     };
     
-    void setListener(Listener* l) {
-        listener = l;
+    void setListener(ScenesMiniPanel::Listener* l) {
+        panelListener = l;
         for(SceneComponentWrapper* w : wrappers) {
             w->setListener(l);
         }
     }
     
+    SceneComponent* getChoosenComponent() { return choosenComponent; }
+    
 private:
+    SceneComponent* createSceneInternal(StatefulObject::ObjectState* objectState = nullptr, bool calcBounds = true) {
+        SceneComponent* sc = nullptr;
+        if(objectState == nullptr) {
+            sc = new SceneComponent(scenesRender.getContext(), *this);
+            scenesRender.addScene(&sc->getScene());
+        } else {
+            sc = new SceneComponent(*this, *objectState);
+        }
+        
+        sceneComponents.add(sc);
+        sc->addSceneListener(componentListener);
+        sc->addSceneListener(this);
+        sc->setDeleter(this);
+        
+        SceneComponentWrapper* wrapper = new SceneComponentWrapper(sc);
+        sc->getScene().addListener(wrapper);
+        wrapper->setListener(panelListener);
+        wrappers.add(wrapper);
+        
+        addAndMakeVisible(wrapper);
+        addAndMakeVisible(sc);
+        if(calcBounds) calcLocalBounds();
+        
+        return sc;
+    }
+    
+    struct IDs {
+        inline static const Identifier isChoosenScene{"isChoosen"};
+    };
+    
     void calcLocalBounds() {
         selfbounds = Rectangle<int>{0, 0, wrappers.size() * normalWidth, normalHeight};
         setBounds(selfbounds);
     }
     
-    class SceneComponentWrapper : public Component
+    void setChoosen(SceneComponent* sc) {
+        if(sc != nullptr) sc->setProperty("isChoosen", true);
+        if(choosenComponent != nullptr) choosenComponent->setProperty("isChoosen", false);
+        choosenComponent = sc;
+    }
+    
+    class SceneComponentWrapper : public Component, public NamedObject::Listener
     {
     public:
         SceneComponentWrapper(SceneComponent* associatedComponent) : associatedComponent(associatedComponent) {
@@ -146,16 +188,19 @@ private:
         
         const Rectangle<int>& getBodyBounds() { return bodyBounds; }
         
-        void setListener(Listener* l) { listener = l; }
-        
+        void setListener(ScenesMiniPanel::Listener* l) { listener = l; }
         bool isAssociatedWith(SceneComponent* sc) { return associatedComponent == sc; }
+        
+        void objectRenamed(const String& newName) override {
+            sceneName.setText(newName, NotificationType::dontSendNotification);
+        }
         
     private:
         Label sceneName;
         TextButton deleteButton{"X"};
         Rectangle<int> bodyBounds{0, 0, 1, 1};
         TextButton returnButton;
-        Listener* listener = nullptr;
+        ScenesMiniPanel::Listener* listener = nullptr;
         SceneComponent* associatedComponent = nullptr;
     };
     
@@ -173,5 +218,6 @@ private:
     
     bool showing = false;
     
-    Listener* listener = nullptr;
+    Listener* panelListener = nullptr;
+    SceneComponent::Listener* componentListener = nullptr;
 };

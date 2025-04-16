@@ -24,7 +24,13 @@ public:
     private:
         String message;
     };
+    
+    struct Listener {
+        virtual ~Listener() {}
+        virtual void objectRenamed(const String& newName) {}
+    };
   
+    void addListener(Listener* listener) { listeners.add(listener); }
 protected:
     class Name {
     public:
@@ -67,6 +73,7 @@ protected:
     
 private:
     Name name;
+    Array<Listener*> listeners;
     static void createName(NamedObject * const object);
     static void createUniqueName(NamedObject * const object);
     static void reserveName(const Name& name);

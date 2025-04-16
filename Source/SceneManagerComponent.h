@@ -6,34 +6,27 @@
 
 using namespace juce;
 
-class SceneManagerComponent : public Component, public ApplicationCommandTarget, public SceneComponent::Listener, public ScrollBar::Listener, public ScenesMiniPanel::Listener
+class SceneManagerComponent : public StatefulObject, public Component, public Timer, public SceneComponent::Listener, public ScrollBar::Listener, public ScenesMiniPanel::Listener
 {
 public:
     SceneManagerComponent(StatefulObject& parent);
     ~SceneManagerComponent() {}
 private:
-    enum Commands
-    {
-        addScene = 200
-    };
-    
+    void timerCallback() override;
     void resized() override;
     
     void handleEditorVisibility(bool mustBeVisible);
     void handleScenesPanelVisibility(bool mustBeVisible);
-    void returnSceneOnPanel();
+    void returnSceneOnPanel(SceneComponent* sc);
     void returnButtonClicked(SceneComponent* sc) override {
-        returnSceneOnPanel();
+        returnSceneOnPanel(sc);
     }
     
     void sceneMouseClicked(SceneComponent& sc) override;
     void sceneDeleting(SceneComponent& sceneComponent) override;
     void sceneDetached(SceneComponent& component, bool isDetached) override;
     
-    ApplicationCommandTarget* getNextCommandTarget() override { return findFirstTargetParentComponent(); }
-    void getAllCommands (Array<CommandID> &commands) override { commands.add(Commands::addScene); }
-    void getCommandInfo(CommandID commandID, ApplicationCommandInfo &result) override;
-    bool perform (const InvocationInfo &info) override;
+
     void scrollBarMoved (ScrollBar *scrollBarThatHasMoved, double newRangeStart) override;
     
     class MySidePanel : public Component
@@ -45,7 +38,7 @@ private:
             expandEditorButton.setToggleState(false, NotificationType::dontSendNotification);
             expandEditorButton.setButtonText("<");
             expandEditorButton.onClick = [this](){ this->parent.handleEditorVisibility(expandEditorButton.getToggleState());
-                expandEditorButton.setButtonText(expandEditorButton.getToggleState() ? ">" : "<");
+                setExpandEditorState(expandEditorButton.getToggleState());
             };
             
             expandMiniPannelButton.setToggleable(true);
@@ -53,13 +46,14 @@ private:
             expandMiniPannelButton.setToggleState(false, NotificationType::dontSendNotification);
             expandMiniPannelButton.setButtonText("/\\");
             expandMiniPannelButton.onClick = [this](){ this->parent.handleScenesPanelVisibility(expandMiniPannelButton.getToggleState());
-                expandMiniPannelButton.setButtonText(expandMiniPannelButton.getToggleState() ? "\\/" : "/\\");
-                addSceneButton.setVisible(expandMiniPannelButton.getToggleState());
-                resized();
+                setExpandMiniPanelState(expandMiniPannelButton.getToggleState());
+                //expandMiniPannelButton.setButtonText(expandMiniPannelButton.getToggleState() ? "\\/" : "/\\");
+                //addSceneButton.setVisible(expandMiniPannelButton.getToggleState());
+                //resized();
             };
             
             addSceneButton.setButtonText("+");
-            addSceneButton.onClick = [this]() { this->parent.scenesPanel.createScene(&(this->parent)); };
+            addSceneButton.onClick = [this]() { this->parent.scenesPanel->createScene(); };
             addChildComponent(addSceneButton);
 
             addAndMakeVisible(expandEditorButton);
@@ -69,7 +63,7 @@ private:
         void resized() override {
             auto bounds = getLocalBounds();
             expandEditorButton.setBounds(bounds.removeFromTop(30).withY(20));
-            int h = parent.scenesPanel.isShowing() ? parent.scenesPanel.getNormalHeight() : 0;
+            int h = (parent.scenesPanel.get() != nullptr && parent.scenesPanel->isShowing()) ? parent.scenesPanel->getNormalHeight() : 0;
             Rectangle<int> r(0, getHeight() - 30 - h, getWidth(), 30);
             //expandMiniPannelButton.setBounds(bounds.removeFromBottom(30).withY(getHeight() - 30 - parent.scenesPanel.getCurrentHeight()));
             expandMiniPannelButton.setBounds(r);
@@ -78,6 +72,17 @@ private:
         
         void paint(Graphics& g) override {
             g.fillAll(Colours::darkolivegreen);
+        }
+        
+        void setExpandMiniPanelState(bool shouldBeToggled) { expandMiniPannelButton.setToggleState(shouldBeToggled, NotificationType::dontSendNotification);
+            expandMiniPannelButton.setButtonText(shouldBeToggled ? "\\/" : "/\\");
+            addSceneButton.setVisible(expandMiniPannelButton.getToggleState());
+            resized();
+        }
+        
+        void setExpandEditorState(bool shouldBeToggled) {
+            expandEditorButton.setToggleState(shouldBeToggled, NotificationType::dontSendNotification);
+            expandEditorButton.setButtonText(shouldBeToggled ? ">" : "<");
         }
         
     private:
@@ -92,10 +97,11 @@ private:
     ScenesRender scenesRender;
     
     Viewport scenesPanelViewport;
-    ScenesMiniPanel scenesPanel;
+    std::unique_ptr<ScenesMiniPanel> scenesPanel;
     //ScenesView scenesView;
     SceneEditor sceneEditor;
     SceneComponent* choosenScene = nullptr;
     
     Rectangle<int> scenesBound;
+    //StatefulObject& parent;
 };

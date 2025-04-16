@@ -83,6 +83,7 @@ void NamedObject::rename(const String& newName) {
     Name name = validateAndCreateCustomName(this->name, newName);
     deleteName(this);
     setCustomName(this, name);
+    for(NamedObject::Listener* l : listeners) l->objectRenamed(getName());
 }
 
 NamedObject::Name NamedObject::validateAndCreateCustomName(Name& objectName, const String& name) {
