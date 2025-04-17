@@ -63,7 +63,7 @@ private:
         void resized() override {
             auto bounds = getLocalBounds();
             expandEditorButton.setBounds(bounds.removeFromTop(30).withY(20));
-            int h = (parent.scenesPanel.get() != nullptr && parent.scenesPanel->isShowing()) ? parent.scenesPanel->getNormalHeight() : 0;
+            int h = (parent.scenesPanel.get() != nullptr && parent.scenesPanel->isShowing()) ? parent.scenesPanel->getPanelHeight() : 0;
             Rectangle<int> r(0, getHeight() - 30 - h, getWidth(), 30);
             //expandMiniPannelButton.setBounds(bounds.removeFromBottom(30).withY(getHeight() - 30 - parent.scenesPanel.getCurrentHeight()));
             expandMiniPannelButton.setBounds(r);

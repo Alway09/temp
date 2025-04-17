@@ -40,7 +40,7 @@ void SceneManagerComponent::timerCallback() {
         }
         scenesPanelViewport.setViewedComponent(scenesPanel.get(), false);
         scenesPanel->setListener(this);
-        scenesPanel->setYOffset(16);
+        scenesPanel->setScenesDrawingYOffset(16);
         scenesPanel->resized();
         if(hasProperty("isPanelVisible")) {
             handleScenesPanelVisibility(getProperty("isPanelVisible"));
@@ -57,7 +57,7 @@ void SceneManagerComponent::resized()
     sidePannel.setBounds(localBounds.removeFromRight(30));
     scenesRender.setScissorsBox(localBounds.withX(0).withY(0));
     if(scenesPanel.get() != nullptr && scenesPanel->isShowing()) {
-        scenesPanelViewport.setBounds(localBounds.removeFromBottom(scenesPanel->getNormalHeight() + scenesPanelViewport.getHorizontalScrollBar().getHeight()));
+        scenesPanelViewport.setBounds(localBounds.removeFromBottom(scenesPanel->getPanelHeight() + scenesPanelViewport.getHorizontalScrollBar().getHeight()));
     }
     if(choosenScene != nullptr) choosenScene->setBounds(localBounds);
     /*if(scenesView.isVisible()) {
@@ -121,7 +121,7 @@ void SceneManagerComponent::returnSceneOnPanel(SceneComponent* sc) {
 
 void SceneManagerComponent::scrollBarMoved(ScrollBar *scrollBarThatHasMoved, double newRangeStart) {
     //DBG(newRangeStart);
-    scenesPanel->setXOffset(-newRangeStart);
+    scenesPanel->setScenesDrawingXOffset(-newRangeStart);
 }
 
 void SceneManagerComponent::sceneDeleting(SceneComponent& sceneComponent) {
