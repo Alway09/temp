@@ -272,7 +272,8 @@ void SceneComponent::SceneOverlayComponent::mouseExit(const MouseEvent& e) {
 
 void SceneComponent::SceneOverlayComponent::mouseMove(const MouseEvent& e) {
     if(isMouseActive && isMouseMoveAllowed) {
-        setControlsVisible(isMouseOver());
+        //setControlsVisible(isMouseOver());
+        setControlsVisible(true);
         parent->mouseMove(e);
     }
 }

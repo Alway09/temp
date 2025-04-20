@@ -1,12 +1,12 @@
 #include "ScenesMiniPanel.h"
 
-ScenesMiniPanel::ScenesMiniPanel(StatefulObject& parent, ScenesRender& render, SceneComponent::Listener* componentListener) : StatefulObject(parent, IDs::panelName), scenesRender(render), componentListener(componentListener)
+ScenesMiniPanel::ScenesMiniPanel(StatefulObject& parent, ScenesRender& render, SceneComponent::Listener* componentListener) : scenesRender(render), parent(parent), componentListener(componentListener)
 {
     selfbounds = Rectangle<int>(0, 0, 100, panelHeight);
     setBounds(selfbounds);
     
-    if(hasChildren()) { // expect that context initialized (parent component is visible)
-        auto statesArray = getChildrenStates();
+    if(parent.hasChildren()) { // expect that context initialized (parent component is visible)
+        auto statesArray = parent.getChildrenStates();
         for(auto state : statesArray) {
             SceneComponent* sc = createSceneInternal(&state, false);
             
@@ -102,10 +102,10 @@ void ScenesMiniPanel::setListener(ScenesMiniPanel::Listener* l) {
 SceneComponent* ScenesMiniPanel::createSceneInternal(StatefulObject::ObjectState* objectState, bool calcBounds) {
     SceneComponent* sc = nullptr;
     if(objectState == nullptr) {
-        sc = new SceneComponent(scenesRender.getContext(), *this);
+        sc = new SceneComponent(scenesRender.getContext(), parent);
         scenesRender.addScene(&sc->getScene());
     } else {
-        sc = new SceneComponent(*this, *objectState);
+        sc = new SceneComponent(parent, *objectState);
     }
     
     sceneComponents.add(sc);
@@ -114,7 +114,6 @@ SceneComponent* ScenesMiniPanel::createSceneInternal(StatefulObject::ObjectState
     sc->setDeleter(this);
     
     SceneComponentWrapper* wrapper = new SceneComponentWrapper(sc);
-    //sc->getScene().addListener(wrapper);
     wrapper->setListener(panelListener);
     wrappers.add(wrapper);
     

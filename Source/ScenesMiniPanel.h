@@ -5,7 +5,7 @@
 
 using namespace juce;
 
-class ScenesMiniPanel : public Component, public StatefulObject, public SceneComponent::Listener
+class ScenesMiniPanel : public Component, public SceneComponent::Listener
 {
 public:
     ScenesMiniPanel(StatefulObject& parent, ScenesRender& render, SceneComponent::Listener* componentListener);
@@ -68,6 +68,7 @@ private:
     };
     
     ScenesRender& scenesRender;
+    StatefulObject& parent;
     
     SceneComponent* choosenComponent = nullptr;
     OwnedArray<SceneComponent> sceneComponents;
