@@ -1,6 +1,5 @@
 #pragma once
 #include <JuceHeader.h>
-#include "CommandManagerHolder.h"
 #include "SceneEditor.h"
 #include "ScenesMiniPanel.h"
 
@@ -24,6 +23,7 @@ private:
     void handleEditorVisibility(bool mustBeVisible);
     void handleScenesPanelVisibility(bool mustBeVisible);
     void returnSceneOnPanel(SceneComponent* sc);
+    void chooseScene(SceneComponent* sc);
     void returnButtonClicked(SceneComponent* sc) override {returnSceneOnPanel(sc);}
     
     void sceneMouseClicked(SceneComponent& sc) override;

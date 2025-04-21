@@ -13,30 +13,23 @@ public:
     SceneComponent(StatefulObject& parent, StatefulObject::ObjectState sceneState);
     ~SceneComponent() { delete scene; }
     
-    void resized() override;
-    void timerCallback() override;
-    
     Scene& getScene() { return *scene; }
     bool isDetached() { return overlay->getDetachState(); }
     
     class Listener {
     public:
         virtual ~Listener(){}
-        virtual void sceneMouseDown(Scene& scene){};
-        virtual void sceneMouseUp(Scene& scene){};
         virtual void sceneMouseClicked(SceneComponent& sceneComponent){};
         virtual void sceneDetached(SceneComponent& component, bool isDetached){};
         virtual void sceneDeleting(SceneComponent& sceneComponent){};
     };
     
+    void showOrHideOvelray(bool mustBeVisible) {overlay->showOrHideOvelray(mustBeVisible);}
     void addSceneListener(Listener* l) { listeners.add(l); }
     void setDeleter(Listener* l) { deleter = l; }
     void deleteScene();
-    void detachScene(bool mustBeDetached, bool internalCall = true);
-    void setOverlayVisibility(bool mustBeVisible) {
-        // implement
-        overlay->showOrHideOvelray(mustBeVisible);
-    }
+    void detachScene(bool mustBeDetached, bool callWithButtonClick = false);
+    
 private:
     struct IDs {
         inline static const Identifier posX{"posX"};
@@ -55,13 +48,12 @@ private:
     }
     
     void moved() override;
+    void resized() override;
+    void movedOrResized(bool moved);
     void paint(Graphics&) override {};
     
-    void mouseDown(const MouseEvent& e) override;
+    void timerCallback() override;
     void mouseUp(const MouseEvent& e) override;
-    
-    void movedOrResized(bool moved);
-    
     
     void setAlwaysOnTop(bool mustBeAlwaysOnTop);
     void setFullscreen(bool mustBeFullscreen);
@@ -70,12 +62,7 @@ private:
     void savePos(Rectangle<int>& bounds);
     void saveSize(Rectangle<int>& bounds);
     void saveCurrentBounds();
-    
-    void setResizable(bool state) {
-        needToSaveSize = false;
-        ResizableWindow::setResizable(state, state);
-        needToSaveSize = true;
-    }
+    void setResizable(bool state);
     
     class SceneOverlayComponent : public Component, public MouseInactivityDetector::Listener
     {
@@ -143,6 +130,8 @@ private:
         MouseInactivityDetector inactivityDetector;
         static const int inactivityDelay = 3000; // ms
     };
+    
+    void init(StatefulObject& parent, StatefulObject::ObjectState* sceneState, OpenGLContext* context);
     
     Scene* scene = nullptr;
     SceneOverlayComponent* overlay = nullptr;

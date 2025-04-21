@@ -17,7 +17,7 @@ public:
     void sceneDetached(SceneComponent& component, bool isDetached) override;
     
     void returnOnPannel(SceneComponent* sc);
-    void createScene() {createSceneInternal();}
+    SceneComponent* createScene() {return createSceneInternal();}
     
     void setScenesDrawingXOffset(int xOffset) {this->scenesDrawingXOffset = xOffset; moved();}
     void setScenesDrawingYOffset(int yOffset) {this->scenesDrawingYOffset = yOffset;}
@@ -27,6 +27,7 @@ public:
     
     void showOrHide(bool mustBeShown);
     bool isShowing() const { return showing; }
+    void setChoosen(SceneComponent* sc);
     
     class Listener {
         public:
@@ -41,10 +42,8 @@ private:
     };
     
     SceneComponent* createSceneInternal(StatefulObject::ObjectState* objectState = nullptr, bool calcBounds = true);
-    void sceneMouseClicked(SceneComponent& sc) override { if(!sc.isDetached()) setChoosen(&sc); }
     bool needToPositionize(SceneComponent* sc) { return sc != choosenComponent && !sc->isDetached(); }
     void calcLocalBounds();
-    void setChoosen(SceneComponent* sc);
     
     class SceneComponentWrapper : public Component, public NamedObject::Listener
     {

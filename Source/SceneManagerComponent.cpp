@@ -19,7 +19,7 @@ void SceneManagerComponent::timerCallback() {
         choosenScene = scenesPanel->getChoosenComponent();
         if(choosenScene != nullptr) {
             addAndMakeVisible(choosenScene);
-            choosenScene->setOverlayVisibility(true);
+            choosenScene->showOrHideOvelray(true);
             sceneEditor.attach(&choosenScene->getScene());
         }
         scenesPanelViewport.setViewedComponent(scenesPanel.get(), false);
@@ -58,14 +58,19 @@ void SceneManagerComponent::handleScenesPanelVisibility(bool mustBeVisible) {
 }
 
 void SceneManagerComponent::sceneMouseClicked(SceneComponent& sc) {
-    if(&sc == choosenScene || sc.isDetached()) {
-        sceneEditor.attach(&sc.getScene());
+    chooseScene(&sc);
+}
+
+void SceneManagerComponent::chooseScene(SceneComponent* sc) {
+    if(sc == choosenScene || sc->isDetached()) {
+        sceneEditor.attach(&sc->getScene());
     } else {
         returnSceneOnPanel(choosenScene);
-        choosenScene = &sc;
-        choosenScene->setOverlayVisibility(true);
+        choosenScene = sc;
+        choosenScene->showOrHideOvelray(true);
         addAndMakeVisible(sc);
-        sceneEditor.attach(&sc.getScene());
+        sceneEditor.attach(&sc->getScene());
+        scenesPanel->setChoosen(sc);
         resized();
     }
 }
@@ -74,7 +79,7 @@ void SceneManagerComponent::returnSceneOnPanel(SceneComponent* sc) {
     if(sc == nullptr) return;
     
     if(sc->isDetached()) {
-        sc->detachScene(false, false);
+        sc->detachScene(false);
         sc->getScene().replaceContext(scenesRender.getContext(), false);
         scenesRender.addScene(&sc->getScene());
         scenesPanel->returnOnPannel(sc);
@@ -83,7 +88,7 @@ void SceneManagerComponent::returnSceneOnPanel(SceneComponent* sc) {
         choosenScene = nullptr;
         sceneEditor.detach();
     }
-    sc->setOverlayVisibility(false);
+    sc->showOrHideOvelray(false);
 }
 
 void SceneManagerComponent::scrollBarMoved(ScrollBar *scrollBarThatHasMoved, double newRangeStart) {
@@ -127,7 +132,10 @@ SceneManagerComponent::MySidePanel::MySidePanel(SceneManagerComponent& parent) :
     };
     
     addSceneButton.setButtonText("+");
-    addSceneButton.onClick = [this]() { this->parent.scenesPanel->createScene(); };
+    addSceneButton.onClick = [this]() {
+        SceneComponent* sc = this->parent.scenesPanel->createScene();
+        this->parent.chooseScene(sc);
+    };
     addChildComponent(addSceneButton);
 
     addAndMakeVisible(expandEditorButton);
