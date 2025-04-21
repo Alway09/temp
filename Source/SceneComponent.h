@@ -68,33 +68,27 @@ private:
     {
     public:
         SceneOverlayComponent(SceneComponent* parent);
-        bool getDetachState() {return detachButton.getToggleState();}
-        void setDetachState(bool state) {detachButton.setToggleState(state, NotificationType::dontSendNotification);}
-        void setAlwaysOnTopState(bool state) {topButton.setToggleState(state, NotificationType::dontSendNotification);}
-        void setPinnedState(bool state) {pinButton.setToggleState(state, NotificationType::dontSendNotification);}
-        void setFullscreenState(bool state) {fullscreenButton.setToggleState(state, NotificationType::dontSendNotification);}
-        bool getFullscreenState() const {return fullscreenButton.getToggleState();}
-        void setSceneName(const String& name) {nameLabel.setText(name, NotificationType::dontSendNotification);}
-        void setDetachedMode(bool shouldBeOn);
-        void setDragAllowed(bool shouldDrag) { isDragAllowed = shouldDrag; };
         
-        void showOrHideOvelray(bool mustBeShown) {
-            if(mustBeShown) {
-                inactivityDetector.addListener(this);
-            } else {
-                inactivityDetector.removeListener(this);
-            }
-            isMouseMoveAllowed = mustBeShown;
-            setControlsVisible(mustBeShown);
-            setMouseCursor(MouseCursor(MouseCursor::StandardCursorType::NormalCursor));
-        }
+        void setDetachState(bool state)         {setBtnState(detachButton, state);}
+        void setAlwaysOnTopState(bool state)    {setBtnState(topButton, state);}
+        void setPinnedState(bool state)         {setBtnState(pinButton, state);}
+        void setFullscreenState(bool state)     {setBtnState(fullscreenButton, state);}
+        void setDetachedMode(bool shouldBeOn);
+        void setSceneName(const String& name)   {nameLabel.setText(name, NotificationType::dontSendNotification);}
+        void setDragAllowed(bool shouldDrag)    { isDragAllowed = shouldDrag; };
+        bool getFullscreenState() const         {return fullscreenButton.getToggleState();}
+        bool getDetachState()                   {return detachButton.getToggleState();}
+        
+        void showOrHideOvelray(bool mustBeShown);
     private:
+        void setBtnState(Button& b,bool s) {b.setToggleState(s, NotificationType::dontSendNotification);}
+        
         void setControlsVisible(bool shouldBeVisible);
-        void mouseEnter(const MouseEvent& e) override {parent->mouseEnter(e);}
-        void mouseDown(const MouseEvent& e) override {parent->mouseDown(e);}
-        void mouseUp(const MouseEvent& e) override {parent->mouseUp(e);}
+        void mouseEnter(const MouseEvent& e) override       {parent->mouseEnter(e);}
+        void mouseDown(const MouseEvent& e) override        {parent->mouseDown(e);}
+        void mouseUp(const MouseEvent& e) override          {parent->mouseUp(e);}
         void mouseDoubleClick(const MouseEvent& e) override {parent->mouseDoubleClick(e);}
-        void mouseDrag(const MouseEvent& e) override {if(!pinButton.getToggleState() && isDragAllowed) parent->mouseDrag(e);}
+        void mouseDrag(const MouseEvent& e) override;
         void mouseExit(const MouseEvent& e) override;
         void mouseMove(const MouseEvent& e) override;
         
@@ -105,8 +99,6 @@ private:
         bool isMouseOnControl();
         void initButton(Button& b, std::function<void()> f, bool enabled = true);
         
-        Array<Component*> getAllComponents() {return {&deleteButton, &detachButton, &topButton, &fullscreenButton, &pinButton, &nameLabel};}
-        
         struct DelegatingButton : public TextButton
         {DelegatingButton(const String& n) : TextButton(n){}
         void mouseExit(const MouseEvent& e) override {TextButton::mouseExit(e); getParentComponent()->mouseExit(e);}};
@@ -114,10 +106,12 @@ private:
         struct DelegatingLabel : public Label
         {void mouseExit(const MouseEvent& e) override {Label::mouseExit(e); getParentComponent()->mouseExit(e);}};
         
-        bool isVisible = false;
         bool isMouseActive = true;
         bool isDragAllowed = false;
         bool isMouseMoveAllowed = false;
+        
+        MouseInactivityDetector inactivityDetector;
+        static const int inactivityDelay = 3000; // ms
         
         SceneComponent* parent;
         DelegatingLabel nameLabel;
@@ -126,9 +120,13 @@ private:
         DelegatingButton topButton{"t"};
         DelegatingButton fullscreenButton{"f"};
         DelegatingButton pinButton{"p"};
-        
-        MouseInactivityDetector inactivityDetector;
-        static const int inactivityDelay = 3000; // ms
+        Array<Component*> getAllComponents() {
+            return {&deleteButton,
+                    &detachButton,
+                    &topButton,
+                    &fullscreenButton,
+                    &pinButton,
+                    &nameLabel};}
     };
     
     void init(StatefulObject& parent, StatefulObject::ObjectState* sceneState, OpenGLContext* context);

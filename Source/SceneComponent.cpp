@@ -169,7 +169,7 @@ void SceneComponent::setResizable(bool state) {
     needToSaveSize = true;
 }
 //=================================================================
-SceneComponent::SceneOverlayComponent::SceneOverlayComponent(SceneComponent* parent) : parent(parent), inactivityDetector(*this)
+SceneComponent::SceneOverlayComponent::SceneOverlayComponent(SceneComponent* parent) : inactivityDetector(*this), parent(parent)
 {
     initButton(detachButton, [this]() {
         this->parent->detachScene(detachButton.getToggleState(), true);
@@ -230,10 +230,14 @@ void SceneComponent::SceneOverlayComponent::mouseExit(const MouseEvent& e) {
 
 void SceneComponent::SceneOverlayComponent::mouseMove(const MouseEvent& e) {
     if(isMouseActive && isMouseMoveAllowed) {
-        //setControlsVisible(isMouseOver());
         setControlsVisible(true);
         parent->mouseMove(e);
     }
+}
+
+void SceneComponent::SceneOverlayComponent::mouseDrag(const MouseEvent& e) {
+    if(!pinButton.getToggleState() && isDragAllowed)
+        parent->mouseDrag(e);
 }
 
 void SceneComponent::SceneOverlayComponent::setDetachedMode(bool shouldBeOn) {
@@ -251,9 +255,7 @@ void SceneComponent::SceneOverlayComponent::setDetachedMode(bool shouldBeOn) {
 }
 
 void SceneComponent::SceneOverlayComponent::setControlsVisible(bool shouldBeVisible) {
-    //if(isVisible == shouldBeVisible) return;
     for(auto c : getAllComponents()) c->setVisible(shouldBeVisible);
-    isVisible = shouldBeVisible;
 }
 
 bool SceneComponent::SceneOverlayComponent::isMouseOnControl() {
@@ -275,4 +277,15 @@ void SceneComponent::SceneOverlayComponent::mouseBecameInactive() {
         setMouseCursor(MouseCursor(MouseCursor::StandardCursorType::NoCursor));
         setControlsVisible(false);
     }
+}
+
+void SceneComponent::SceneOverlayComponent::showOrHideOvelray(bool mustBeShown) {
+    if(mustBeShown) {
+        inactivityDetector.addListener(this);
+    } else {
+        inactivityDetector.removeListener(this);
+    }
+    isMouseMoveAllowed = mustBeShown;
+    setControlsVisible(mustBeShown);
+    setMouseCursor(MouseCursor(MouseCursor::StandardCursorType::NormalCursor));
 }
